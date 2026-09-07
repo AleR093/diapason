@@ -1,0 +1,153 @@
+---
+import { SITE } from '@/config';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  /** Home hero: nav floats over the image instead of sitting in a solid bar. */
+  overlay?: boolean;
+}
+const { overlay = false } = Astro.props;
+const wordmark = SITE.name.toUpperCase().split('').join(' ');
+const iconLinks = [
+  { name: 'search', label: 'Buscar' },
+  { name: 'heart', label: 'Favoritos' },
+  { name: 'user', label: 'Mi cuenta' },
+] as const;
+---
+
+<header
+  class:list={[
+    'z-50 w-full',
+    overlay
+      ? 'absolute inset-x-0 top-0 text-paper before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-32 before:bg-gradient-to-b before:from-ink/45 before:to-transparent'
+      : 'sticky top-0 border-b border-line bg-bone/92 text-ink backdrop-blur-sm',
+  ]}
+  data-nav
+>
+  <div class="shell relative flex items-center justify-between gap-4 py-4 md:py-5">
+    <a
+      href="/"
+      class:list={[
+        'whitespace-nowrap text-[0.95rem] tracking-wordmark',
+        overlay ? 'font-semibold [text-shadow:0_1px_12px_rgba(26,23,20,0.35)]' : 'font-medium',
+      ]}
+      aria-label={`${SITE.name} — inicio`}
+    >
+      {wordmark}
+    </a>
+
+    <!-- Desktop cluster -->
+    <div
+      class:list={[
+        'hidden items-center gap-6 lg:flex',
+        overlay && 'rounded-full bg-paper px-7 py-3 text-ink shadow-[0_1px_0_rgba(26,23,20,0.06)]',
+      ]}
+    >
+      <nav aria-label="Categorías">
+        <ul class="flex items-center gap-6 text-[0.9rem]">
+          {SITE.nav.map((item) => (
+            <li>
+              <a href={item.href} class="transition-opacity hover:opacity-60">{item.label}</a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+      <div class="flex items-center gap-4 border-l border-line pl-5">
+        {iconLinks.map((ic) => (
+          <a href="/catalogo" aria-label={ic.label} class="transition-opacity hover:opacity-60">
+            <Icon name={ic.name} size={19} />
+          </a>
+        ))}
+        <a href="/catalogo" aria-label="Carrito" class="relative transition-opacity hover:opacity-60">
+          <Icon name="bag" size={19} />
+          <span
+            data-cart-count
+            data-empty="true"
+            class="u-tabular absolute -right-2 -top-2 min-w-[1.05rem] rounded-full bg-brass px-1 text-center text-[0.62rem] font-semibold leading-[1.05rem] text-paper"
+          >0</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Mobile trigger -->
+    <button
+      type="button"
+      class:list={[
+        'inline-flex items-center gap-2 lg:hidden',
+        overlay && 'rounded-full bg-paper px-4 py-2 text-ink',
+      ]}
+      data-menu-open
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+    >
+      <span class="relative">
+        <Icon name="bag" size={19} />
+        <span
+          data-cart-count
+          data-empty="true"
+          class="u-tabular absolute -right-2 -top-2 min-w-[1.05rem] rounded-full bg-brass px-1 text-center text-[0.62rem] font-semibold leading-[1.05rem] text-paper"
+        >0</span>
+      </span>
+      <Icon name="menu" size={22} label="Abrir menú" />
+    </button>
+  </div>
+</header>
+
+<!-- Mobile menu -->
+<div
+  id="mobile-menu"
+  class="fixed inset-0 z-[60] hidden bg-bone text-ink"
+  data-menu-panel
+>
+  <div class="shell flex items-center justify-between py-4">
+    <span class="text-[0.95rem] font-medium tracking-wordmark">{wordmark}</span>
+    <button type="button" data-menu-close aria-label="Cerrar menú" class="p-1">
+      <Icon name="close" size={24} />
+    </button>
+  </div>
+  <nav aria-label="Menú principal" class="shell mt-6">
+    <ul class="flex flex-col gap-1">
+      {SITE.nav.map((item) => (
+        <li>
+          <a href={item.href} class="h-section block border-b border-line py-4 !text-[1.4rem]">
+            {item.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+    <div class="mt-8 flex flex-col gap-4 text-[0.95rem]">
+      <a href="/catalogo" class="btn btn--outline w-fit">Todo el catálogo</a>
+      <a href={`tel:${SITE.phone.replace(/\s+/g, '')}`} class="flex items-center gap-2 text-brass-ink">
+        <Icon name="phone" size={16} />{SITE.phone}
+      </a>
+    </div>
+  </nav>
+</div>
+
+<style>
+  [data-cart-count][data-empty='true'] {
+    display: none;
+  }
+</style>
+
+<script>
+  const panel = document.querySelector<HTMLElement>('[data-menu-panel]');
+  const openBtns = document.querySelectorAll<HTMLButtonElement>('[data-menu-open]');
+  const closeBtn = document.querySelector<HTMLButtonElement>('[data-menu-close]');
+
+  function setOpen(open: boolean) {
+    if (!panel) return;
+    panel.classList.toggle('hidden', !open);
+    document.documentElement.style.overflow = open ? 'hidden' : '';
+    openBtns.forEach((b) => b.setAttribute('aria-expanded', String(open)));
+    if (open) {
+      panel.querySelector<HTMLElement>('a, button')?.focus();
+    }
+  }
+
+  openBtns.forEach((b) => b.addEventListener('click', () => setOpen(true)));
+  closeBtn?.addEventListener('click', () => setOpen(false));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') setOpen(false);
+  });
+</script>

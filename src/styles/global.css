@@ -1,0 +1,273 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: theme('colors.bone');
+    color: theme('colors.ink');
+    font-family: theme('fontFamily.sans');
+    font-synthesis-weight: none;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Headings are set per-use; only lock the family + balance here. */
+  h1,
+  h2,
+  h3 {
+    font-family: theme('fontFamily.sans');
+    text-wrap: balance;
+  }
+
+  ::selection {
+    background-color: theme('colors.ink');
+    color: theme('colors.bone');
+  }
+
+  :focus-visible {
+    outline: 2px solid theme('colors.brass');
+    outline-offset: 3px;
+    border-radius: 1px;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  img {
+    display: block;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Page shell — wide gutters, left aligned, never centered content blocks. */
+  .shell {
+    width: 100%;
+    max-width: theme('maxWidth.shell');
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .shell {
+      padding-inline: 2.5rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .shell {
+      padding-inline: 3.5rem;
+    }
+  }
+
+  /* The one signature heading treatment: tight tracked uppercase grotesque. */
+  .h-section {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: theme('letterSpacing.tight2');
+    line-height: 1.05;
+    font-size: clamp(1.65rem, 1rem + 2.6vw, 2.5rem);
+  }
+
+  .h-display {
+    font-family: theme('fontFamily.serif');
+    font-weight: 400;
+    line-height: 1.04;
+    letter-spacing: -0.01em;
+    font-size: clamp(2.4rem, 1.4rem + 4.6vw, 4.25rem);
+  }
+
+  /* Long-form prose — serif, generous leading, capped measure. */
+  .prose-editorial {
+    font-family: theme('fontFamily.serif');
+    font-size: 1.125rem;
+    line-height: 1.62;
+    max-width: theme('maxWidth.measure');
+    color: theme('colors.ink');
+  }
+
+  .prose-editorial.on-dark {
+    color: theme('colors.paper');
+  }
+
+  .prose-editorial p + p {
+    margin-top: 1em;
+  }
+
+  .hairline {
+    border: 0;
+    border-top: 1px solid theme('colors.line');
+  }
+
+  /* Buttons: small tracked uppercase pills — solid / outline / link. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.9rem 1.6rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: theme('letterSpacing.button');
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition:
+      background-color 180ms theme('transitionTimingFunction.editorial'),
+      color 180ms theme('transitionTimingFunction.editorial'),
+      border-color 180ms theme('transitionTimingFunction.editorial'),
+      transform 180ms theme('transitionTimingFunction.editorial');
+  }
+
+  .btn--solid {
+    background-color: theme('colors.ink');
+    color: theme('colors.bone');
+  }
+
+  .btn--solid:hover {
+    background-color: theme('colors.walnut');
+  }
+
+  .btn--outline {
+    background-color: transparent;
+    border-color: theme('colors.line-strong');
+    color: theme('colors.ink');
+  }
+
+  .btn--outline:hover {
+    border-color: theme('colors.ink');
+    background-color: theme('colors.ink');
+    color: theme('colors.bone');
+  }
+
+  .btn--outline.on-dark {
+    border-color: theme('colors.line-paper');
+    color: theme('colors.paper');
+  }
+
+  .btn--outline.on-dark:hover {
+    background-color: theme('colors.paper');
+    color: theme('colors.ink');
+    border-color: theme('colors.paper');
+  }
+
+  .btn--link {
+    padding: 0.35rem 0;
+    border-radius: 0;
+    border-bottom: 1px solid theme('colors.ink');
+    background: transparent;
+    color: theme('colors.ink');
+  }
+
+  .btn--link.on-dark {
+    border-color: theme('colors.paper');
+    color: theme('colors.paper');
+  }
+
+  .btn:active {
+    transform: translateY(1px);
+  }
+
+  /* Filter / subcategory chip. */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.6rem 1.15rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    border-radius: 9999px;
+    background-color: theme('colors.felt');
+    color: theme('colors.ink');
+    border: 1px solid transparent;
+    transition:
+      background-color 160ms ease,
+      color 160ms ease;
+  }
+
+  .chip:hover {
+    border-color: theme('colors.line-strong');
+  }
+
+  .chip[aria-pressed='true'],
+  .chip[data-active='true'] {
+    background-color: theme('colors.ink');
+    color: theme('colors.bone');
+  }
+
+  /* Product card. */
+  .card-media {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    background-color: theme('colors.felt');
+    overflow: hidden;
+  }
+
+  .card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 420ms theme('transitionTimingFunction.editorial');
+  }
+
+  .group\/card:hover .card-media img {
+    transform: scale(1.035);
+  }
+
+  .card-tag {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background-color: theme('colors.bone');
+    color: theme('colors.ink');
+  }
+
+  .u-tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Hide scrollbar on the horizontal rail while keeping it scrollable. */
+  .rail {
+    scrollbar-width: none;
+  }
+  .rail::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer utilities {
+  /* Fade only the trailing edge so the first card is never clipped at rest. */
+  .edge-fade-r {
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 3rem), transparent 100%);
+    mask-image: linear-gradient(to right, #000 calc(100% - 3rem), transparent 100%);
+  }
+}

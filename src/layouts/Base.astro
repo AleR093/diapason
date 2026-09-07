@@ -1,0 +1,70 @@
+---
+import '@fontsource-variable/archivo';
+import '@fontsource/newsreader/400.css';
+import '@fontsource/newsreader/500.css';
+import '@/styles/global.css';
+
+import { SITE } from '@/config';
+import MarqueeBar from '@/components/MarqueeBar.astro';
+import Nav from '@/components/Nav.astro';
+import Footer from '@/components/Footer.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Home hero: nav floats over the image. */
+  overlayNav?: boolean;
+  ogImage?: string;
+}
+
+const {
+  title,
+  description = SITE.description,
+  overlayNav = false,
+  ogImage = 'https://images.unsplash.com/photo-1525201548942-d8732f6617a0?auto=format&fit=crop&w=1200&h=630&q=70',
+} = Astro.props;
+
+const pageTitle = title ? `${title} · ${SITE.name}` : `${SITE.name} · ${SITE.tagline}`;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="canonical" href={canonical} />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="sitemap" href="/sitemap.xml" />
+  </head>
+  <body class="min-h-screen">
+    <a
+      href="#contenido"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[70] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-[0.8rem] focus:text-bone"
+    >
+      Saltar al contenido
+    </a>
+
+    {!overlayNav && <MarqueeBar />}
+    <Nav overlay={overlayNav} />
+
+    <main id="contenido">
+      <slot />
+    </main>
+
+    <Footer />
+
+    <script>
+      import '@/scripts/cart.ts';
+    </script>
+  </body>
+</html>

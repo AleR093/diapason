@@ -1,0 +1,24 @@
+---
+import Base from '@/layouts/Base.astro';
+import Button from '@/components/Button.astro';
+import { getCategories } from '@/lib/catalog';
+
+const categories = getCategories();
+---
+
+<Base title="Página no encontrada">
+  <div class="shell flex min-h-[60svh] flex-col justify-center py-20">
+    <p class="h-display max-w-[14ch]">Esta página no está afinada.</p>
+    <p class="prose-editorial mt-5">
+      El enlace que seguiste no lleva a ningún lado. Vuelve al catálogo y sigue desde ahí.
+    </p>
+    <div class="mt-8">
+      <Button href="/catalogo" variant="solid" icon="arrow-right">Ir al catálogo</Button>
+    </div>
+    <ul class="mt-10 flex flex-wrap gap-2">
+      {categories.map((category) => (
+        <li><a href={`/catalogo/${category.slug}`} class="chip">{category.name}</a></li>
+      ))}
+    </ul>
+  </div>
+</Base>

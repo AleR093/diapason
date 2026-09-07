@@ -1,0 +1,43 @@
+---
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  variant?: 'solid' | 'outline' | 'link';
+  href?: string;
+  type?: 'button' | 'submit';
+  onDark?: boolean;
+  icon?: 'arrow-right' | 'arrow-up-right' | 'whatsapp';
+  class?: string;
+  /** Extra data-* / aria-* passthrough. */
+  [key: `data-${string}`]: string | undefined;
+}
+
+const {
+  variant = 'solid',
+  href,
+  type = 'button',
+  onDark = false,
+  icon,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const cls = [
+  'btn',
+  `btn--${variant}`,
+  onDark ? 'on-dark' : '',
+  className,
+].filter(Boolean).join(' ');
+
+const Tag = href ? 'a' : 'button';
+---
+
+<Tag
+  class={cls}
+  href={href}
+  type={href ? undefined : type}
+  {...rest}
+>
+  <slot />
+  {icon && <Icon name={icon} size={16} />}
+</Tag>

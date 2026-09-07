@@ -1,0 +1,44 @@
+---
+import type { Product } from '@/lib/types';
+import { formatPrice } from '@/config';
+import { unsplash, FELT_PLACEHOLDER } from '@/lib/img';
+
+interface Props {
+  product: Product;
+  /** Rendered inside a horizontal rail — fixes the width. */
+  inRail?: boolean;
+  loading?: 'lazy' | 'eager';
+}
+
+const { product, inRail = false, loading = 'lazy' } = Astro.props;
+const img = unsplash(product.images[0], 640, '4/5');
+---
+
+<article class:list={['group/card', inRail && 'w-[64vw] max-w-[280px] shrink-0 snap-start sm:w-[280px]']}>
+  <a href={`/producto/${product.slug}`} class="block">
+    <div class="card-media">
+      {product.isNew && <span class="card-tag">Nuevo</span>}
+      <img
+        src={img}
+        alt={`${product.brand} ${product.name}`}
+        width="640"
+        height="800"
+        loading={loading}
+        decoding="async"
+        style={`background:${'#E4DDCE'}`}
+        onerror={`this.onerror=null;this.src='${FELT_PLACEHOLDER}'`}
+      />
+    </div>
+    <div class="mt-3">
+      <p class="truncate text-[0.72rem] font-medium uppercase tracking-[0.14em] text-brass-ink">
+        {product.brand}
+      </p>
+      <div class="mt-1 flex items-baseline justify-between gap-3">
+        <h3 class="min-w-0 text-[0.98rem] font-medium leading-snug [-webkit-box-orient:vertical] [-webkit-line-clamp:2] [display:-webkit-box] overflow-hidden group-hover/card:underline underline-offset-4">
+          {product.name}
+        </h3>
+        <p class="u-tabular shrink-0 text-[0.95rem] font-medium">{formatPrice(product.price)}</p>
+      </div>
+    </div>
+  </a>
+</article>

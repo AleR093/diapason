@@ -1,0 +1,58 @@
+---
+// Client-side only: swaps to a thank-you message. Wire to a real endpoint later.
+interface Props {
+  onDark?: boolean;
+}
+const { onDark = false } = Astro.props;
+---
+
+<form class="flex w-full max-w-sm flex-col gap-4" data-newsletter novalidate>
+  <p
+    class:list={['text-[0.9rem] leading-relaxed', onDark ? 'text-paper/75' : 'text-brass-ink']}
+    data-newsletter-intro
+  >
+    Nuevas piezas y ajustes de taller, una vez al mes. Sin ruido.
+  </p>
+
+  <div class="flex flex-col gap-3" data-newsletter-fields>
+    <label class="sr-only" for="nl-email">Correo electrónico</label>
+    <input
+      id="nl-email"
+      type="email"
+      name="email"
+      required
+      autocomplete="email"
+      placeholder="tu@correo.com"
+      class:list={[
+        'w-full border-b bg-transparent pb-2 text-[0.95rem] outline-none placeholder:opacity-45',
+        onDark ? 'border-line-paper text-paper' : 'border-line-strong text-ink',
+      ]}
+    />
+    <button type="submit" class:list={['btn btn--outline w-fit', onDark && 'on-dark']}>
+      Suscribirme
+    </button>
+  </div>
+
+  <p class="hidden text-[0.9rem]" data-newsletter-done aria-live="polite">
+    Gracias, quedas en la lista.
+  </p>
+  <input type="text" name="empresa" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
+</form>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>('[data-newsletter]').forEach((form) => {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = form.querySelector<HTMLInputElement>('#nl-email');
+      const honey = form.querySelector<HTMLInputElement>('input[name="empresa"]');
+      if (honey?.value) return;
+      if (!email || !email.checkValidity()) {
+        email?.reportValidity();
+        return;
+      }
+      form.querySelector('[data-newsletter-fields]')?.classList.add('hidden');
+      form.querySelector('[data-newsletter-intro]')?.classList.add('hidden');
+      form.querySelector('[data-newsletter-done]')?.classList.remove('hidden');
+    });
+  });
+</script>

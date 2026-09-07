@@ -1,0 +1,65 @@
+---
+import { SITE } from '@/config';
+import Icon from '@/components/Icon.astro';
+import Newsletter from '@/components/Newsletter.astro';
+
+const wordmark = SITE.name.toUpperCase().split('').join(' ');
+const year = new Date().getFullYear();
+---
+
+<footer class="mt-24 bg-walnut text-paper md:mt-32">
+  <div class="shell py-16 md:py-20">
+    <div class="flex flex-col gap-8 border-b border-line-paper pb-12 md:flex-row md:items-end md:justify-between">
+      <p class="text-[1.2rem] font-medium tracking-wordmark md:text-[1.6rem]">{wordmark}</p>
+      <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-[0.9rem] text-paper/80">
+        <a href={`tel:${SITE.phone.replace(/\s+/g, '')}`} class="flex items-center gap-2 hover:text-paper">
+          <Icon name="phone" size={15} />{SITE.phone}
+        </a>
+        <a href={`mailto:${SITE.email}`} class="flex items-center gap-2 hover:text-paper">
+          <Icon name="mail" size={15} />{SITE.email}
+        </a>
+      </div>
+    </div>
+
+    <div class="grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-4">
+      {Object.entries(SITE.footer).map(([heading, links]) => (
+        <nav aria-label={heading}>
+          <h2 class="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-paper/60">{heading}</h2>
+          <ul class="mt-4 flex flex-col gap-2.5 text-[0.92rem] text-paper/85">
+            {links.map((link) => (
+              <li><a href={link.href} class="hover:text-paper">{link.label}</a></li>
+            ))}
+          </ul>
+        </nav>
+      ))}
+      <div>
+        <h2 class="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-paper/60">Boletín</h2>
+        <div class="mt-4">
+          <Newsletter onDark />
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-6 border-t border-line-paper pt-8 md:flex-row md:items-center md:justify-between">
+      <div class="flex items-center gap-3">
+        {SITE.social.map((s) => (
+          <a
+            href={s.href}
+            aria-label={s.label}
+            rel="noopener"
+            class="grid h-9 w-9 place-items-center rounded-full border border-line-paper transition-colors hover:bg-paper hover:text-walnut"
+          >
+            <Icon name={s.icon} size={17} />
+          </a>
+        ))}
+      </div>
+      <div class="flex items-center gap-4 text-[0.82rem] text-paper/70">
+        <span class="rounded-full border border-line-paper px-3 py-1">ES</span>
+        <span class="rounded-full border border-line-paper px-3 py-1">{SITE.currency}</span>
+      </div>
+      <p class="text-[0.82rem] text-paper/60">
+        {SITE.name} {year}. Precios con IVA incluido.
+      </p>
+    </div>
+  </div>
+</footer>

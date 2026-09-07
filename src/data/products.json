@@ -1,0 +1,1173 @@
+[
+  {
+    "id": "g01",
+    "slug": "cordoba-c7-cedro",
+    "name": "C7 Cedro",
+    "brand": "Córdoba",
+    "categorySlug": "guitarras",
+    "subcategorySlug": "clasicas",
+    "price": 12900,
+    "isNew": true,
+    "stock": "disponible",
+    "images": [
+      "1605020420620-20c943cc4669",
+      "1525201548942-d8732f6617a0"
+    ],
+    "story": "Una clásica de concierto de entrada seria: tapa de cedro macizo y aros de palosanto que dan un bajo redondo y un ataque cálido. Sale del taller con cuerdas nuevas y la altura fijada para estudio y escenario.",
+    "specs": [
+      {
+        "label": "Tapa",
+        "value": "Cedro macizo"
+      },
+      {
+        "label": "Aros y fondo",
+        "value": "Palosanto laminado"
+      },
+      {
+        "label": "Diapasón",
+        "value": "Ébano, 52 mm en cejuela"
+      },
+      {
+        "label": "Escala",
+        "value": "650 mm"
+      },
+      {
+        "label": "Acabado",
+        "value": "Poliuretano satinado"
+      },
+      {
+        "label": "Incluye",
+        "value": "Funda acolchada 20 mm"
+      }
+    ]
+  },
+  {
+    "id": "g02",
+    "slug": "fender-player-ii-strat",
+    "name": "Player II Stratocaster",
+    "brand": "Fender",
+    "categorySlug": "guitarras",
+    "subcategorySlug": "electricas",
+    "price": 18500,
+    "isNew": false,
+    "stock": "disponible",
+    "images": [
+      "1550985616-10810253b84d",
+      "1516924962500-2b4b3b99ea02"
+    ],
+    "story": "El caballo de batalla de mil discos, ahora con trastes más altos y mástil en C moderno. Tres pastillas de bobina simple que van del funk limpio al blues con drive sin perder el brillo característico.",
+    "specs": [
+      {
+        "label": "Cuerpo",
+        "value": "Aliso"
+      },
+      {
+        "label": "Mástil",
+        "value": "Arce, perfil C moderno"
+      },
+      {
+        "label": "Pastillas",
+        "value": "3x Player II single-coil"
+      },
+      {
+        "label": "Puente",
+        "value": "Trémolo vintage de 6 tornillos"
+      },
+      {
+        "label": "Trastes",
+        "value": "22 medium jumbo"
+      },
+      {
+        "label": "Escala",
+        "value": "648 mm (25.5\")"
+      }
+    ]
+  },
+  {
+    "id": "g03",
+    "slug": "taylor-gs-mini-koa",
+    "name": "GS Mini-e Koa",
+    "brand": "Taylor",
+    "categorySlug": "guitarras",
+    "subcategorySlug": "acusticas",
+    "price": 21900,
+    "isNew": true,
+    "stock": "disponible",
+    "images": [
+      "1605020420620-20c943cc4669",
+      "1525201548942-d8732f6617a0"
+    ],
+    "story": "Cuerpo reducido con proyección de guitarra grande y una tapa de koa que gana dulzura con las horas de uso. Trae electrónica ES-B con afinador integrado para pasar de la sala al escenario sin cambiar nada.",
+    "specs": [
+      {
+        "label": "Tapa",
+        "value": "Koa laminada"
+      },
+      {
+        "label": "Aros y fondo",
+        "value": "Koa laminada"
+      },
+      {
+        "label": "Cuerpo",
+        "value": "GS Mini (grand symphony reducido)"
+      },
+      {
+        "label": "Electrónica",
+        "value": "Taylor ES-B con afinador"
+      },
+      {
+        "label": "Escala",
+        "value": "597 mm (23.5\")"
+      },
+      {
+        "label": "Incluye",
+        "value": "Funda Taylor estructurada"
+      }
+    ]
+  },
+  {
+    "id": "g04",
+    "slug": "gibson-les-paul-studio",
+    "name": "Les Paul Studio",
+    "brand": "Gibson",
+    "categorySlug": "guitarras",
+    "subcategorySlug": "electricas",
+    "price": 39900,
+    "isNew": false,
+    "stock": "bajo pedido",
+    "images": [
+      "1516924962500-2b4b3b99ea02",
+      "1550985616-10810253b84d"
+    ],
+    "story": "Toda la voz de una Les Paul —caoba con tapa de arce y dos humbuckers calientes— sin los adornos que encarecen el modelo Standard. Peso aliviado y acabado satinado que no frena la mano izquierda.",
+    "specs": [
+      {
+        "label": "Cuerpo",
+        "value": "Caoba con tapa de arce AA"
+      },
+      {
+        "label": "Mástil",
+        "value": "Caoba, perfil SlimTaper"
+      },
+      {
+        "label": "Pastillas",
+        "value": "490R / 498T humbucker"
+      },
+      {
+        "label": "Puente",
+        "value": "Tune-o-matic con stopbar de aluminio"
+      },
+      {
+        "label": "Electrónica",
+        "value": "4 controles, push-pull de coil tap"
+      },
+      {
+        "label": "Escala",
+        "value": "628 mm (24.75\")"
+      }
+    ]
+  },
+  {
+    "id": "g05",
+    "slug": "yamaha-trbx304",
+    "name": "TRBX304",
+    "brand": "Yamaha",
+    "categorySlug": "guitarras",
+    "subcategorySlug": "bajos",
+    "price": 11400,
+    "isNew": false,
+    "stock": "disponible",
+    "images": [
+      "1550291652-6ea9114a47b1",
+      "1550985616-10810253b84d"
+    ],
+    "story": "Un bajo de cuatro cuerdas versátil con mástil de cinco piezas y circuito activo Performance EQ que ofrece cinco escenas sonoras con un botón. Cómodo para manos chicas y estable en afinación.",
+    "specs": [
+      {
+        "label": "Cuerpo",
+        "value": "Caoba"
+      },
+      {
+        "label": "Mástil",
+        "value": "Arce y caoba, 5 piezas, atornillado"
+      },
+      {
+        "label": "Pastillas",
+        "value": "2x humbucker cerámico"
+      },
+      {
+        "label": "Electrónica",
+        "value": "Activa, Performance EQ de 5 modos"
+      },
+      {
+        "label": "Escala",
+        "value": "864 mm (34\")"
+      },
+      {
+        "label": "Puente",
+        "value": "Die-cast Vintage Plus"
+      }
+    ]
+  },
+  {
+    "id": "g06",
+    "slug": "alhambra-3c",
+    "name": "3C",
+    "brand": "Alhambra",
+    "categorySlug": "guitarras",
+    "subcategorySlug": "clasicas",
+    "price": 9800,
+    "isNew": false,
+    "stock": "disponible",
+    "images": [
+      "1525201548942-d8732f6617a0",
+      "1605020420620-20c943cc4669"
+    ],
+    "story": "La española de estudio que recomendamos para conservatorio: tapa de cedro macizo hecha en Muro de Alcoy y una respuesta noble que aguanta años de práctica. Relación precio-sonido difícil de igualar.",
+    "specs": [
+      {
+        "label": "Tapa",
+        "value": "Cedro macizo"
+      },
+      {
+        "label": "Aros y fondo",
+        "value": "Sapelly"
+      },
+      {
+        "label": "Mástil",
+        "value": "Caoba con refuerzo"
+      },
+      {
+        "label": "Diapasón",
+        "value": "Palosanto"
+      },
+      {
+        "label": "Escala",
+        "value": "650 mm"
+      },
+      {
+        "label": "Origen",
+        "value": "Muro de Alcoy, España"
+      }
+    ]
+  },
+  {
+    "id": "g07",
+    "slug": "prs-se-custom-24",
+    "name": "SE Custom 24",
+    "brand": "PRS",
+    "categorySlug": "guitarras",
+    "subcategorySlug": "electricas",
+    "price": 24900,
+    "isNew": true,
+    "stock": "disponible",
+    "images": [
+      "1516924962500-2b4b3b99ea02",
+      "1550291652-6ea9114a47b1"
+    ],
+    "story": "El puente de la marca entre lo accesible y lo profesional: tapa de arce flameado, 24 trastes y pastillas 85/15 S que limpian bien y aprietan cuando subes el volumen. Trémolo estable que vuelve a afinación.",
+    "specs": [
+      {
+        "label": "Cuerpo",
+        "value": "Caoba con tapa de arce flameado"
+      },
+      {
+        "label": "Mástil",
+        "value": "Arce, perfil Wide Thin"
+      },
+      {
+        "label": "Pastillas",
+        "value": "PRS 85/15 S humbucker"
+      },
+      {
+        "label": "Trastes",
+        "value": "24, escala 635 mm (25\")"
+      },
+      {
+        "label": "Puente",
+        "value": "Trémolo PRS patentado"
+      },
+      {
+        "label": "Electrónica",
+        "value": "Volumen, tono, selector de 3 vías con push-pull"
+      }
+    ]
+  },
+  {
+    "id": "g08",
+    "slug": "martin-d-10e",
+    "name": "D-10E",
+    "brand": "Martin",
+    "categorySlug": "guitarras",
+    "subcategorySlug": "acusticas",
+    "price": 27500,
+    "isNew": false,
+    "stock": "disponible",
+    "images": [
+      "1605020420620-20c943cc4669",
+      "1525201548942-d8732f6617a0"
+    ],
+    "story": "Dreadnought de maderas macizas —abeto Sitka y sapelly— con el bajo firme que define el sonido Martin para acompañar voz. Trae previo Fishman MX-T con afinador oculto en la boca.",
+    "specs": [
+      {
+        "label": "Tapa",
+        "value": "Abeto Sitka macizo"
+      },
+      {
+        "label": "Aros y fondo",
+        "value": "Sapelly macizo"
+      },
+      {
+        "label": "Cuerpo",
+        "value": "Dreadnought"
+      },
+      {
+        "label": "Electrónica",
+        "value": "Fishman MX-T con afinador"
+      },
+      {
+        "label": "Mástil",
+        "value": "Select hardwood, perfil Performing Artist"
+      },
+      {
+        "label": "Incluye",
+        "value": "Estuche blando Martin"
+      }
+    ]
+  },
+  {
+    "id": "t01",
+    "slug": "roland-fp-30x",
+    "name": "FP-30X",
+    "brand": "Roland",
+    "categorySlug": "teclados",
+    "subcategorySlug": "pianos-digitales",
+    "price": 16900,
+    "isNew": false,
+    "stock": "disponible",
+    "images": [
+      "1546058256-47154de4046c",
+      "1520523839897-bd0b52f945a0"
+    ],
+    "story": "El piano digital portátil que más recomendamos para empezar en casa: teclado PHA-4 con escape y marfil sintético, y el motor SuperNATURAL con más cuerpo que la generación anterior. Bluetooth para apps y bocinas internas de 22 W.",
+    "specs": [
+      {
+        "label": "Teclas",
+        "value": "88, PHA-4 Standard con contrapeso y escape"
+      },
+      {
+        "label": "Polifonía",
+        "value": "256 voces"
+      },
+      {
+        "label": "Sonidos",
+        "value": "56, motor SuperNATURAL Piano"
+      },
+      {
+        "label": "Amplificación",
+        "value": "2x 11 W"
+      },
+      {
+        "label": "Conectividad",
+        "value": "USB, Bluetooth MIDI/Audio, 2x jack audífonos"
+      },
+      {
+        "label": "Peso",
+        "value": "14.8 kg"
+      }
+    ]
+  },
+  {
+    "id": "t02",
+    "slug": "korg-minilogue-xd",
+    "name": "minilogue xd",
+    "brand": "Korg",
+    "categorySlug": "teclados",
+    "subcategorySlug": "sintetizadores",
+    "price": 14200,
+    "isNew": true,
+    "stock": "disponible",
+    "images": [
+      "1520523839897-bd0b52f945a0",
+      "1512733596533-7b00ccf8ebaf"
+    ],
+    "story": "Analógico polifónico de cuatro voces con un motor digital multiengine para meter FM, ruido y osciladores de usuario. El delantero de aluminio y los 37 teclas Slim lo hacen viajero sin sacrificar edición directa.",
+    "specs": [
+      {
+        "label": "Voces",
+        "value": "4, analógico polifónico"
+      },
+      {
+        "label": "Osciladores",
+        "value": "2 VCO analógicos + Multi Engine digital"
+      },
+      {
+        "label": "Teclas",
+        "value": "37 Slim, sensibles a velocidad"
+      },
+      {
+        "label": "Efectos",
+        "value": "Mod, reverb y delay digitales"
+      },
+      {
+        "label": "Secuenciador",
+        "value": "16 pasos con motion sequencing"
+      },
+      {
+        "label": "Salidas",
+        "value": "Audio L/R, sync, MIDI DIN, USB"
+      }
+    ]
+  },
+  {
+    "id": "t03",
+    "slug": "nord-stage-4-compact",
+    "name": "Stage 4 Compact",
+    "brand": "Nord",
+    "categorySlug": "teclados",
+    "subcategorySlug": "organos",
+    "price": 89900,
+    "isNew": true,
+    "stock": "bajo pedido",
+    "images": [
+      "1470019693664-1d202d2c0907",
+      "1520523839897-bd0b52f945a0"
+    ],
+    "story": "El teclado de escenario de referencia: secciones independientes de piano, órgano y sintetizador con faders dedicados y morphing en tiempo real. El Compact monta 73 teclas semicontrapesadas con waterfall para el órgano.",
+    "specs": [
+      {
+        "label": "Teclas",
+        "value": "73 semicontrapesadas waterfall"
+      },
+      {
+        "label": "Piano",
+        "value": "2 GB de memoria de muestras"
+      },
+      {
+        "label": "Órgano",
+        "value": "Modelos B3, Vox, Farfisa y pipe"
+      },
+      {
+        "label": "Síntesis",
+        "value": "Nord Wave 2, tabla de ondas y muestras"
+      },
+      {
+        "label": "Efectos",
+        "value": "Dos secciones por capa + reverb y compresor globales"
+      },
+      {
+        "label": "Peso",
+        "value": "9.3 kg"
+      }
+    ]
+  },
+  {
+    "id": "t04",
+    "slug": "akai-mpk-mini-mk3",
+    "name": "MPK mini mk3",
+    "brand": "Akai",
+    "categorySlug": "teclados",
+    "subcategorySlug": "controladores",
+    "price": 3200,
+    "isNew": false,
+    "stock": "disponible",
+    "images": [
+      "1512733596533-7b00ccf8ebaf",
+      "1546058256-47154de4046c"
+    ],
+    "story": "El controlador de escritorio más vendido para producción: 25 mini teclas, 8 pads con luz y un joystick 4 vías para modulación. Se alimenta por USB y llega con paquete de software para arrancar el mismo día.",
+    "specs": [
+      {
+        "label": "Teclas",
+        "value": "25 mini, sensibles a velocidad"
+      },
+      {
+        "label": "Pads",
+        "value": "8 retroiluminados, banco A/B"
+      },
+      {
+        "label": "Controles",
+        "value": "8 potenciómetros sin fin, joystick 4 vías"
+      },
+      {
+        "label": "Pantalla",
+        "value": "OLED"
+      },
+      {
+        "label": "Conexión",
+        "value": "USB-C, clase compliant"
+      },
+      {
+        "label": "Incluye",
+        "value": "MPC Beats + instrumentos virtuales"
+      }
+    ]
+  },
+  {
+    "id": "t05",
+    "slug": "yamaha-p-145",
+    "name": "P-145",
+    "brand": "Yamaha",
+    "categorySlug": "teclados",
+    "subcategorySlug": "pianos-digitales",
+    "price": 12900,
+    "isNew": true,
+    "stock": "disponible",
+    "images": [
+      "1520523839897-bd0b52f945a0",
+      "1546058256-47154de4046c"
+    ],
+    "story": "La renovación del clásico P-45 para quien quiere un piano de 88 teclas sin gastar de más. Teclado GHC con contrapeso graduado y muestras del gran cola CFX de Yamaha, en un chasis de apenas 11 kg.",
+    "specs": [
+      {
+        "label": "Teclas",
+        "value": "88, GHC con contrapeso graduado"
+      },
+      {
+        "label": "Polifonía",
+        "value": "192 voces"
+      },
+      {
+        "label": "Sonidos",
+        "value": "10, muestreo CFX"
+      },
+      {
+        "label": "Amplificación",
+        "value": "2x 7 W"
+      },
+      {
+        "label": "Conectividad",
+        "value": "USB to Host, jack de audífonos, Smart Pianist"
+      },
+      {
+        "label": "Peso",
+        "value": "11.1 kg"
+      }
+    ]
+  },
+  {
+    "id": "t06",
+    "slug": "hammond-sk-pro",
+    "name": "SK Pro 61",
+    "brand": "Hammond",
+    "categorySlug": "teclados",
+    "subcategorySlug": "organos",
+    "price": 62500,
+    "isNew": false,
+    "stock": "bajo pedido",
+    "images": [
+      "1470019693664-1d202d2c0907",
+      "1512733596533-7b00ccf8ebaf"
+    ],
+    "story": "El motor de órgano digital más creíble de Hammond en un formato transportable, con drawbars físicos y modelado de rotativo Leslie. Suma pianos, metales y sintetizador para cubrir todo un set sin un segundo teclado.",
+    "specs": [
+      {
+        "label": "Teclas",
+        "value": "61 waterfall, semicontrapesadas"
+      },
+      {
+        "label": "Órgano",
+        "value": "Modelado MTW II, 9 drawbars físicos por manual"
+      },
+      {
+        "label": "Rotativo",
+        "value": "Simulación Leslie con control de rampa"
+      },
+      {
+        "label": "Extra Voices",
+        "value": "Pianos, metales, cuerdas y sintetizador de 8 voces"
+      },
+      {
+        "label": "Salidas",
+        "value": "L/R balanceadas, audífonos, MIDI y USB audio"
+      },
+      {
+        "label": "Peso",
+        "value": "8.2 kg"
+      }
+    ]
+  },
+  {
+    "id": "v01",
+    "slug": "yamaha-yas-280",
+    "name": "YAS-280",
+    "brand": "Yamaha",
+    "categorySlug": "vientos",
+    "subcategorySlug": "saxofones",
+    "price": 26900,
+    "isNew": false,
+    "stock": "disponible",
+    "images": [
+      "1573871669414-010dbf73ca84"
+    ],
+    "story": "El saxo alto de estudiante que aguanta años de banda escolar: mecánica precisa, afinación estable y una ergonomía pensada para manos que están aprendiendo. Sale del taller con revisión completa de zapatillas.",
+    "specs": [
+      {
+        "label": "Afinación",
+        "value": "Mi bemol (alto)"
+      },
+      {
+        "label": "Cuerpo",
+        "value": "Latón con laca dorada"
+      },
+      {
+        "label": "Llaves",
+        "value": "Hasta Fa# agudo, apoyapulgar ajustable"
+      },
+      {
+        "label": "Boquilla",
+        "value": "Yamaha 4C incluida"
+      },
+      {
+        "label": "Zapatillas",
+        "value": "Piel con resonadores metálicos"
+      },
+      {
+        "label": "Incluye",
+        "value": "Estuche mochila y accesorios de limpieza"
+      }
+    ]
+  },
+  {
+    "id": "v02",
+    "slug": "bach-tr300h2",
+    "name": "TR300H2",
+    "brand": "Bach",
+    "categorySlug": "vientos",
+    "subcategorySlug": "trompetas",
+    "price": 19800,
+    "isNew": false,
+    "stock": "disponible",
+    "images": [
+      "1573871669414-010dbf73ca84"
+    ],
+    "story": "Trompeta de estudio avanzado con campana de dos piezas y calibre medio-grande que da un centro de sonido firme sin exigir demasiado aire. Pistones de monel que se mantienen rápidos con mantenimiento básico.",
+    "specs": [
+      {
+        "label": "Afinación",
+        "value": "Si bemol"
+      },
+      {
+        "label": "Campana",
+        "value": "Latón amarillo de 2 piezas, 123 mm"
+      },
+      {
+        "label": "Calibre",
+        "value": ".459\" medio-grande"
+      },
+      {
+        "label": "Pistones",
+        "value": "Monel niquelado"
+      },
+      {
+        "label": "Acabado",
+        "value": "Laca clara"
+      },
+      {
+        "label": "Incluye",
+        "value": "Boquilla Bach 7C y estuche rígido"
+      }
+    ]
+  },
+  {
+    "id": "v03",
+    "slug": "buffet-e11-clarinete",
+    "name": "E11",
+    "brand": "Buffet Crampon",
+    "categorySlug": "vientos",
+    "subcategorySlug": "clarinetes",
+    "price": 23400,
+    "isNew": true,
+    "stock": "disponible",
+    "images": [
+      "1573871669414-010dbf73ca84"
+    ],
+    "story": "Clarinete de granadillo macizo fabricado en Alemania con la digitación Boehm estándar y un timbre oscuro y homogéneo poco habitual en este rango. La elección clásica para dar el salto del plástico a la madera.",
+    "specs": [
+      {
+        "label": "Afinación",
+        "value": "Si bemol"
+      },
+      {
+        "label": "Cuerpo",
+        "value": "Granadillo macizo (mpingo)"
+      },
+      {
+        "label": "Sistema",
+        "value": "Boehm, 17 llaves y 6 anillos"
+      },
+      {
+        "label": "Llaves",
+        "value": "Alpaca plateada"
+      },
+      {
+        "label": "Boquilla",
+        "value": "Buffet con abrazadera y cañas"
+      },
+      {
+        "label": "Incluye",
+        "value": "Estuche compacto y grasa de corcho"
+      }
+    ]
+  },
+  {
+    "id": "v04",
+    "slug": "pearl-quantz-505",
+    "name": "Quantz 505 RBE",
+    "brand": "Pearl",
+    "categorySlug": "vientos",
+    "subcategorySlug": "flautas",
+    "price": 15600,
+    "isNew": false,
+    "stock": "disponible",
+    "images": [
+      "1573871669414-010dbf73ca84"
+    ],
+    "story": "Flauta de estudio con mecanismo pointed key arm que mejora la respuesta y la sensación bajo los dedos. Configuración de platos abiertos y Mi mecánico para afinar mejor el registro agudo desde el primer día.",
+    "specs": [
+      {
+        "label": "Cabeza",
+        "value": "Alpaca plateada, corte Pearl"
+      },
+      {
+        "label": "Cuerpo",
+        "value": "Alpaca plateada"
+      },
+      {
+        "label": "Platos",
+        "value": "Abiertos (opción tapones incluidos)"
+      },
+      {
+        "label": "Mecánica",
+        "value": "En línea con Mi mecánico y pointed key arms"
+      },
+      {
+        "label": "Pie",
+        "value": "De Do"
+      },
+      {
+        "label": "Incluye",
+        "value": "Estuche con funda y baqueta de limpieza"
+      }
+    ]
+  },
+  {
+    "id": "v05",
+    "slug": "selmer-sa80-ii",
+    "name": "Serie II Jubilee",
+    "brand": "Selmer Paris",
+    "categorySlug": "vientos",
+    "subcategorySlug": "saxofones",
+    "price": 118000,
+    "isNew": true,
+    "stock": "bajo pedido",
+    "images": [
+      "1573871669414-010dbf73ca84"
+    ],
+    "story": "El saxo alto profesional que ha definido el sonido de estudio durante décadas, en su edición Jubilee con mecánica revisada. Proyección enorme y una respuesta que premia el aire bien apoyado.",
+    "specs": [
+      {
+        "label": "Afinación",
+        "value": "Mi bemol (alto)"
+      },
+      {
+        "label": "Cuerpo",
+        "value": "Latón profesional, grabado a mano"
+      },
+      {
+        "label": "Acabado",
+        "value": "Laca dorada Jubilee"
+      },
+      {
+        "label": "Llaves",
+        "value": "Hasta Fa# agudo, apoyos ajustables"
+      },
+      {
+        "label": "Zapatillas",
+        "value": "Piel seleccionada con resonadores metálicos"
+      },
+      {
+        "label": "Incluye",
+        "value": "Estuche Selmer Light y boquilla S80 C*"
+      }
+    ]
+  },
+  {
+    "id": "p01",
+    "slug": "pearl-export-exx725",
+    "name": "Export EXX725/C",
+    "brand": "Pearl",
+    "categorySlug": "percusion",
+    "subcategorySlug": "baterias-acusticas",
+    "price": 22900,
+    "isNew": false,
+    "stock": "disponible",
+    "images": [
+      "1543443258-92b04ad5ec6b",
+      "1519892300165-cb5542fb47c7"
+    ],
+    "story": "La batería más vendida de la historia por una razón: cascos de álamo y caoba que suenan grandes en vivo y herrajes fiables que no te dejan tirado. Incluye set de platillos Sabian SBR para tocar de inmediato.",
+    "specs": [
+      {
+        "label": "Configuración",
+        "value": "Bombo 22\", toms 10\"/12\"/16\", tarola 14\""
+      },
+      {
+        "label": "Cascos",
+        "value": "Álamo y caoba, 6 capas"
+      },
+      {
+        "label": "Herrajes",
+        "value": "830 Series, doble soporte"
+      },
+      {
+        "label": "Platillos",
+        "value": "Sabian SBR 14\" hats, 16\" crash, 20\" ride"
+      },
+      {
+        "label": "Pedal",
+        "value": "P-930 de leva redonda"
+      },
+      {
+        "label": "Acabado",
+        "value": "Wrap, 6 colores disponibles"
+      }
+    ]
+  },
+  {
+    "id": "p02",
+    "slug": "roland-td-07kv",
+    "name": "TD-07KV",
+    "brand": "Roland",
+    "categorySlug": "percusion",
+    "subcategorySlug": "baterias-electronicas",
+    "price": 24500,
+    "isNew": true,
+    "stock": "disponible",
+    "images": [
+      "1571327073757-71d13c24de30",
+      "1519892300165-cb5542fb47c7"
+    ],
+    "story": "Kit electrónico con tarola y platillos de malla que responden a matices reales, y el módulo TD-07 con motor de modelado tomado de la serie superior. Bluetooth de audio para tocar sobre pistas sin cables extra.",
+    "specs": [
+      {
+        "label": "Módulo",
+        "value": "TD-07, 25 kits, 143 sonidos"
+      },
+      {
+        "label": "Tarola",
+        "value": "10\" malla de doble capa, con posición"
+      },
+      {
+        "label": "Toms",
+        "value": "3x pad de goma con sensor doble"
+      },
+      {
+        "label": "Platillos",
+        "value": "Hi-hat de 10\", crash y ride con zona de apagado"
+      },
+      {
+        "label": "Conectividad",
+        "value": "Bluetooth audio/MIDI, USB, salida estéreo"
+      },
+      {
+        "label": "Rack",
+        "value": "Plegable de aluminio"
+      }
+    ]
+  },
+  {
+    "id": "p03",
+    "slug": "meinl-headliner-cajon",
+    "name": "Headliner Line Cajón",
+    "brand": "Meinl",
+    "categorySlug": "percusion",
+    "subcategorySlug": "cajones",
+    "price": 3900,
+    "isNew": false,
+    "stock": "disponible",
+    "images": [
+      "1519892300165-cb5542fb47c7",
+      "1571327073757-71d13c24de30"
+    ],
+    "story": "Cajón de tapa de abedul europeo con cuerdas fijas internas que dan un buzz seco y controlado para acompañar guitarra. Cantos superiores despegados para golpes de tono profundo sin lastimar la mano.",
+    "specs": [
+      {
+        "label": "Tapa",
+        "value": "Abedul europeo, esquinas despegadas"
+      },
+      {
+        "label": "Cuerpo",
+        "value": "Abedul báltico, 11 capas"
+      },
+      {
+        "label": "Bordonera",
+        "value": "Cuerdas internas fijas"
+      },
+      {
+        "label": "Medidas",
+        "value": "48 x 30 x 30 cm"
+      },
+      {
+        "label": "Boca",
+        "value": "Trasera de 12 cm"
+      },
+      {
+        "label": "Peso",
+        "value": "5.2 kg"
+      }
+    ]
+  },
+  {
+    "id": "p04",
+    "slug": "zildjian-a-city-pack",
+    "name": "A Zildjian City Pack",
+    "brand": "Zildjian",
+    "categorySlug": "percusion",
+    "subcategorySlug": "platillos",
+    "price": 14900,
+    "isNew": true,
+    "stock": "disponible",
+    "images": [
+      "1571327073757-71d13c24de30",
+      "1519892300165-cb5542fb47c7"
+    ],
+    "story": "Set compacto de la línea A —el sonido Zildjian de referencia— pensado para departamentos y estudios chicos: medidas reducidas que mantienen el brillo pero bajan el volumen. Trae funda de platillos incluida.",
+    "specs": [
+      {
+        "label": "Hi-hats",
+        "value": "13\" New Beat"
+      },
+      {
+        "label": "Crash",
+        "value": "16\" A Thin Crash"
+      },
+      {
+        "label": "Ride",
+        "value": "18\" Medium Thin Crash-Ride"
+      },
+      {
+        "label": "Aleación",
+        "value": "B20 bronce fundido"
+      },
+      {
+        "label": "Acabado",
+        "value": "Tradicional, torneado"
+      },
+      {
+        "label": "Incluye",
+        "value": "Funda de nylon para platillos"
+      }
+    ]
+  },
+  {
+    "id": "p05",
+    "slug": "ludwig-supraphonic-lm400",
+    "name": "Supraphonic LM400",
+    "brand": "Ludwig",
+    "categorySlug": "percusion",
+    "subcategorySlug": "baterias-acusticas",
+    "price": 12400,
+    "isNew": false,
+    "stock": "bajo pedido",
+    "images": [
+      "1571327073757-71d13c24de30",
+      "1543443258-92b04ad5ec6b"
+    ],
+    "story": "La tarola más grabada de todos los tiempos: casco de aluminio hilado de 5\" con un crack brillante y una afinación que funciona en cualquier estilo. Un estándar que rara vez sale de un estudio.",
+    "specs": [
+      {
+        "label": "Medidas",
+        "value": "14\" x 5\""
+      },
+      {
+        "label": "Casco",
+        "value": "Aluminio Ludalloy hilado"
+      },
+      {
+        "label": "Aros",
+        "value": "Triple flange de 2.3 mm"
+      },
+      {
+        "label": "Bordonera",
+        "value": "Ludwig P-85 de 20 hilos"
+      },
+      {
+        "label": "Parche",
+        "value": "Remo Coated Ambassador"
+      },
+      {
+        "label": "Afinadores",
+        "value": "10, Imperial lugs"
+      }
+    ]
+  },
+  {
+    "id": "a01",
+    "slug": "kali-audio-lp-6-v2",
+    "name": "LP-6 V2",
+    "brand": "Kali Audio",
+    "categorySlug": "audio",
+    "subcategorySlug": "monitores",
+    "price": 4200,
+    "isNew": false,
+    "stock": "disponible",
+    "images": [
+      "1563330232-57114bb0823c",
+      "1487215078519-e21cc028cb29"
+    ],
+    "story": "El monitor que cambió lo que se espera por su precio: respuesta plana, imagen estéreo amplia y controles de compensación para colocarlo contra una pared o sobre el escritorio. Precio por unidad.",
+    "specs": [
+      {
+        "label": "Woofer",
+        "value": "6.5\" de papel revestido"
+      },
+      {
+        "label": "Tweeter",
+        "value": "1\" de tela con guía de onda 3D"
+      },
+      {
+        "label": "Potencia",
+        "value": "Clase D biamplificada, 80 W total"
+      },
+      {
+        "label": "Respuesta",
+        "value": "39 Hz - 25 kHz (-10 dB)"
+      },
+      {
+        "label": "Entradas",
+        "value": "XLR y TRS balanceadas, RCA"
+      },
+      {
+        "label": "Ajustes",
+        "value": "Boundary EQ de 8 posiciones"
+      }
+    ]
+  },
+  {
+    "id": "a02",
+    "slug": "focusrite-scarlett-2i2-4g",
+    "name": "Scarlett 2i2 4ª gen",
+    "brand": "Focusrite",
+    "categorySlug": "audio",
+    "subcategorySlug": "interfaces",
+    "price": 4600,
+    "isNew": true,
+    "stock": "disponible",
+    "images": [
+      "1563330232-57114bb0823c",
+      "1590602847861-f357a9332bbc"
+    ],
+    "story": "La interfaz de escritorio de referencia para empezar a grabar: dos previos con modo Air, botón Auto Gain que ajusta niveles solo y conversión de 24 bit / 192 kHz. Conexión USB-C con muy baja latencia.",
+    "specs": [
+      {
+        "label": "Entradas",
+        "value": "2 combo XLR/TRS con previos Scarlett"
+      },
+      {
+        "label": "Salidas",
+        "value": "2 monitor TRS + audífonos independiente"
+      },
+      {
+        "label": "Conversión",
+        "value": "24 bit / 192 kHz"
+      },
+      {
+        "label": "Ganancia",
+        "value": "69 dB, con Auto Gain y Clip Safe"
+      },
+      {
+        "label": "Conexión",
+        "value": "USB-C, alimentada por bus"
+      },
+      {
+        "label": "Incluye",
+        "value": "Ableton Live Lite y Hitmaker Expansion"
+      }
+    ]
+  },
+  {
+    "id": "a03",
+    "slug": "shure-sm7db",
+    "name": "SM7dB",
+    "brand": "Shure",
+    "categorySlug": "audio",
+    "subcategorySlug": "microfonos",
+    "price": 12900,
+    "isNew": true,
+    "stock": "bajo pedido",
+    "images": [
+      "1590602847861-f357a9332bbc",
+      "1478737270239-2f02b77fc618"
+    ],
+    "story": "El SM7B de siempre para voz y locución, ahora con un previo activo conmutable de hasta +28 dB para que funcione con cualquier interfaz sin un elevador externo. Rechazo de ruido y blindaje electromagnético intactos.",
+    "specs": [
+      {
+        "label": "Tipo",
+        "value": "Dinámico de bobina móvil"
+      },
+      {
+        "label": "Patrón",
+        "value": "Cardioide"
+      },
+      {
+        "label": "Respuesta",
+        "value": "50 Hz - 20 kHz con filtros de presencia"
+      },
+      {
+        "label": "Previo integrado",
+        "value": "0 / +18 / +28 dB, requiere phantom"
+      },
+      {
+        "label": "Salida",
+        "value": "XLR balanceada"
+      },
+      {
+        "label": "Incluye",
+        "value": "Filtro antipop A7WS y brazo interno"
+      }
+    ]
+  },
+  {
+    "id": "a04",
+    "slug": "beyerdynamic-dt-770-pro",
+    "name": "DT 770 PRO 80 Ω",
+    "brand": "beyerdynamic",
+    "categorySlug": "audio",
+    "subcategorySlug": "audifonos",
+    "price": 3800,
+    "isNew": false,
+    "stock": "disponible",
+    "images": [
+      "1487215078519-e21cc028cb29",
+      "1618366712010-f4ae9c647dcb"
+    ],
+    "story": "Audífono cerrado de estudio con un grave firme y un agudo detallado que perdona horas largas de sesión. Fabricado en Alemania y pensado para repararse: casi todas sus piezas son reemplazables.",
+    "specs": [
+      {
+        "label": "Tipo",
+        "value": "Cerrado, circumaural"
+      },
+      {
+        "label": "Impedancia",
+        "value": "80 ohmios"
+      },
+      {
+        "label": "Respuesta",
+        "value": "5 Hz - 35 kHz"
+      },
+      {
+        "label": "Cable",
+        "value": "3 m fijo, en espiral"
+      },
+      {
+        "label": "Almohadillas",
+        "value": "Terciopelo, reemplazables"
+      },
+      {
+        "label": "Peso",
+        "value": "270 g sin cable"
+      }
+    ]
+  }
+]

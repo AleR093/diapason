@@ -1,0 +1,11 @@
+---
+interface Props {
+  href: string;
+  active?: boolean;
+}
+const { href, active = false } = Astro.props;
+---
+
+<a href={href} class="chip" data-active={active ? 'true' : 'false'} aria-current={active ? 'true' : undefined}>
+  <slot />
+</a>

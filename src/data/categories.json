@@ -1,0 +1,127 @@
+[
+  {
+    "slug": "guitarras",
+    "name": "Guitarras",
+    "blurb": "Eléctricas, acústicas, clásicas y bajos, cada una ajustada en el taller antes de salir.",
+    "intro": "Toda guitarra que entra a Diapasón pasa por el banco de ajuste: se revisa el alma, se nivela el diapasón, se afina la altura de las cuerdas y se calibra la octava. Elige por estilo —del blues al flamenco— y consulta las especificaciones completas de maderas, pastillas y escala. Si no ves el acabado que buscas, pregúntanos por WhatsApp y lo conseguimos.",
+    "heroImage": "1605020420620-20c943cc4669",
+    "subcategories": [
+      {
+        "slug": "electricas",
+        "name": "Eléctricas"
+      },
+      {
+        "slug": "acusticas",
+        "name": "Acústicas"
+      },
+      {
+        "slug": "clasicas",
+        "name": "Clásicas"
+      },
+      {
+        "slug": "bajos",
+        "name": "Bajos"
+      }
+    ]
+  },
+  {
+    "slug": "teclados",
+    "name": "Teclados",
+    "blurb": "Sintetizadores, pianos digitales y controladores para escenario y estudio.",
+    "intro": "Desde pianos digitales de acción con contrapeso hasta sintetizadores analógicos y controladores MIDI para producción. Cada ficha detalla polifonía, tipo de teclas, conectividad y peso, para que sepas si cabe en tu setup antes de comprarlo. Probadores disponibles en tienda; disponibilidad y entrega, por WhatsApp.",
+    "heroImage": "1520523839897-bd0b52f945a0",
+    "subcategories": [
+      {
+        "slug": "sintetizadores",
+        "name": "Sintetizadores"
+      },
+      {
+        "slug": "pianos-digitales",
+        "name": "Pianos digitales"
+      },
+      {
+        "slug": "controladores",
+        "name": "Controladores"
+      },
+      {
+        "slug": "organos",
+        "name": "Órganos"
+      }
+    ]
+  },
+  {
+    "slug": "vientos",
+    "name": "Vientos",
+    "blurb": "Saxofones, trompetas, clarinetes y flautas revisados por un técnico especialista.",
+    "intro": "Los instrumentos de viento llegan con revisión de zapatillas, corchos y mecánica, y salen listos para tocar. Consulta la afinación, el calibre del tudel o la boquilla incluida en cada ficha. Trabajamos marcas de estudiante y profesionales; si buscas un modelo concreto, escríbenos y lo ubicamos.",
+    "heroImage": "1573871669414-010dbf73ca84",
+    "subcategories": [
+      {
+        "slug": "saxofones",
+        "name": "Saxofones"
+      },
+      {
+        "slug": "trompetas",
+        "name": "Trompetas"
+      },
+      {
+        "slug": "clarinetes",
+        "name": "Clarinetes"
+      },
+      {
+        "slug": "flautas",
+        "name": "Flautas"
+      }
+    ]
+  },
+  {
+    "slug": "percusion",
+    "name": "Percusión",
+    "blurb": "Baterías acústicas y electrónicas, cajones y platillos para todo escenario.",
+    "intro": "Baterías completas y por piezas, kits electrónicos con módulo, cajones flamencos y una pared de platillos para probar al oído. Cada ficha indica medidas de cascos, materiales, herrajes incluidos y si necesita amplificación. El armado y la afinación inicial van incluidos en compras de batería acústica.",
+    "heroImage": "1543443258-92b04ad5ec6b",
+    "subcategories": [
+      {
+        "slug": "baterias-acusticas",
+        "name": "Baterías acústicas"
+      },
+      {
+        "slug": "baterias-electronicas",
+        "name": "Baterías electrónicas"
+      },
+      {
+        "slug": "cajones",
+        "name": "Cajones"
+      },
+      {
+        "slug": "platillos",
+        "name": "Platillos"
+      }
+    ]
+  },
+  {
+    "slug": "audio",
+    "name": "Audio",
+    "blurb": "Monitores, interfaces, micrófonos y audífonos para grabar y mezclar en casa.",
+    "intro": "Equipo de estudio elegido para salas reales, no para hojas de datos: monitores que perdonan una acústica difícil, interfaces con previos limpios, micrófonos versátiles y audífonos honestos para mezcla. Cada ficha trae respuesta en frecuencia, conectividad y latencia reportada. ¿Dudas de compatibilidad? Cuéntanos tu cadena por WhatsApp.",
+    "heroImage": "1563330232-57114bb0823c",
+    "subcategories": [
+      {
+        "slug": "monitores",
+        "name": "Monitores"
+      },
+      {
+        "slug": "interfaces",
+        "name": "Interfaces"
+      },
+      {
+        "slug": "microfonos",
+        "name": "Micrófonos"
+      },
+      {
+        "slug": "audifonos",
+        "name": "Audífonos"
+      }
+    ]
+  }
+]

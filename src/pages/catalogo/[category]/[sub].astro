@@ -1,0 +1,25 @@
+---
+import Base from '@/layouts/Base.astro';
+import CatalogListing from '@/components/CatalogListing.astro';
+import { getCategories, getProductsByCategory, getBrandsInCategory } from '@/lib/catalog';
+
+export function getStaticPaths() {
+  return getCategories().flatMap((category) =>
+    category.subcategories.map((sub) => ({
+      params: { category: category.slug, sub: sub.slug },
+      props: { category, sub },
+    })),
+  );
+}
+
+const { category, sub } = Astro.props;
+const products = getProductsByCategory(category.slug, { sub: sub.slug });
+const brands = getBrandsInCategory(category.slug);
+---
+
+<Base
+  title={`${sub.name} · ${category.name}`}
+  description={`${sub.name} en la sección de ${category.name.toLowerCase()} de Diapasón.`}
+>
+  <CatalogListing category={category} products={products} brands={brands} activeSub={sub.slug} />
+</Base>

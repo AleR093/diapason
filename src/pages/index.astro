@@ -1,0 +1,137 @@
+---
+import Base from '@/layouts/Base.astro';
+import Button from '@/components/Button.astro';
+import CategoryTile from '@/components/CategoryTile.astro';
+import ProductRail from '@/components/ProductRail.astro';
+import { SITE, whatsappLink } from '@/config';
+import { getCategories, getNewProducts } from '@/lib/catalog';
+import { unsplash, FELT_PLACEHOLDER } from '@/lib/img';
+
+const categories = getCategories();
+const destacados = getNewProducts(8);
+const heroImg = unsplash('1525201548942-d8732f6617a0', 1400, '4/5');
+const bandImg = unsplash('1516924962500-2b4b3b99ea02', 1000, '4/5');
+---
+
+<Base overlayNav>
+  <!-- 1 · Hero -->
+  <section class="grid grid-cols-1 md:h-[86svh] md:max-h-[840px] md:min-h-[560px] md:grid-cols-2">
+    <div class="relative order-1 aspect-[4/3] bg-walnut md:order-none md:aspect-auto md:h-full">
+      <img
+        src={heroImg}
+        alt="Guitarrista con una acústica, sentado en el taller"
+        width="1400"
+        height="1750"
+        fetchpriority="high"
+        class="hero-img absolute inset-0 h-full w-full object-cover"
+        onerror={`this.onerror=null;this.src='${FELT_PLACEHOLDER}'`}
+      />
+    </div>
+    <div class="order-2 flex flex-col justify-center bg-bone px-5 py-14 md:order-none md:px-12 md:py-20 xl:px-16">
+      <p class="h-display max-w-[15ch]">
+        El instrumento correcto, afinado antes de llegar a tus manos.
+      </p>
+      <p class="prose-editorial mt-6 !text-[1.05rem]">
+        Guitarras, teclados, vientos, percusión y equipo de audio. Cada pieza se revisa
+        en nuestro taller y llega con sus especificaciones completas.
+      </p>
+      <div class="mt-9 flex flex-wrap items-center gap-3">
+        <Button href="/catalogo" variant="solid" icon="arrow-right">Ver el catálogo</Button>
+        <Button href={whatsappLink()} variant="link">Consultar por WhatsApp</Button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 · Categorías -->
+  <section class="shell py-20 md:py-28">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <h2 class="h-section">Explora por familia</h2>
+      <a href="/catalogo" class="btn btn--link">Todo el catálogo</a>
+    </div>
+    <div class="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-5">
+      {categories.map((category) => (
+        <CategoryTile category={category} loading="eager" />
+      ))}
+    </div>
+  </section>
+
+  <!-- 3 · Destacados -->
+  <section class="py-4 md:py-8">
+    <div class="shell flex flex-wrap items-end justify-between gap-4">
+      <h2 id="destacados-h" class="h-section">Novedades en tienda</h2>
+      <a href="/catalogo" class="btn btn--link">Ver todas</a>
+    </div>
+    <div class="shell mt-10">
+      <ProductRail products={destacados} labelledby="destacados-h" />
+    </div>
+  </section>
+
+  <!-- 4 · Selección / editorial band -->
+  <section id="seleccion" class="mt-20 bg-walnut text-paper md:mt-28">
+    <div class="shell grid gap-10 py-16 md:grid-cols-[1.1fr_0.9fr] md:items-center md:py-24">
+      <div>
+        <h2 class="h-section text-paper">Cómo elegimos cada pieza</h2>
+        <div class="prose-editorial on-dark mt-6">
+          <p>
+            No trabajamos con todo lo que existe. Probamos los instrumentos, revisamos su
+            construcción y nos quedamos con los que aguantan años de uso real: la guitarra
+            que sigue afinada después de una gira, el piano digital cuya acción no se siente
+            de plástico, el monitor que no miente sobre tu mezcla.
+          </p>
+          <p>
+            Antes de enviarlos pasan por el banco de ajuste. Si algo no está a la altura,
+            no lo listamos.
+          </p>
+        </div>
+        <div class="mt-8">
+          <Button href="/catalogo" variant="outline" onDark>Ver el catálogo</Button>
+        </div>
+      </div>
+      <img
+        src={bandImg}
+        alt="Guitarra eléctrica de acabado translúcido vista desde arriba"
+        width="1000"
+        height="1250"
+        loading="lazy"
+        decoding="async"
+        class="aspect-[4/5] w-full bg-walnut object-cover"
+        onerror={`this.onerror=null;this.src='${FELT_PLACEHOLDER}'`}
+      />
+    </div>
+  </section>
+
+  <!-- 5 · CTA -->
+  <section class="bg-ink text-bone">
+    <div class="shell flex flex-col gap-8 py-16 md:flex-row md:items-center md:justify-between md:py-20">
+      <p class="prose-editorial on-dark !max-w-[22ch] !text-[1.6rem] !leading-tight text-bone">
+        ¿Ya sabes lo que buscas? Te decimos disponibilidad y entrega al momento.
+      </p>
+      <div class="flex flex-wrap gap-3">
+        <Button href={whatsappLink()} variant="outline" onDark icon="whatsapp">
+          Consultar por WhatsApp
+        </Button>
+        <Button href="/catalogo" variant="link" onDark>Seguir viendo el catálogo</Button>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* One quiet entrance: the hero image resolves from a slight zoom + fade. Runs once. */
+  .hero-img {
+    animation: hero-settle 1100ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes hero-settle {
+    from {
+      transform: scale(1.05);
+    }
+    to {
+      transform: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-img {
+      animation: none;
+    }
+  }
+</style>

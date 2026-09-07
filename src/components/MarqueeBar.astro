@@ -1,0 +1,41 @@
+---
+import { SITE } from '@/config';
+// Static single message on small screens and under reduced-motion; a slow ticker otherwise.
+const items = SITE.marquee;
+const loop = [...items, ...items];
+---
+
+<div class="bg-ink text-bone">
+  <div class="shell overflow-hidden">
+    <p class="py-2 text-[0.7rem] font-medium uppercase tracking-[0.16em] md:hidden">
+      {items[0]}
+    </p>
+    <div class="marquee-wrap hidden md:block">
+      <ul class="marquee flex w-max items-center gap-10 py-2 text-[0.7rem] font-medium uppercase tracking-[0.16em]">
+        {loop.map((item, i) => (
+          <li class="flex items-center gap-10" aria-hidden={i >= items.length ? 'true' : undefined}>
+            {item}
+            <span class="text-brass" aria-hidden="true">/</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</div>
+
+<style>
+  .marquee {
+    animation: marquee 34s linear infinite;
+  }
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee {
+      animation: none;
+      transform: none;
+    }
+  }
+</style>
