@@ -37,3 +37,12 @@ export interface Product {
   story: string;
   specs: Spec[];
 }
+
+export interface Testimonial {
+  quote: string;
+  name: string;
+  role: string;
+  city: string;
+  /** 1–5. */
+  rating: number;
+}

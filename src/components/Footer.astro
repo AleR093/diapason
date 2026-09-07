@@ -12,7 +12,7 @@ const year = new Date().getFullYear();
     <div class="flex flex-col gap-8 border-b border-line-paper pb-12 md:flex-row md:items-end md:justify-between">
       <p class="text-[1.2rem] font-medium tracking-wordmark md:text-[1.6rem]">{wordmark}</p>
       <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-[0.9rem] text-paper/80">
-        <a href={`tel:${SITE.phone.replace(/\s+/g, '')}`} class="flex items-center gap-2 hover:text-paper">
+        <a href={`tel:${SITE.phone.replace(/[\s-]/g, '')}`} class="flex items-center gap-2 hover:text-paper">
           <Icon name="phone" size={15} />{SITE.phone}
         </a>
         <a href={`mailto:${SITE.email}`} class="flex items-center gap-2 hover:text-paper">

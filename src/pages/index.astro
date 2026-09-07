@@ -3,6 +3,7 @@ import Base from '@/layouts/Base.astro';
 import Button from '@/components/Button.astro';
 import CategoryTile from '@/components/CategoryTile.astro';
 import ProductRail from '@/components/ProductRail.astro';
+import Testimonials from '@/components/Testimonials.astro';
 import { SITE, whatsappLink } from '@/config';
 import { getCategories, getNewProducts } from '@/lib/catalog';
 import { unsplash, FELT_PLACEHOLDER } from '@/lib/img';
@@ -66,7 +67,10 @@ const bandImg = unsplash('1516924962500-2b4b3b99ea02', 1000, '4/5');
     </div>
   </section>
 
-  <!-- 4 · Selección / editorial band -->
+  <!-- 4 · Reseñas -->
+  <Testimonials />
+
+  <!-- 5 · Selección / editorial band -->
   <section id="seleccion" class="mt-20 bg-walnut text-paper md:mt-28">
     <div class="shell grid gap-10 py-16 md:grid-cols-[1.1fr_0.9fr] md:items-center md:py-24">
       <div>
@@ -100,7 +104,7 @@ const bandImg = unsplash('1516924962500-2b4b3b99ea02', 1000, '4/5');
     </div>
   </section>
 
-  <!-- 5 · CTA -->
+  <!-- 6 · CTA -->
   <section class="bg-ink text-bone">
     <div class="shell flex flex-col gap-8 py-16 md:flex-row md:items-center md:justify-between md:py-20">
       <p class="prose-editorial on-dark !max-w-[22ch] !text-[1.6rem] !leading-tight text-bone">

@@ -1,0 +1,34 @@
+---
+import Icon from '@/components/Icon.astro';
+import testimonialsData from '@/data/testimonials.json';
+import type { Testimonial } from '@/lib/types';
+
+const testimonials = testimonialsData as Testimonial[];
+---
+
+<section class="shell py-20 md:py-28" aria-labelledby="resenas-h">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <h2 id="resenas-h" class="h-section">Lo que dicen en El Salvador</h2>
+    <p class="text-[0.82rem] font-medium tracking-[0.01em] text-brass-ink">
+      Reseñas verificadas de clientes
+    </p>
+  </div>
+
+  <ul class="mt-10 grid gap-px overflow-hidden border border-line bg-line md:grid-cols-3">
+    {testimonials.map((t) => (
+      <li class="flex flex-col bg-paper p-7 md:p-8">
+        <div class="flex gap-0.5 text-brass" aria-hidden="true">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Icon name="star" size={15} class={i < t.rating ? '' : 'opacity-25'} />
+          ))}
+          <span class="sr-only">{t.rating} de 5 estrellas</span>
+        </div>
+        <p class="prose-editorial mt-5 flex-1 !max-w-none !text-[1.05rem]">“{t.quote}”</p>
+        <p class="mt-6 border-t border-line pt-4 text-[0.92rem] font-medium">
+          {t.name}
+          <span class="block text-[0.82rem] font-normal text-brass-ink">{t.role} · {t.city}</span>
+        </p>
+      </li>
+    ))}
+  </ul>
+</section>

@@ -117,7 +117,7 @@ const iconLinks = [
     </ul>
     <div class="mt-8 flex flex-col gap-4 text-[0.95rem]">
       <a href="/catalogo" class="btn btn--outline w-fit">Todo el catálogo</a>
-      <a href={`tel:${SITE.phone.replace(/\s+/g, '')}`} class="flex items-center gap-2 text-brass-ink">
+      <a href={`tel:${SITE.phone.replace(/[\s-]/g, '')}`} class="flex items-center gap-2 text-brass-ink">
         <Icon name="phone" size={16} />{SITE.phone}
       </a>
     </div>

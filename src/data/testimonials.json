@@ -1,0 +1,23 @@
+[
+  {
+    "quote": "Pedí mi Stratocaster desde Santa Ana y llegó afinada, con la altura de cuerdas exactamente como la pedí. El seguimiento por WhatsApp fue directo, sin vueltas.",
+    "name": "María José Hernández",
+    "role": "Guitarrista",
+    "city": "Santa Ana",
+    "rating": 5
+  },
+  {
+    "quote": "Llevé mi saxofón al taller para una revisión completa y quedó como nuevo. Se nota que conocen el instrumento, no solo lo venden.",
+    "name": "Carlos Rivas",
+    "role": "Músico de banda municipal",
+    "city": "San Miguel",
+    "rating": 5
+  },
+  {
+    "quote": "El piano digital llegó a Soyapango en dos días, bien empacado y con todos los accesorios. La atención antes y después de la compra fue impecable.",
+    "name": "Ana Lucía Portillo",
+    "role": "Profesora de música",
+    "city": "Soyapango",
+    "rating": 5
+  }
+]

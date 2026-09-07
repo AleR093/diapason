@@ -16,7 +16,8 @@ type IconName =
   | 'menu'
   | 'instagram'
   | 'youtube'
-  | 'facebook';
+  | 'facebook'
+  | 'star';
 
 interface Props {
   name: IconName;
@@ -104,5 +105,14 @@ const stroke = {
   )}
   {name === 'facebook' && (
     <path {...stroke} d="M14.5 8.5H13c-1 0-1.5.5-1.5 1.5v2H14l-.5 2.5h-2V21M12 3a9 9 0 1 0 0 18"></path>
+  )}
+  {name === 'star' && (
+    <path
+      d="M12 3.3 14.6 9l6.1.6-4.6 4.1 1.3 6-5.4-3.1-5.4 3.1 1.3-6-4.6-4.1L9.4 9 12 3.3Z"
+      fill="currentColor"
+      stroke="currentColor"
+      stroke-width="1"
+      stroke-linejoin="round"
+    ></path>
   )}
 </svg>

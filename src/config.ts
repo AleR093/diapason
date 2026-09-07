@@ -14,24 +14,24 @@ export const SITE = {
 
   /**
    * WhatsApp number in international format, digits only (country code + number),
-   * e.g. '5215512345678'. Leave empty and the CTA will point to a visible TODO.
+   * e.g. '50375524443'. Leave empty and the CTA will point to a visible TODO.
    */
-  whatsappNumber: '',
+  whatsappNumber: '50375524443',
 
-  /** Currency + locale used by formatPrice(). */
-  currency: 'MXN',
-  locale: 'es-MX',
+  /** Currency + locale used by formatPrice(). El Salvador uses the US dollar. */
+  currency: 'USD',
+  locale: 'es-SV',
 
   /** Rotating messages in the top bar. Keep them short. */
   marquee: [
-    'Envío a todo el país',
+    'Envío a todo El Salvador',
     'Taller de ajuste propio',
     '40 años afinando instrumentos',
     'Atención directa por WhatsApp',
   ],
 
-  email: 'hola@diapason.mx',
-  phone: '+52 55 1234 5678',
+  email: 'hola@diapason.sv',
+  phone: '+503 7552-4443',
 
   nav: [
     { label: 'Guitarras', href: '/catalogo/guitarras' },

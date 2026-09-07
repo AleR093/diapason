@@ -6,11 +6,11 @@
     "brand": "Córdoba",
     "categorySlug": "guitarras",
     "subcategorySlug": "clasicas",
-    "price": 12900,
+    "price": 399,
     "isNew": true,
     "stock": "disponible",
     "images": [
-      "1605020420620-20c943cc4669",
+      "1501059104508-e158516511cd",
       "1525201548942-d8732f6617a0"
     ],
     "story": "Una clásica de concierto de entrada seria: tapa de cedro macizo y aros de palosanto que dan un bajo redondo y un ataque cálido. Sale del taller con cuerdas nuevas y la altura fijada para estudio y escenario.",
@@ -48,11 +48,11 @@
     "brand": "Fender",
     "categorySlug": "guitarras",
     "subcategorySlug": "electricas",
-    "price": 18500,
+    "price": 899,
     "isNew": false,
     "stock": "disponible",
     "images": [
-      "1550985616-10810253b84d",
+      "1763518372027-6978e6bf5885",
       "1516924962500-2b4b3b99ea02"
     ],
     "story": "El caballo de batalla de mil discos, ahora con trastes más altos y mástil en C moderno. Tres pastillas de bobina simple que van del funk limpio al blues con drive sin perder el brillo característico.",
@@ -90,12 +90,12 @@
     "brand": "Taylor",
     "categorySlug": "guitarras",
     "subcategorySlug": "acusticas",
-    "price": 21900,
+    "price": 799,
     "isNew": true,
     "stock": "disponible",
     "images": [
       "1605020420620-20c943cc4669",
-      "1525201548942-d8732f6617a0"
+      "1501059104508-e158516511cd"
     ],
     "story": "Cuerpo reducido con proyección de guitarra grande y una tapa de koa que gana dulzura con las horas de uso. Trae electrónica ES-B con afinador integrado para pasar de la sala al escenario sin cambiar nada.",
     "specs": [
@@ -132,12 +132,12 @@
     "brand": "Gibson",
     "categorySlug": "guitarras",
     "subcategorySlug": "electricas",
-    "price": 39900,
+    "price": 1499,
     "isNew": false,
     "stock": "bajo pedido",
     "images": [
       "1516924962500-2b4b3b99ea02",
-      "1550985616-10810253b84d"
+      "1550291652-6ea9114a47b1"
     ],
     "story": "Toda la voz de una Les Paul —caoba con tapa de arce y dos humbuckers calientes— sin los adornos que encarecen el modelo Standard. Peso aliviado y acabado satinado que no frena la mano izquierda.",
     "specs": [
@@ -174,12 +174,12 @@
     "brand": "Yamaha",
     "categorySlug": "guitarras",
     "subcategorySlug": "bajos",
-    "price": 11400,
+    "price": 329,
     "isNew": false,
     "stock": "disponible",
     "images": [
-      "1550291652-6ea9114a47b1",
-      "1550985616-10810253b84d"
+      "1564264764238-7e04d6b46f9c",
+      "1550291652-6ea9114a47b1"
     ],
     "story": "Un bajo de cuatro cuerdas versátil con mástil de cinco piezas y circuito activo Performance EQ que ofrece cinco escenas sonoras con un botón. Cómodo para manos chicas y estable en afinación.",
     "specs": [
@@ -216,12 +216,12 @@
     "brand": "Alhambra",
     "categorySlug": "guitarras",
     "subcategorySlug": "clasicas",
-    "price": 9800,
+    "price": 349,
     "isNew": false,
     "stock": "disponible",
     "images": [
       "1525201548942-d8732f6617a0",
-      "1605020420620-20c943cc4669"
+      "1501059104508-e158516511cd"
     ],
     "story": "La española de estudio que recomendamos para conservatorio: tapa de cedro macizo hecha en Muro de Alcoy y una respuesta noble que aguanta años de práctica. Relación precio-sonido difícil de igualar.",
     "specs": [
@@ -258,12 +258,12 @@
     "brand": "PRS",
     "categorySlug": "guitarras",
     "subcategorySlug": "electricas",
-    "price": 24900,
+    "price": 899,
     "isNew": true,
     "stock": "disponible",
     "images": [
-      "1516924962500-2b4b3b99ea02",
-      "1550291652-6ea9114a47b1"
+      "1550985616-10810253b84d",
+      "1516924962500-2b4b3b99ea02"
     ],
     "story": "El puente de la marca entre lo accesible y lo profesional: tapa de arce flameado, 24 trastes y pastillas 85/15 S que limpian bien y aprietan cuando subes el volumen. Trémolo estable que vuelve a afinación.",
     "specs": [
@@ -300,7 +300,7 @@
     "brand": "Martin",
     "categorySlug": "guitarras",
     "subcategorySlug": "acusticas",
-    "price": 27500,
+    "price": 999,
     "isNew": false,
     "stock": "disponible",
     "images": [
@@ -342,7 +342,7 @@
     "brand": "Roland",
     "categorySlug": "teclados",
     "subcategorySlug": "pianos-digitales",
-    "price": 16900,
+    "price": 699,
     "isNew": false,
     "stock": "disponible",
     "images": [
@@ -384,11 +384,11 @@
     "brand": "Korg",
     "categorySlug": "teclados",
     "subcategorySlug": "sintetizadores",
-    "price": 14200,
+    "price": 649,
     "isNew": true,
     "stock": "disponible",
     "images": [
-      "1520523839897-bd0b52f945a0",
+      "1776785941157-a1b8c3890300",
       "1512733596533-7b00ccf8ebaf"
     ],
     "story": "Analógico polifónico de cuatro voces con un motor digital multiengine para meter FM, ruido y osciladores de usuario. El delantero de aluminio y los 37 teclas Slim lo hacen viajero sin sacrificar edición directa.",
@@ -426,12 +426,12 @@
     "brand": "Nord",
     "categorySlug": "teclados",
     "subcategorySlug": "organos",
-    "price": 89900,
+    "price": 3499,
     "isNew": true,
     "stock": "bajo pedido",
     "images": [
       "1470019693664-1d202d2c0907",
-      "1520523839897-bd0b52f945a0"
+      "1546058256-47154de4046c"
     ],
     "story": "El teclado de escenario de referencia: secciones independientes de piano, órgano y sintetizador con faders dedicados y morphing en tiempo real. El Compact monta 73 teclas semicontrapesadas con waterfall para el órgano.",
     "specs": [
@@ -468,12 +468,12 @@
     "brand": "Akai",
     "categorySlug": "teclados",
     "subcategorySlug": "controladores",
-    "price": 3200,
+    "price": 119,
     "isNew": false,
     "stock": "disponible",
     "images": [
       "1512733596533-7b00ccf8ebaf",
-      "1546058256-47154de4046c"
+      "1776785941157-a1b8c3890300"
     ],
     "story": "El controlador de escritorio más vendido para producción: 25 mini teclas, 8 pads con luz y un joystick 4 vías para modulación. Se alimenta por USB y llega con paquete de software para arrancar el mismo día.",
     "specs": [
@@ -510,7 +510,7 @@
     "brand": "Yamaha",
     "categorySlug": "teclados",
     "subcategorySlug": "pianos-digitales",
-    "price": 12900,
+    "price": 549,
     "isNew": true,
     "stock": "disponible",
     "images": [
@@ -552,11 +552,11 @@
     "brand": "Hammond",
     "categorySlug": "teclados",
     "subcategorySlug": "organos",
-    "price": 62500,
+    "price": 3299,
     "isNew": false,
     "stock": "bajo pedido",
     "images": [
-      "1470019693664-1d202d2c0907",
+      "1546058256-47154de4046c",
       "1512733596533-7b00ccf8ebaf"
     ],
     "story": "El motor de órgano digital más creíble de Hammond en un formato transportable, con drawbars físicos y modelado de rotativo Leslie. Suma pianos, metales y sintetizador para cubrir todo un set sin un segundo teclado.",
@@ -594,11 +594,12 @@
     "brand": "Yamaha",
     "categorySlug": "vientos",
     "subcategorySlug": "saxofones",
-    "price": 26900,
+    "price": 999,
     "isNew": false,
     "stock": "disponible",
     "images": [
-      "1573871669414-010dbf73ca84"
+      "1415201364774-f6f0bb35f28f",
+      "1559553211-523e51d8fb08"
     ],
     "story": "El saxo alto de estudiante que aguanta años de banda escolar: mecánica precisa, afinación estable y una ergonomía pensada para manos que están aprendiendo. Sale del taller con revisión completa de zapatillas.",
     "specs": [
@@ -635,7 +636,7 @@
     "brand": "Bach",
     "categorySlug": "vientos",
     "subcategorySlug": "trompetas",
-    "price": 19800,
+    "price": 799,
     "isNew": false,
     "stock": "disponible",
     "images": [
@@ -676,11 +677,11 @@
     "brand": "Buffet Crampon",
     "categorySlug": "vientos",
     "subcategorySlug": "clarinetes",
-    "price": 23400,
+    "price": 899,
     "isNew": true,
     "stock": "disponible",
     "images": [
-      "1573871669414-010dbf73ca84"
+      "1569791832138-fbdd9a500384"
     ],
     "story": "Clarinete de granadillo macizo fabricado en Alemania con la digitación Boehm estándar y un timbre oscuro y homogéneo poco habitual en este rango. La elección clásica para dar el salto del plástico a la madera.",
     "specs": [
@@ -717,11 +718,11 @@
     "brand": "Pearl",
     "categorySlug": "vientos",
     "subcategorySlug": "flautas",
-    "price": 15600,
+    "price": 599,
     "isNew": false,
     "stock": "disponible",
     "images": [
-      "1573871669414-010dbf73ca84"
+      "1600771488491-c22d42a9347d"
     ],
     "story": "Flauta de estudio con mecanismo pointed key arm que mejora la respuesta y la sensación bajo los dedos. Configuración de platos abiertos y Mi mecánico para afinar mejor el registro agudo desde el primer día.",
     "specs": [
@@ -758,11 +759,12 @@
     "brand": "Selmer Paris",
     "categorySlug": "vientos",
     "subcategorySlug": "saxofones",
-    "price": 118000,
+    "price": 5999,
     "isNew": true,
     "stock": "bajo pedido",
     "images": [
-      "1573871669414-010dbf73ca84"
+      "1559553211-523e51d8fb08",
+      "1415201364774-f6f0bb35f28f"
     ],
     "story": "El saxo alto profesional que ha definido el sonido de estudio durante décadas, en su edición Jubilee con mecánica revisada. Proyección enorme y una respuesta que premia el aire bien apoyado.",
     "specs": [
@@ -799,7 +801,7 @@
     "brand": "Pearl",
     "categorySlug": "percusion",
     "subcategorySlug": "baterias-acusticas",
-    "price": 22900,
+    "price": 699,
     "isNew": false,
     "stock": "disponible",
     "images": [
@@ -841,12 +843,12 @@
     "brand": "Roland",
     "categorySlug": "percusion",
     "subcategorySlug": "baterias-electronicas",
-    "price": 24500,
+    "price": 899,
     "isNew": true,
     "stock": "disponible",
     "images": [
-      "1571327073757-71d13c24de30",
-      "1519892300165-cb5542fb47c7"
+      "1519892300165-cb5542fb47c7",
+      "1571327073757-71d13c24de30"
     ],
     "story": "Kit electrónico con tarola y platillos de malla que responden a matices reales, y el módulo TD-07 con motor de modelado tomado de la serie superior. Bluetooth de audio para tocar sobre pistas sin cables extra.",
     "specs": [
@@ -883,12 +885,12 @@
     "brand": "Meinl",
     "categorySlug": "percusion",
     "subcategorySlug": "cajones",
-    "price": 3900,
+    "price": 149,
     "isNew": false,
     "stock": "disponible",
     "images": [
       "1519892300165-cb5542fb47c7",
-      "1571327073757-71d13c24de30"
+      "1543443258-92b04ad5ec6b"
     ],
     "story": "Cajón de tapa de abedul europeo con cuerdas fijas internas que dan un buzz seco y controlado para acompañar guitarra. Cantos superiores despegados para golpes de tono profundo sin lastimar la mano.",
     "specs": [
@@ -925,12 +927,12 @@
     "brand": "Zildjian",
     "categorySlug": "percusion",
     "subcategorySlug": "platillos",
-    "price": 14900,
+    "price": 549,
     "isNew": true,
     "stock": "disponible",
     "images": [
-      "1571327073757-71d13c24de30",
-      "1519892300165-cb5542fb47c7"
+      "1752090926254-a1b5f1f52998",
+      "1571327073757-71d13c24de30"
     ],
     "story": "Set compacto de la línea A —el sonido Zildjian de referencia— pensado para departamentos y estudios chicos: medidas reducidas que mantienen el brillo pero bajan el volumen. Trae funda de platillos incluida.",
     "specs": [
@@ -967,12 +969,12 @@
     "brand": "Ludwig",
     "categorySlug": "percusion",
     "subcategorySlug": "baterias-acusticas",
-    "price": 12400,
+    "price": 449,
     "isNew": false,
     "stock": "bajo pedido",
     "images": [
       "1571327073757-71d13c24de30",
-      "1543443258-92b04ad5ec6b"
+      "1752090926254-a1b5f1f52998"
     ],
     "story": "La tarola más grabada de todos los tiempos: casco de aluminio hilado de 5\" con un crack brillante y una afinación que funciona en cualquier estilo. Un estándar que rara vez sale de un estudio.",
     "specs": [
@@ -1009,7 +1011,7 @@
     "brand": "Kali Audio",
     "categorySlug": "audio",
     "subcategorySlug": "monitores",
-    "price": 4200,
+    "price": 169,
     "isNew": false,
     "stock": "disponible",
     "images": [
@@ -1051,11 +1053,11 @@
     "brand": "Focusrite",
     "categorySlug": "audio",
     "subcategorySlug": "interfaces",
-    "price": 4600,
+    "price": 199,
     "isNew": true,
     "stock": "disponible",
     "images": [
-      "1563330232-57114bb0823c",
+      "1535406208535-1429839cfd13",
       "1590602847861-f357a9332bbc"
     ],
     "story": "La interfaz de escritorio de referencia para empezar a grabar: dos previos con modo Air, botón Auto Gain que ajusta niveles solo y conversión de 24 bit / 192 kHz. Conexión USB-C con muy baja latencia.",
@@ -1093,7 +1095,7 @@
     "brand": "Shure",
     "categorySlug": "audio",
     "subcategorySlug": "microfonos",
-    "price": 12900,
+    "price": 499,
     "isNew": true,
     "stock": "bajo pedido",
     "images": [
@@ -1135,7 +1137,7 @@
     "brand": "beyerdynamic",
     "categorySlug": "audio",
     "subcategorySlug": "audifonos",
-    "price": 3800,
+    "price": 159,
     "isNew": false,
     "stock": "disponible",
     "images": [
