@@ -1,14 +1,11 @@
 ---
 import Base from '@/layouts/Base.astro';
 import Button from '@/components/Button.astro';
-import CategoryTile from '@/components/CategoryTile.astro';
 import Hero from '@/components/Hero.astro';
 import ReviewTicker from '@/components/ReviewTicker.astro';
 import { whatsappLink } from '@/config';
-import { getCategories } from '@/lib/catalog';
 import { unsplash, FELT_PLACEHOLDER } from '@/lib/img';
 
-const categories = getCategories();
 const bandImg = unsplash('1516924962500-2b4b3b99ea02', 1000, '4/5');
 ---
 
@@ -22,11 +19,10 @@ const bandImg = unsplash('1516924962500-2b4b3b99ea02', 1000, '4/5');
       <h2 class="h-section">Explora por familia</h2>
       <a href="/catalogo" class="btn btn--link">Todo el catálogo</a>
     </div>
-    <div class="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-5">
-      {categories.map((category) => (
-        <CategoryTile category={category} loading="eager" />
-      ))}
-    </div>
+    <div class="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-5" data-category-tiles></div>
+    <p class="prose-editorial !text-[0.95rem]" data-category-tiles-empty hidden>
+      Todavía no hay categorías creadas. <a href="/admin" class="underline">Agrégalas desde el panel</a>.
+    </p>
   </section>
 
   <!-- 3 · Destacados -->
@@ -97,7 +93,22 @@ const bandImg = unsplash('1516924962500-2b4b3b99ea02', 1000, '4/5');
 
 <script>
   import { listProducts } from '@/lib/supabase/products';
+  import { listCategories } from '@/lib/supabase/categories';
   import { productRailHTML } from '@/scripts/product-render';
+  import { categoryTileHTML, wireCategoryTileCounts } from '@/scripts/category-render';
+
+  const tiles = document.querySelector<HTMLElement>('[data-category-tiles]');
+  const tilesEmpty = document.querySelector<HTMLElement>('[data-category-tiles-empty]');
+  if (tiles) {
+    listCategories().then(({ data }) => {
+      if (!data || !data.length) {
+        if (tilesEmpty) tilesEmpty.hidden = false;
+        return;
+      }
+      tiles.innerHTML = data.map((c) => categoryTileHTML(c)).join('');
+      wireCategoryTileCounts(tiles);
+    });
+  }
 
   const slot = document.querySelector<HTMLElement>('[data-rail-slot]');
   if (slot) {

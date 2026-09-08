@@ -1,0 +1,73 @@
+---
+import Icon from '@/components/Icon.astro';
+---
+
+<dialog id="category-form-modal" class="category-dialog">
+  <div class="w-full bg-paper p-8">
+    <div class="flex items-center justify-between border-b border-line pb-4">
+      <h2 class="h-section !text-[1.1rem]" data-category-form-title>Agregar categoría</h2>
+      <button type="button" data-category-form-close aria-label="Cerrar" class="text-brass-ink hover:opacity-60">
+        <Icon name="close" size={20} />
+      </button>
+    </div>
+
+    <form class="mt-6 flex flex-col gap-4" data-category-form novalidate>
+      <input type="hidden" name="id" />
+
+      <label class="flex flex-col gap-1.5 text-[0.85rem]">
+        Nombre de la categoría
+        <input type="text" name="name" required class="cf-input" />
+      </label>
+      <p class="text-[0.78rem] text-brass-ink" data-category-form-slug-hint></p>
+
+      <label class="flex flex-col gap-1.5 text-[0.85rem]">
+        Frase corta <span class="text-brass-ink">(bajo el nombre, en el listado)</span>
+        <input type="text" name="blurb" class="cf-input" />
+      </label>
+
+      <label class="flex flex-col gap-1.5 text-[0.85rem]">
+        Texto largo <span class="text-brass-ink">(al pie de la página de la familia)</span>
+        <textarea name="intro" rows="3" class="cf-input resize-y"></textarea>
+      </label>
+
+      <label class="flex flex-col gap-1.5 text-[0.85rem]">
+        Id de foto de Unsplash <span class="text-brass-ink">(opcional)</span>
+        <input type="text" name="heroImage" class="cf-input" placeholder="1605020420620-20c943cc4669" />
+      </label>
+
+      <p class="hidden text-[0.82rem] text-red-800" data-category-form-error role="alert"></p>
+
+      <div class="mt-2 flex gap-3">
+        <button type="submit" class="btn btn--solid">
+          <span data-category-form-submit-label>Guardar categoría</span>
+        </button>
+        <button type="button" class="btn btn--outline" data-category-form-cancel>Cancelar</button>
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<style>
+  .category-dialog {
+    width: 100%;
+    max-width: 30rem;
+    margin-top: 5vh;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: none;
+    padding: 0;
+  }
+  .category-dialog::backdrop {
+    background: rgba(26, 23, 20, 0.55);
+  }
+  .cf-input {
+    border: 1px solid theme('colors.line-strong');
+    background: theme('colors.bone');
+    padding: 0.6rem 0.75rem;
+    font-size: 0.92rem;
+  }
+  .cf-input:focus-visible {
+    outline: 2px solid theme('colors.brass');
+    outline-offset: 1px;
+  }
+</style>

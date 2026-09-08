@@ -161,7 +161,7 @@ import Icon from '@/components/Icon.astro';
   import { getAuthState, onAuthChange } from '@/lib/supabase/auth';
   import { whatsappLink } from '@/config';
   import { FELT_PLACEHOLDER } from '@/lib/img';
-  import { getCategory } from '@/lib/catalog';
+  import { getCategoryBySlug } from '@/lib/supabase/categories';
   import type { Spec } from '@/lib/types';
 
   const root = document.querySelector<HTMLElement>('[data-pdp]');
@@ -246,10 +246,10 @@ import Icon from '@/components/Icon.astro';
 
         document.title = `${product.brand ? product.brand + ' ' : ''}${product.name} · Diapasón`;
 
-        const category = getCategory(product.category_slug);
+        const { data: category } = await getCategoryBySlug(product.category_slug);
         const categoryLink = root.querySelector<HTMLAnchorElement>('[data-pdp-category-link]');
         if (categoryLink && category) {
-          categoryLink.href = `/catalogo/${category.slug}`;
+          categoryLink.href = `/catalogo?categoria=${encodeURIComponent(category.slug)}`;
           categoryLink.textContent = category.name;
         }
         const nameEl = root.querySelector('[data-pdp-name]');

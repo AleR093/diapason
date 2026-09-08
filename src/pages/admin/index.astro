@@ -1,6 +1,7 @@
 ---
 import Base from '@/layouts/Base.astro';
 import ProductFormModal from '@/components/ProductFormModal.astro';
+import CategoryFormModal from '@/components/CategoryFormModal.astro';
 ---
 
 <Base title="Panel de administración" description="Panel de administración de Diapasón.">
@@ -16,32 +17,72 @@ import ProductFormModal from '@/components/ProductFormModal.astro';
     </div>
 
     <div data-gate-denied hidden>
-      <h1 class="h-section">Acceso restringido</h1>
+      <span class="inline-flex items-center gap-1.5 border border-red-800/40 bg-red-800/10 px-3 py-1 text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-red-800">
+        Acceso denegado
+      </span>
+      <h1 class="h-section mt-4">Permisos insuficientes</h1>
       <p class="prose-editorial mt-4 !text-[1.05rem]">
         Tu cuenta (<strong data-user-email></strong>) no tiene permisos de administrador. Si crees que es un
-        error, pide a un administrador que actualice tu rol.
+        error, pide a un administrador que actualice tu rol en <code>public.profiles</code>.
       </p>
       <a href="/" class="btn btn--outline mt-8">Volver al inicio</a>
     </div>
 
     <div data-gate-content hidden>
-      <div class="flex flex-wrap items-end justify-between gap-4">
+      <!-- Identidad de admin -->
+      <div class="flex flex-wrap items-start justify-between gap-6 border-b border-line-strong pb-8">
         <div>
-          <h1 class="h-section">Panel de administración</h1>
-          <p class="prose-editorial mt-3 !text-[1.05rem]">
-            Sesión de administrador: <strong data-user-email></strong>.
+          <span class="inline-flex items-center gap-1.5 border border-brass/40 bg-brass/10 px-3 py-1 text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-brass-ink">
+            Administrador
+          </span>
+          <h1 class="h-section mt-3">Bienvenido de vuelta</h1>
+          <p class="prose-editorial mt-2 !text-[1.05rem]">
+            Sesión iniciada como <strong data-user-email></strong>.
           </p>
         </div>
         <button type="button" class="btn btn--outline" data-sign-out>Cerrar sesión</button>
       </div>
 
+      <!-- Métricas en vivo -->
+      <div class="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4" data-admin-metrics>
+        <div class="border border-line p-4">
+          <p class="u-tabular text-[1.6rem] font-semibold" data-metric-products>—</p>
+          <p class="text-[0.78rem] text-brass-ink">Total productos</p>
+        </div>
+        <div class="border border-line p-4">
+          <p class="u-tabular text-[1.6rem] font-semibold" data-metric-reviews>—</p>
+          <p class="text-[0.78rem] text-brass-ink">Total reseñas</p>
+        </div>
+        <div class="border border-line p-4">
+          <p class="u-tabular text-[1.6rem] font-semibold" data-metric-categories>—</p>
+          <p class="text-[0.78rem] text-brass-ink">Categorías activas</p>
+        </div>
+        <div class="border border-line p-4">
+          <p class="u-tabular text-[1.6rem] font-semibold text-red-800" data-metric-lowstock>—</p>
+          <p class="text-[0.78rem] text-brass-ink">Stock bajo</p>
+        </div>
+      </div>
+
+      <!-- Productos -->
       <div class="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-8">
         <h2 class="h-section !text-[1.2rem]">Productos</h2>
         <button type="button" class="btn btn--solid" data-open-product-form>Agregar nuevo producto</button>
       </div>
 
+      <div class="mt-4 flex flex-wrap gap-3">
+        <input
+          type="search"
+          placeholder="Buscar por nombre, marca o categoría…"
+          class="admin-input min-w-[14rem] flex-1"
+          data-admin-products-search
+        />
+        <select class="admin-input" data-admin-products-filter>
+          <option value="">Todas las categorías</option>
+        </select>
+      </div>
+
       <div class="mt-6 overflow-x-auto">
-        <table class="w-full min-w-[640px] text-left">
+        <table class="w-full min-w-[720px] text-left">
           <thead>
             <tr class="border-b border-line-strong text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-brass-ink">
               <th class="pb-3 pr-4 font-semibold">Imagen</th>
@@ -62,16 +103,56 @@ import ProductFormModal from '@/components/ProductFormModal.astro';
           <code>supabase/products.sql</code> en tu proyecto de Supabase.
         </p>
       </div>
+
+      <!-- Categorías y subcategorías -->
+      <div class="mt-16 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-8">
+        <h2 class="h-section !text-[1.2rem]">Categorías y subcategorías</h2>
+        <button type="button" class="btn btn--solid" data-open-category-form>Agregar categoría</button>
+      </div>
+      <p class="prose-editorial mt-3 !text-[0.95rem]">
+        Son las familias del menú y de <code>/catalogo</code>. Un cambio aquí se refleja en la tienda de
+        inmediato, sin necesidad de un nuevo despliegue.
+      </p>
+
+      <div class="mt-6 flex flex-col gap-3" data-admin-categories-list></div>
+      <p class="py-8 text-[0.9rem] text-brass-ink" data-admin-categories-empty hidden>
+        Todavía no hay categorías. Usa "Agregar categoría" para crear la primera.
+      </p>
+      <p class="py-8 text-[0.9rem] text-red-800" data-admin-categories-error hidden>
+        No se pudo cargar la lista de categorías. Revisa que hayas corrido
+        <code>supabase/categories.sql</code> en tu proyecto de Supabase.
+      </p>
     </div>
   </div>
 
   <ProductFormModal />
+  <CategoryFormModal />
 </Base>
+
+<style>
+  .admin-input {
+    border: 1px solid theme('colors.line-strong');
+    background: theme('colors.bone');
+    padding: 0.55rem 0.75rem;
+    font-size: 0.88rem;
+  }
+  .admin-input:focus-visible {
+    outline: 2px solid theme('colors.brass');
+    outline-offset: 1px;
+  }
+</style>
 
 <script>
   import { initAuthGate } from '@/scripts/auth-gate';
   import { initAdminProducts } from '@/scripts/admin-products';
+  import { initAdminCategories } from '@/scripts/admin-categories';
+  import { refreshAdminMetrics } from '@/scripts/admin-dashboard';
 
   initAuthGate({ requireAdmin: true });
   initAdminProducts();
+  initAdminCategories();
+
+  refreshAdminMetrics();
+  window.addEventListener('diapason:categories-change', refreshAdminMetrics);
+  window.addEventListener('diapason:products-change', refreshAdminMetrics);
 </script>

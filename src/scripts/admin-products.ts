@@ -1,20 +1,16 @@
-import { getCategories } from '@/lib/catalog';
-import { listProducts, createProduct, updateProduct, deleteProduct } from '@/lib/supabase/products';
+import { listCategories, type StoreCategory } from '@/lib/supabase/categories';
+import { listProducts, createProduct, updateProduct, updateProductStock, deleteProduct } from '@/lib/supabase/products';
 import { formatPriceJS, escapeHtml } from '@/scripts/product-render';
 import { FELT_PLACEHOLDER } from '@/lib/img';
 import type { StoreProduct } from '@/lib/types';
-
-const categories = getCategories();
-
-function categoryName(slug: string): string {
-  return categories.find((c) => c.slug === slug)?.name ?? slug;
-}
 
 export function initAdminProducts(): void {
   const tableBody = document.querySelector<HTMLElement>('[data-admin-products-body]');
   const emptyRow = document.querySelector<HTMLElement>('[data-admin-products-empty]');
   const errorRow = document.querySelector<HTMLElement>('[data-admin-products-error]');
   const addBtn = document.querySelector<HTMLButtonElement>('[data-open-product-form]');
+  const searchInput = document.querySelector<HTMLInputElement>('[data-admin-products-search]');
+  const categoryFilter = document.querySelector<HTMLSelectElement>('[data-admin-products-filter]');
 
   const dialog = document.querySelector<HTMLDialogElement>('#product-form-modal');
   if (!tableBody || !dialog) return;
@@ -29,6 +25,11 @@ export function initAdminProducts(): void {
   const subcategorySelect = dialog.querySelector<HTMLSelectElement>('[data-product-subcategory]');
 
   let cache: StoreProduct[] = [];
+  let categories: StoreCategory[] = [];
+
+  function categoryName(slug: string): string {
+    return categories.find((c) => c.slug === slug)?.name ?? slug;
+  }
 
   function fillSubcategoryOptions(categorySlug: string, selected = '') {
     if (!subcategorySelect) return;
@@ -43,16 +44,69 @@ export function initAdminProducts(): void {
     });
   }
 
+  async function refreshCategories() {
+    const { data } = await listCategories();
+    categories = data ?? [];
+    if (categorySelect) {
+      const current = categorySelect.value;
+      categorySelect.innerHTML = '<option value="" disabled>Elige una categoría</option>';
+      categories.forEach((c) => {
+        const opt = document.createElement('option');
+        opt.value = c.slug;
+        opt.textContent = c.name;
+        categorySelect.appendChild(opt);
+      });
+      if (categories.some((c) => c.slug === current)) {
+        categorySelect.value = current;
+      } else {
+        categorySelect.selectedIndex = 0;
+      }
+    }
+    if (categoryFilter) {
+      const current = categoryFilter.value;
+      categoryFilter.innerHTML = '<option value="">Todas las categorías</option>';
+      categories.forEach((c) => {
+        const opt = document.createElement('option');
+        opt.value = c.slug;
+        opt.textContent = c.name;
+        categoryFilter.appendChild(opt);
+      });
+      categoryFilter.value = categories.some((c) => c.slug === current) ? current : '';
+    }
+    renderTable();
+  }
+
   categorySelect?.addEventListener('change', () => fillSubcategoryOptions(categorySelect.value));
+  // A category renamed/created/deleted in the Categorías panel keeps this form and filter in sync.
+  window.addEventListener('diapason:categories-change', refreshCategories);
+
+  function visibleProducts(): StoreProduct[] {
+    const term = searchInput?.value.trim().toLowerCase() ?? '';
+    const category = categoryFilter?.value ?? '';
+    return cache.filter((p) => {
+      if (category && p.category_slug !== category) return false;
+      if (!term) return true;
+      return (
+        p.name.toLowerCase().includes(term) ||
+        (p.brand ?? '').toLowerCase().includes(term) ||
+        categoryName(p.category_slug).toLowerCase().includes(term)
+      );
+    });
+  }
 
   function renderTable() {
+    const visible = visibleProducts();
     if (cache.length === 0) {
       tableBody!.innerHTML = '';
       if (emptyRow) emptyRow.hidden = false;
       return;
     }
     if (emptyRow) emptyRow.hidden = true;
-    tableBody!.innerHTML = cache
+    if (visible.length === 0) {
+      tableBody!.innerHTML = `<tr><td colspan="6" class="py-6 text-[0.85rem] text-brass-ink">Nada coincide con ese filtro.</td></tr>`;
+      return;
+    }
+    tableBody!.innerHTML = visible
       .map(
         (p) => `
       <tr class="border-b border-line" data-product-row="${p.id}">
@@ -67,7 +121,14 @@ export function initAdminProducts(): void {
         </td>
         <td class="py-3 pr-4 text-[0.85rem]">${escapeHtml(categoryName(p.category_slug))}</td>
         <td class="u-tabular py-3 pr-4 text-[0.9rem]">${formatPriceJS(p.price)}</td>
-        <td class="u-tabular py-3 pr-4 text-[0.9rem]">${p.stock}</td>
+        <td class="py-3 pr-4">
+          <input
+            type="number" min="0" step="1" value="${p.stock}"
+            class="u-tabular w-16 border border-line-strong bg-bone px-2 py-1 text-[0.85rem] ${p.stock <= 0 ? 'text-red-800' : ''}"
+            data-quick-stock="${p.id}"
+            aria-label="Stock de ${escapeHtml(p.name)}"
+          />
+        </td>
         <td class="py-3 pr-4 text-right">
           <button type="button" class="btn btn--link !text-[0.72rem]" data-edit-product="${p.id}">Editar</button>
           <button type="button" class="btn btn--link !text-[0.72rem] !text-red-800" data-delete-product="${p.id}">Eliminar</button>
@@ -83,9 +144,15 @@ export function initAdminProducts(): void {
       if (errorRow) errorRow.hidden = false;
       return;
     }
+    if (errorRow) errorRow.hidden = true;
     cache = data ?? [];
     renderTable();
+    // Lets the banner's metric cards (Total Productos, Stock Bajo) refresh without a reload.
+    window.dispatchEvent(new CustomEvent('diapason:products-change'));
   }
+
+  searchInput?.addEventListener('input', renderTable);
+  categoryFilter?.addEventListener('change', renderTable);
 
   function openForm(mode: 'create' | 'edit', product?: StoreProduct) {
     form?.reset();
@@ -107,7 +174,7 @@ export function initAdminProducts(): void {
       (form?.querySelector('[name="description"]') as HTMLTextAreaElement).value = product.description ?? '';
       (form?.querySelector('[name="stock"]') as HTMLInputElement).value = String(product.stock);
     } else if (categorySelect) {
-      categorySelect.value = '';
+      categorySelect.selectedIndex = 0;
       fillSubcategoryOptions('');
     }
 
@@ -144,6 +211,31 @@ export function initAdminProducts(): void {
       });
     }
   });
+
+  // Quick stock edit: one number input per row, no need to open the full modal.
+  tableBody.addEventListener(
+    'change',
+    (e) => {
+      const input = (e.target as HTMLElement).closest<HTMLInputElement>('[data-quick-stock]');
+      if (!input) return;
+      const id = input.dataset.quickStock!;
+      const value = Math.max(0, Math.round(Number(input.value) || 0));
+      input.value = String(value);
+      input.disabled = true;
+      updateProductStock(id, value).then(({ error }) => {
+        input.disabled = false;
+        if (error) {
+          alert('No se pudo actualizar el stock: ' + error);
+          return;
+        }
+        const product = cache.find((p) => p.id === id);
+        if (product) product.stock = value;
+        input.classList.toggle('text-red-800', value <= 0);
+        window.dispatchEvent(new CustomEvent('diapason:products-change'));
+      });
+    },
+    true,
+  );
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -199,5 +291,7 @@ export function initAdminProducts(): void {
     refresh();
   });
 
-  refresh();
+  // Categories first so the table's category names and filter options are
+  // correct on the very first render, instead of flashing raw slugs.
+  refreshCategories().then(() => refresh());
 }

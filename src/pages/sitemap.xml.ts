@@ -1,20 +1,14 @@
 import type { APIRoute } from 'astro';
-import { getCategories } from '@/lib/catalog';
 
-// Product pages are client-rendered from Supabase at /producto?slug=... (see
-// src/pages/producto/index.astro) and aren't enumerable at build time, so
-// they're intentionally left out of the sitemap — only the static shell
-// routes are listed here.
+// The whole catalog (categories, subcategories and products) is client-rendered
+// from Supabase via query strings (/catalogo?categoria=…, /producto?slug=…) and
+// isn't enumerable at build time — admin-created categories/products need zero
+// rebuild to show up, which is the whole point. Only the static shell routes
+// are listed here.
 export const GET: APIRoute = ({ site }) => {
   const origin = (site ?? new URL('https://diapason.pages.dev')).origin;
-  const categories = getCategories();
 
-  const paths = [
-    '/',
-    '/catalogo',
-    ...categories.map((c) => `/catalogo/${c.slug}`),
-    ...categories.flatMap((c) => c.subcategories.map((s) => `/catalogo/${c.slug}/${s.slug}`)),
-  ];
+  const paths = ['/', '/catalogo'];
 
   const body = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

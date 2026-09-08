@@ -1,8 +1,5 @@
 ---
 import Icon from '@/components/Icon.astro';
-import { getCategories } from '@/lib/catalog';
-
-const categories = getCategories();
 ---
 
 <dialog id="product-form-modal" class="product-dialog">
@@ -36,7 +33,6 @@ const categories = getCategories();
         Categoría
         <select name="category" required class="pf-input" data-product-category>
           <option value="" disabled selected>Elige una categoría</option>
-          {categories.map((c) => <option value={c.slug}>{c.name}</option>)}
         </select>
       </label>
 

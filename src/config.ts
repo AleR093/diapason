@@ -31,19 +31,23 @@ export const SITE = {
   email: 'hola@diapason.sv',
   phone: '+503 7552-4443',
 
+  // Atajos fijos a las 5 familias originales. El catálogo real (y sus
+  // categorías) vive en Supabase y es 100% editable desde /admin, pero este
+  // menú superior no se resincroniza solo — si renombras o borras una de
+  // estas 5 desde el panel, actualiza el slug aquí también.
   nav: [
-    { label: 'Guitarras', href: '/catalogo/guitarras' },
-    { label: 'Teclados', href: '/catalogo/teclados' },
-    { label: 'Vientos', href: '/catalogo/vientos' },
-    { label: 'Percusión', href: '/catalogo/percusion' },
-    { label: 'Audio', href: '/catalogo/audio' },
+    { label: 'Guitarras', href: '/catalogo?categoria=guitarras' },
+    { label: 'Teclados', href: '/catalogo?categoria=teclados' },
+    { label: 'Vientos', href: '/catalogo?categoria=vientos' },
+    { label: 'Percusión', href: '/catalogo?categoria=percusion' },
+    { label: 'Audio', href: '/catalogo?categoria=audio' },
   ],
 
   footer: {
     Comprar: [
       { label: 'Todo el catálogo', href: '/catalogo' },
-      { label: 'Guitarras', href: '/catalogo/guitarras' },
-      { label: 'Teclados', href: '/catalogo/teclados' },
+      { label: 'Guitarras', href: '/catalogo?categoria=guitarras' },
+      { label: 'Teclados', href: '/catalogo?categoria=teclados' },
       { label: 'Novedades', href: '/catalogo?filtro=nuevos' },
     ],
     Taller: [

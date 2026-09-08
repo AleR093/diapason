@@ -146,3 +146,25 @@ export async function deleteProduct(id: string): Promise<{ error: string | null 
   const { error } = await supabase.from(TABLE).delete().eq('id', id);
   return { error: error?.message ?? null };
 }
+
+/** A one-field patch for the admin table's inline stock control — no image re-upload involved. */
+export async function updateProductStock(id: string, stock: number): Promise<{ error: string | null }> {
+  const { error } = await supabase.from(TABLE).update({ stock }).eq('id', id);
+  return { error: error?.message ?? null };
+}
+
+/** Below this many units, the admin dashboard flags a product as "stock bajo" (includes 0 = agotado). */
+export const LOW_STOCK_THRESHOLD = 5;
+
+export async function countProducts(): Promise<number> {
+  const { count, error } = await supabase.from(TABLE).select('id', { count: 'exact', head: true });
+  return error ? 0 : (count ?? 0);
+}
+
+export async function countLowStock(threshold = LOW_STOCK_THRESHOLD): Promise<number> {
+  const { count, error } = await supabase
+    .from(TABLE)
+    .select('id', { count: 'exact', head: true })
+    .lte('stock', threshold);
+  return error ? 0 : (count ?? 0);
+}

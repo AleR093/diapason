@@ -28,48 +28,51 @@ npm run check      # comprueba tipos (tsc --noEmit)
 src/
   config.ts              Nombre de la tienda, WhatsApp (individual y del carrito), moneda, menús
   data/
-    categories.json      5 familias + subcategorías + textos (fijo, no editable desde el panel)
     products.json        Catálogo semilla original — ya NO se lee en runtime, solo referencia
                           histórica; se migró a Supabase con supabase/seed-products.sql
   lib/
-    catalog.ts           Categorías/subcategorías (config estática)
     img.ts               Helper de URLs de Unsplash + placeholder de imagen rota
-    types.ts             Category, StoreProduct (fila real de products)
+    types.ts             Spec, StoreProduct (fila real de products)
     supabase/
       client.ts          Cliente único de Supabase (browser)
       auth.ts            Sesión, perfil y rol: initAuth/onAuthChange/isAdmin…
       products.ts        CRUD del catálogo: listProducts/createProduct/updateProduct/…
+      categories.ts      CRUD de familias: listCategories/createCategory/createSubcategory/…
       reviews.ts         Reseñas: getReviewsByProduct/addReview/getRecentReviews
   components/
-    CatalogListing.astro Listado por familia — hace fetch en vivo a Supabase
-    CategoryTile.astro   Tile de familia con conteo de piezas en vivo
+    CatalogListing.astro Ficha de familia/subcategoría — sin props, lee ?categoria=&sub= y
+                          hace fetch en vivo (mismo patrón que producto/index.astro)
     Hero.astro            Hero de la home + bloque "Recién llegado" (producto en vivo)
     ReviewTicker.astro    Cinta en vivo con las 10 reseñas más recientes de la tienda
     AuthModal.astro       Modal de inicio de sesión / registro (dialog nativo)
     SearchModal.astro     Buscador (dialog nativo) — filtra en Supabase mientras escribes
     CartDrawer.astro      Panel del carrito: líneas, cantidades, total y WhatsApp
-    ProductFormModal.astro Formulario alta/edición de producto (usado en /admin)
+    ProductFormModal.astro  Formulario alta/edición de producto (usado en /admin)
+    CategoryFormModal.astro Formulario alta/edición de categoría (usado en /admin)
   layouts/Base.astro      <head>, fuentes, nav, footer, AuthModal, SearchModal, CartDrawer
   scripts/
     cart.ts               Estado del carrito (localStorage) + contador + delegación de clics
     auth-gate.ts           Guarda de rutas para /cuenta y /admin
-    admin-products.ts      Tabla + alta/edición/borrado de productos en /admin
+    admin-products.ts      Tabla + alta/edición/borrado + búsqueda/filtro + stock rápido en /admin
+    admin-categories.ts    Alta/edición/borrado de categorías y subcategorías en /admin
+    admin-dashboard.ts     Métricas en vivo del banner de /admin (productos, reseñas…)
     product-render.ts      HTML de tarjeta/riel/resultado de búsqueda, compartido por todo
                             lo que renderiza productos del lado del cliente
+    category-render.ts     HTML de tile de familia + chip de subcategoría, mismo patrón
     review-render.ts       HTML de estrellas/fila de reseña/tarjeta del ticker en vivo
   pages/
-    index.astro                     Home — "novedades", ticker de reseñas y conteo de familias en vivo
-    catalogo/index.astro            Todo el catálogo (en vivo)
-    catalogo/[category]/index.astro Listado por familia (en vivo)
-    catalogo/[category]/[sub].astro Listado por subcategoría (en vivo)
-    producto/index.astro            Ficha de producto — lee ?slug= y hace fetch en vivo
-    cuenta/index.astro              Cuenta del usuario (requiere sesión)
-    admin/index.astro               Panel de administración (requiere rol admin)
+    index.astro            Home — familias, "novedades" y ticker de reseñas, todo en vivo
+    catalogo/index.astro   Catálogo completo: sin ?categoria= muestra tiles + todo/novedades;
+                            con ?categoria=(&sub=) monta <CatalogListing /> (ver arriba)
+    producto/index.astro   Ficha de producto — lee ?slug= y hace fetch en vivo
+    cuenta/index.astro     Cuenta del usuario (requiere sesión)
+    admin/index.astro      Panel de administración (requiere rol admin)
     404.astro, sitemap.xml.ts
 public/                   favicon, robots.txt, _headers (caché)
 supabase/
   schema.sql              Tabla profiles + RLS (usuarios y roles)
   products.sql            Tabla products + RLS + bucket 'product-images' (catálogo)
+  categories.sql          Tablas categories/subcategories + RLS + FK products.category_slug
   seed-products.sql       Los ~28 productos originales, migrados a Supabase
   reviews.sql             Tabla reviews + RLS (lectura pública, alta libre)
 ```
@@ -86,19 +89,20 @@ Todo lo editable de tienda está en **`src/config.ts`**:
 | `marquee` | Frases de la barra superior. |
 | `email`, `phone`, `nav`, `footer`, `social` | Datos de contacto y menús. |
 
-### Familias y subcategorías
+### Familias, subcategorías y catálogo
 
-Edita `src/data/categories.json` (nombre, textos, imagen de portada, subcategorías). Es
-configuración fija del sitio — a propósito no se gestiona desde el panel, porque cambiar
-una familia implica tocar las rutas `/catalogo/[category]/[sub]`, que son estáticas.
+Categorías, subcategorías y productos viven en Supabase, no en archivos del repo, y se
+gestionan por completo desde **`/admin`** — ver
+[Base de datos y autenticación](#base-de-datos-y-autenticación). Crear, renombrar o
+borrar una familia (o un producto) se refleja en la tienda de inmediato, sin un nuevo
+`npm run build`. `src/data/products.json` sigue en el repo solo como referencia histórica
+de los datos originales; `supabase/seed-products.sql` es la migración de ese archivo.
 
-### Catálogo (productos)
-
-Los productos viven en la tabla `products` de Supabase, no en un archivo del repo.
-Se gestionan desde **`/admin`** (alta, edición, borrado con subida de imagen al bucket
-`product-images`) — ver [Base de datos y autenticación](#base-de-datos-y-autenticación).
-`src/data/products.json` sigue en el repo solo como referencia de los datos originales;
-`supabase/seed-products.sql` es la migración de ese archivo a Supabase.
+Las páginas de familia/subcategoría (antes `/catalogo/[category]/[sub]`, generadas en
+build time) ahora son una sola página client-rendered, `/catalogo?categoria=…&sub=…`
+(mismo patrón que `/producto?slug=…`) — es el cambio que hace posible crear una
+categoría nueva desde el panel y que tenga página al instante, a cambio de perder la URL
+`/catalogo/guitarras` de antes.
 
 Si una imagen de producto falla al cargar, se muestra un marcador en el tono de las
 tarjetas en vez de un ícono roto (`src/lib/img.ts`, `FELT_PLACEHOLDER`).
@@ -182,17 +186,23 @@ En el **SQL Editor** del proyecto, pega y ejecuta, **en este orden**:
    puede leer** el catálogo (es una tienda pública), pero solo insertar/editar/borrar si
    `profiles.role = 'admin'`. Necesita haber corrido el paso 1 antes (la política
    consulta `profiles`).
-3. [`supabase/seed-products.sql`](supabase/seed-products.sql) *(opcional)* — carga los
+3. [`supabase/categories.sql`](supabase/categories.sql) — tablas `public.categories` y
+   `public.subcategories` (con las 5 familias originales precargadas), mismo esquema de
+   RLS que `products`, y cambia `products.category_slug` de una lista fija a un FK hacia
+   `categories.slug` — por eso necesita haber corrido el paso 2 antes.
+4. [`supabase/seed-products.sql`](supabase/seed-products.sql) *(opcional)* — carga los
    ~28 productos originales de `src/data/products.json` para no arrancar con el catálogo
-   vacío. Es seguro volver a correrlo (usa `upsert` por `slug`).
-4. [`supabase/reviews.sql`](supabase/reviews.sql) — tabla `public.reviews` (FK a
+   vacío. Es seguro volver a correrlo (usa `upsert` por `slug`). Necesita el paso 3
+   (sus categorías ya deben existir para el FK nuevo).
+5. [`supabase/reviews.sql`](supabase/reviews.sql) — tabla `public.reviews` (FK a
    `products`) y RLS: **cualquiera puede leer y publicar** una reseña, con sesión o sin
    ella. Necesita haber corrido el paso 2 antes (la FK apunta a `products`).
 
 Sin el paso 2, el catálogo, la búsqueda y el panel de productos muestran su estado de
-error ("no se pudo cargar") en vez de romper la build o la página. Sin el paso 4, la
-ficha de producto muestra "Sin opiniones todavía" y el ticker de la home se mantiene
-oculto.
+error ("no se pudo cargar") en vez de romper la build o la página. Sin el paso 3, el
+menú y `/catalogo` no listan ninguna familia y el formulario de productos no tiene
+categorías para elegir. Sin el paso 5, la ficha de producto muestra "Sin opiniones
+todavía" y el ticker de la home se mantiene oculto.
 
 ### 3. Crea tu primer administrador
 
@@ -206,13 +216,22 @@ No hay botón para esto en la interfaz, a propósito:
    ```
 3. Cierra sesión y vuelve a entrar (o recarga `/admin`) para que se recargue el perfil.
 
-### Gestionar productos desde `/admin`
+### Gestionar la tienda desde `/admin`
 
-Con sesión de administrador, `/admin` muestra la tabla de productos con **Editar** y
-**Eliminar** por fila, y el botón **"Agregar nuevo producto"** abre un formulario
-(`ProductFormModal.astro`) con nombre, marca (opcional), categoría, subcategoría
-(opcional), precio en USD, descripción, stock e imagen. Al guardar
-(`src/lib/supabase/products.ts`):
+Con sesión de administrador, el panel muestra primero un banner con la insignia
+**Administrador**, el correo de la sesión y cuatro métricas en vivo (Total productos,
+Total reseñas, Categorías activas, Stock bajo — umbral en
+`LOW_STOCK_THRESHOLD` de `src/lib/supabase/products.ts`). Una cuenta sin rol admin ve en
+su lugar un panel explícito de **Acceso denegado / Permisos insuficientes**
+(`auth-gate.ts`, ver [Cómo funciona el cliente](#cómo-funciona-el-cliente)).
+
+**Productos** — tabla con **Editar**/**Eliminar** por fila, un campo de búsqueda (nombre,
+marca o categoría) y un filtro por categoría que se aplican sobre la lista ya cargada
+(sin golpear Supabase por cada tecla), y un campo de **stock editable en la misma fila**
+que guarda con `updateProductStock` al perder el foco — no hace falta abrir el modal
+completo solo para ajustar existencias. El botón **"Agregar nuevo producto"** abre
+`ProductFormModal.astro` (nombre, marca opcional, categoría/subcategoría — cargadas en
+vivo desde `categories.ts`, precio, descripción, stock, imagen). Al guardar:
 
 1. La imagen se sube al bucket `product-images` (`uploadProductImage`) y se obtiene su
    URL pública.
@@ -220,9 +239,20 @@ Con sesión de administrador, `/admin` muestra la tabla de productos con **Edita
 3. El catálogo, la home, la búsqueda y la ficha de producto lo reflejan de inmediato —
    **sin volver a desplegar** — porque todos hacen `fetch` a Supabase al cargar.
 
-La única pieza que sí necesita un nuevo `npm run build` + despliegue para productos
-recién creados es el *sitemap* (no enumera productos, ver `sitemap.xml.ts`); la ficha en
-sí (`/producto?slug=…`) funciona de inmediato porque se resuelve del lado del cliente.
+**Categorías y subcategorías** — una tarjeta por familia con su slug, cuántas
+subcategorías tiene, y **Editar**/**Eliminar**; al expandirla aparece la lista de
+subcategorías con su propio **Editar**/**Eliminar** y un botón **"Agregar
+subcategoría"**. El botón **"Agregar categoría"** abre `CategoryFormModal.astro`
+(nombre, frase corta, texto largo, id de foto de Unsplash). El *slug* se genera solo a
+partir del nombre al crear y **no cambia** si renombras después (evita romper el FK que
+usan los productos); subcategorías siguen la misma regla. Cualquier alta/edición/borrado
+dispara `diapason:categories-change`, que refresca al instante el desplegable de
+categoría del formulario de productos y las métricas del banner.
+
+La única pieza que sí necesita un nuevo `npm run build` + despliegue para productos o
+categorías recién creadas es el *sitemap* (no los enumera, ver `sitemap.xml.ts`); tanto
+la ficha de producto (`/producto?slug=…`) como la de familia (`/catalogo?categoria=…`)
+funcionan de inmediato porque se resuelven del lado del cliente.
 
 ### Cómo funciona el cliente
 
@@ -284,9 +314,10 @@ despliegue de "solo archivos" a "Functions" en Cloudflare Pages.
 
 Checkout y pagos en línea, edición de especificaciones técnicas desde el panel (la
 columna `specs` existe en la tabla pero el formulario todavía no la edita), galería de
-varias imágenes por producto desde el panel (hoy sube una sola), lista de deseos
-persistente, gestión de familias/subcategorías desde la interfaz, cambio de
-idioma/moneda, y confirmar por correo o notificación cuando entra un pedido.
+varias imágenes por producto desde el panel (hoy sube una sola), reordenar
+categorías/subcategorías por arrastre (hoy `sort_order` solo se fija en el seed), lista
+de deseos persistente, cambio de idioma/moneda, y confirmar por correo o notificación
+cuando entra un pedido.
 
 ## Notas de dependencias
 

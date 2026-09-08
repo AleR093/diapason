@@ -1,164 +1,211 @@
 ---
-import type { Category } from '@/lib/types';
-import Chip from '@/components/Chip.astro';
 import Icon from '@/components/Icon.astro';
 
-interface Props {
-  category: Category;
-  activeSub?: string;
-}
-
-const { category, activeSub } = Astro.props;
-const base = `/catalogo/${category.slug}`;
-const activeName = activeSub
-  ? category.subcategories.find((s) => s.slug === activeSub)?.name
-  : undefined;
+// No props: the category is only known once the browser reads ?categoria=
+// (and optional &sub=) from location.search — the same query-string approach
+// used by /producto, chosen so a category created in /admin gets a working
+// page with zero rebuild. This component stays hidden entirely when there's
+// no ?categoria= in the URL (see catalogo/index.astro's "home mode").
 ---
 
-<div
-  class="shell pb-4 pt-12 md:pt-16"
-  data-catalog-live
-  data-category={category.slug}
-  data-subcategory={activeSub ?? ''}
->
-  <nav aria-label="Migas" class="text-[0.78rem] tracking-[0.02em] text-brass-ink">
-    <a href="/catalogo" class="hover:underline">Catálogo</a>
-    <span aria-hidden="true"> / </span>
-    <a href={base} class="hover:underline">{category.name}</a>
-    {activeName && (<Fragment><span aria-hidden="true"> / </span>{activeName}</Fragment>)}
-  </nav>
+<div class="shell pb-4 pt-12 md:pt-16" data-catalog-family hidden>
+  <p class="prose-editorial !text-[1.05rem]" data-family-loading>Cargando…</p>
 
-  <h1 class="h-section mt-4">{activeName ?? category.name}</h1>
-  <p class="prose-editorial mt-4 !text-[1.05rem]">{category.blurb}</p>
-
-  <div class="mt-8 flex flex-wrap gap-2">
-    <Chip href={base} active={!activeSub}>Todo</Chip>
-    {category.subcategories.map((sub) => (
-      <Chip href={`${base}/${sub.slug}`} active={activeSub === sub.slug}>{sub.name}</Chip>
-    ))}
+  <div class="hidden" data-family-notfound>
+    <p class="h-display max-w-[16ch]">No encontramos esta categoría.</p>
+    <p class="prose-editorial mt-5">Puede que ya no exista o que el enlace esté mal escrito.</p>
+    <a href="/catalogo" class="btn btn--solid mt-8">Ver todo el catálogo</a>
   </div>
 
-  <div class="mt-8 flex items-center justify-between gap-4 border-t border-line pt-6">
-    <p class="u-tabular text-[0.82rem] font-medium tracking-[0.02em] text-brass-ink" data-result-count>
-      Cargando…
+  <div class="hidden" data-family-content>
+    <nav aria-label="Migas" class="text-[0.78rem] tracking-[0.02em] text-brass-ink">
+      <a href="/catalogo" class="hover:underline">Catálogo</a>
+      <span aria-hidden="true"> / </span>
+      <a data-family-category-link class="hover:underline"></a>
+      <span data-family-sub-crumb hidden>
+        <span aria-hidden="true"> / </span><span data-family-sub-name></span>
+      </span>
+    </nav>
+
+    <h1 class="h-section mt-4" data-family-title></h1>
+    <p class="prose-editorial mt-4 !text-[1.05rem]" data-family-blurb></p>
+
+    <div class="mt-8 flex flex-wrap gap-2" data-family-chips></div>
+
+    <div class="mt-8 flex items-center justify-between gap-4 border-t border-line pt-6">
+      <p class="u-tabular text-[0.82rem] font-medium tracking-[0.02em] text-brass-ink" data-result-count>
+        Cargando…
+      </p>
+
+      <details class="group/filter relative hidden" data-filter>
+        <summary class="btn btn--outline cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+          <Icon name="filter" size={15} /> Filtrar
+        </summary>
+        <div class="absolute right-0 z-30 mt-2 w-64 border border-line bg-paper p-5 shadow-[0_12px_40px_-24px_rgba(26,23,20,0.5)]">
+          <p class="text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-brass-ink">Marca</p>
+          <ul class="mt-3 flex flex-col gap-2.5" data-brand-list></ul>
+          <button type="button" class="btn btn--link mt-4" data-filter-clear>Quitar filtros</button>
+        </div>
+      </details>
+    </div>
+
+    <div class="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 md:gap-x-6 lg:grid-cols-4" data-grid></div>
+    <p class="py-10 text-[0.9rem] text-brass-ink" data-empty-state hidden>
+      Todavía no hay piezas cargadas en esta sección.
+      <a href="/admin" class="underline">Agrégalas desde el panel</a>.
+    </p>
+    <p class="py-10 text-[0.9rem] text-red-800" data-error-state hidden>
+      No se pudo cargar el catálogo en este momento. Intenta de nuevo en unos minutos.
     </p>
 
-    <details class="group/filter relative hidden" data-filter>
-      <summary class="btn btn--outline cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-        <Icon name="filter" size={15} /> Filtrar
-      </summary>
-      <div
-        class="absolute right-0 z-30 mt-2 w-64 border border-line bg-paper p-5 shadow-[0_12px_40px_-24px_rgba(26,23,20,0.5)]"
-      >
-        <p class="text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-brass-ink">Marca</p>
-        <ul class="mt-3 flex flex-col gap-2.5" data-brand-list></ul>
-        <button type="button" class="btn btn--link mt-4" data-filter-clear>Quitar filtros</button>
-      </div>
-    </details>
-  </div>
-
-  <div
-    class="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 md:gap-x-6 lg:grid-cols-4"
-    data-grid
-  ></div>
-  <p class="py-10 text-[0.9rem] text-brass-ink" data-empty-state hidden>
-    Todavía no hay piezas cargadas en esta sección.
-    <a href="/admin" class="underline">Agrégalas desde el panel</a>.
-  </p>
-  <p class="py-10 text-[0.9rem] text-red-800" data-error-state hidden>
-    No se pudo cargar el catálogo en este momento. Intenta de nuevo en unos minutos.
-  </p>
-
-  <div class="prose-editorial mt-16 border-t border-line pt-10">
-    <h2 class="h-section !text-[1.2rem]">Comprar {category.name.toLowerCase()} en Diapasón</h2>
-    <p class="mt-4">{category.intro}</p>
+    <div class="prose-editorial mt-16 border-t border-line pt-10">
+      <h2 class="h-section !text-[1.2rem]" data-family-buy-title></h2>
+      <p class="mt-4" data-family-intro></p>
+    </div>
   </div>
 </div>
 
 <script>
+  import { getCategoryBySlug } from '@/lib/supabase/categories';
   import { listProducts } from '@/lib/supabase/products';
   import { productCardHTML } from '@/scripts/product-render';
+  import { subcategoryChipHTML } from '@/scripts/category-render';
   import type { StoreProduct } from '@/lib/types';
 
-  const root = document.querySelector<HTMLElement>('[data-catalog-live]');
-  if (root) {
-    const category = root.dataset.category || undefined;
-    const subcategory = root.dataset.subcategory || undefined;
-    const grid = root.querySelector<HTMLElement>('[data-grid]');
-    const count = root.querySelector<HTMLElement>('[data-result-count]');
-    const emptyState = root.querySelector<HTMLElement>('[data-empty-state]');
-    const errorState = root.querySelector<HTMLElement>('[data-error-state]');
-    const filterDetails = root.querySelector<HTMLDetailsElement>('[data-filter]');
-    const brandList = root.querySelector<HTMLElement>('[data-brand-list]');
-    const clearBtn = root.querySelector<HTMLButtonElement>('[data-filter-clear]');
+  const root = document.querySelector<HTMLElement>('[data-catalog-family]');
+  const categorySlug = new URLSearchParams(location.search).get('categoria');
 
-    let all: StoreProduct[] = [];
-    let activeBrands: string[] = [];
+  // No ?categoria= — this is "home mode" territory, handled by catalogo/index.astro. Stay hidden.
+  if (root && categorySlug) {
+    root.hidden = false;
 
-    function renderGrid() {
-      if (!grid) return;
-      const visible = activeBrands.length
-        ? all.filter((p) => p.brand && activeBrands.includes(p.brand))
-        : all;
-      grid.innerHTML = visible.map((p) => productCardHTML(p)).join('');
-      if (count) count.textContent = `${visible.length} ${visible.length === 1 ? 'resultado' : 'resultados'}`;
-      // The empty-state message covers both "nothing in this category yet" and
-      // "the brand filter hid everything" — either way the grid is empty.
-      if (emptyState) emptyState.hidden = visible.length !== 0;
+    const loading = root.querySelector<HTMLElement>('[data-family-loading]');
+    const notFound = root.querySelector<HTMLElement>('[data-family-notfound]');
+    const content = root.querySelector<HTMLElement>('[data-family-content]');
+
+    function show(el: HTMLElement | null) {
+      [loading, notFound, content].forEach((e) => e?.classList.toggle('hidden', e !== el));
     }
 
-    function renderBrandFilter() {
-      if (!brandList || !filterDetails) return;
-      const brands = [...new Set(all.map((p) => p.brand).filter((b): b is string => Boolean(b)))].sort((a, b) =>
-        a.localeCompare(b, 'es'),
-      );
-      if (brands.length < 2) {
-        filterDetails.classList.add('hidden');
+    const activeSub = new URLSearchParams(location.search).get('sub') || undefined;
+
+    getCategoryBySlug(categorySlug).then(async ({ data: category, error }) => {
+      if (error || !category) {
+        show(notFound);
         return;
       }
-      filterDetails.classList.remove('hidden');
-      brandList.innerHTML = brands
-        .map(
-          (b) => `
-        <li>
-          <label class="flex cursor-pointer items-center gap-2.5 text-[0.9rem]">
-            <input type="checkbox" value="${b}" data-brand-filter class="accent-ink" />
-            ${b}
-          </label>
-        </li>`,
-        )
-        .join('');
-      brandList.querySelectorAll<HTMLInputElement>('[data-brand-filter]').forEach((box) => {
-        box.addEventListener('change', () => {
-          activeBrands = [...brandList.querySelectorAll<HTMLInputElement>('[data-brand-filter]:checked')].map(
-            (b) => b.value,
-          );
-          renderGrid();
+
+      document.title = `${category.name} · Diapasón`;
+
+      const activeSubcategory = activeSub ? category.subcategories.find((s) => s.slug === activeSub) : undefined;
+      const base = `/catalogo?categoria=${encodeURIComponent(category.slug)}`;
+
+      const categoryLink = root.querySelector<HTMLAnchorElement>('[data-family-category-link]');
+      if (categoryLink) {
+        categoryLink.href = base;
+        categoryLink.textContent = category.name;
+      }
+      const subCrumb = root.querySelector<HTMLElement>('[data-family-sub-crumb]');
+      const subName = root.querySelector<HTMLElement>('[data-family-sub-name]');
+      if (subCrumb) subCrumb.hidden = !activeSubcategory;
+      if (subName && activeSubcategory) subName.textContent = activeSubcategory.name;
+
+      const titleEl = root.querySelector('[data-family-title]');
+      if (titleEl) titleEl.textContent = activeSubcategory?.name ?? category.name;
+      const blurbEl = root.querySelector('[data-family-blurb]');
+      if (blurbEl) blurbEl.textContent = category.blurb;
+
+      const chipsEl = root.querySelector<HTMLElement>('[data-family-chips]');
+      if (chipsEl) {
+        const chips = [subcategoryChipHTML('Todo', base, !activeSubcategory)];
+        category.subcategories.forEach((sub) => {
+          chips.push(subcategoryChipHTML(sub.name, `${base}&sub=${encodeURIComponent(sub.slug)}`, sub.slug === activeSub));
         });
+        chipsEl.innerHTML = chips.join('');
+      }
+
+      const buyTitleEl = root.querySelector('[data-family-buy-title]');
+      if (buyTitleEl) buyTitleEl.textContent = `Comprar ${category.name.toLowerCase()} en Diapasón`;
+      const introEl = root.querySelector('[data-family-intro]');
+      if (introEl) introEl.textContent = category.intro;
+
+      show(content);
+
+      // ---- Product grid + brand filter (same behavior as before) ----
+      const grid = root.querySelector<HTMLElement>('[data-grid]');
+      const count = root.querySelector<HTMLElement>('[data-result-count]');
+      const emptyState = root.querySelector<HTMLElement>('[data-empty-state]');
+      const errorState = root.querySelector<HTMLElement>('[data-error-state]');
+      const filterDetails = root.querySelector<HTMLDetailsElement>('[data-filter]');
+      const brandList = root.querySelector<HTMLElement>('[data-brand-list]');
+      const clearBtn = root.querySelector<HTMLButtonElement>('[data-filter-clear]');
+
+      let all: StoreProduct[] = [];
+      let activeBrands: string[] = [];
+
+      function renderGrid() {
+        if (!grid) return;
+        const visible = activeBrands.length
+          ? all.filter((p) => p.brand && activeBrands.includes(p.brand))
+          : all;
+        grid.innerHTML = visible.map((p) => productCardHTML(p)).join('');
+        if (count) count.textContent = `${visible.length} ${visible.length === 1 ? 'resultado' : 'resultados'}`;
+        if (emptyState) emptyState.hidden = visible.length !== 0;
+      }
+
+      function renderBrandFilter() {
+        if (!brandList || !filterDetails) return;
+        const brands = [...new Set(all.map((p) => p.brand).filter((b): b is string => Boolean(b)))].sort((a, b) =>
+          a.localeCompare(b, 'es'),
+        );
+        if (brands.length < 2) {
+          filterDetails.classList.add('hidden');
+          return;
+        }
+        filterDetails.classList.remove('hidden');
+        brandList.innerHTML = brands
+          .map(
+            (b) => `
+          <li>
+            <label class="flex cursor-pointer items-center gap-2.5 text-[0.9rem]">
+              <input type="checkbox" value="${b}" data-brand-filter class="accent-ink" />
+              ${b}
+            </label>
+          </li>`,
+          )
+          .join('');
+        brandList.querySelectorAll<HTMLInputElement>('[data-brand-filter]').forEach((box) => {
+          box.addEventListener('change', () => {
+            activeBrands = [...brandList.querySelectorAll<HTMLInputElement>('[data-brand-filter]:checked')].map(
+              (b) => b.value,
+            );
+            renderGrid();
+          });
+        });
+      }
+
+      clearBtn?.addEventListener('click', () => {
+        activeBrands = [];
+        brandList?.querySelectorAll<HTMLInputElement>('[data-brand-filter]').forEach((b) => (b.checked = false));
+        renderGrid();
+        filterDetails?.removeAttribute('open');
       });
-    }
+      document.addEventListener('click', (e) => {
+        if (filterDetails?.hasAttribute('open') && !filterDetails.contains(e.target as Node)) {
+          filterDetails.removeAttribute('open');
+        }
+      });
 
-    clearBtn?.addEventListener('click', () => {
-      activeBrands = [];
-      brandList?.querySelectorAll<HTMLInputElement>('[data-brand-filter]').forEach((b) => (b.checked = false));
-      renderGrid();
-      filterDetails?.removeAttribute('open');
-    });
-    document.addEventListener('click', (e) => {
-      if (filterDetails?.hasAttribute('open') && !filterDetails.contains(e.target as Node)) {
-        filterDetails.removeAttribute('open');
-      }
-    });
-
-    listProducts({ category, subcategory }).then(({ data, error }) => {
-      if (error || !data) {
-        if (errorState) errorState.hidden = false;
-        if (count) count.textContent = '0 resultados';
-        return;
-      }
-      all = data;
-      renderBrandFilter();
-      renderGrid();
+      listProducts({ category: category.slug, subcategory: activeSub }).then(({ data, error: listError }) => {
+        if (listError || !data) {
+          if (errorState) errorState.hidden = false;
+          if (count) count.textContent = '0 resultados';
+          return;
+        }
+        all = data;
+        renderBrandFilter();
+        renderGrid();
+      });
     });
   }
 </script>

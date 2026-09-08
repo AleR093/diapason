@@ -1,27 +1,24 @@
 ---
 import Base from '@/layouts/Base.astro';
-import CategoryTile from '@/components/CategoryTile.astro';
 import Chip from '@/components/Chip.astro';
-import { getCategories } from '@/lib/catalog';
-
-const categories = getCategories();
+import CatalogListing from '@/components/CatalogListing.astro';
 ---
 
 <Base
   title="Catálogo"
   description="Todo el catálogo de Diapasón: guitarras, teclados, vientos, percusión y equipo de audio, con especificaciones y disponibilidad."
 >
-  <div class="shell pb-16 pt-12 md:pt-16" data-catalog-all>
+  <!-- Home mode: shown when the URL has no ?categoria= — category tiles + the full/novedades listing. -->
+  <div class="shell pb-16 pt-12 md:pt-16" data-catalog-home>
     <h1 class="h-section">Catálogo</h1>
     <p class="prose-editorial mt-4 !text-[1.05rem]">
       Instrumentos y equipos con su ficha técnica. Empieza por una familia o revisa las novedades.
     </p>
 
-    <div class="mt-10 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-5">
-      {categories.map((category, i) => (
-        <CategoryTile category={category} loading={i < 5 ? 'eager' : 'lazy'} />
-      ))}
-    </div>
+    <div class="mt-10 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-5" data-category-tiles></div>
+    <p class="text-[0.9rem] text-brass-ink" data-category-tiles-empty hidden>
+      Todavía no hay categorías creadas. <a href="/admin" class="underline">Agrégalas desde el panel</a>.
+    </p>
 
     <div class="mt-16 flex flex-wrap items-end justify-between gap-4 border-t border-line pt-8">
       <h2 class="h-section !text-[1.35rem]" data-section-title>Todo el catálogo</h2>
@@ -43,36 +40,61 @@ const categories = getCategories();
       No se pudo cargar el catálogo en este momento. Intenta de nuevo en unos minutos.
     </p>
   </div>
+
+  <!-- Family mode: shown when the URL has ?categoria= (+ optional &sub=). Self-contained. -->
+  <CatalogListing />
 </Base>
 
 <script>
   import { listProducts } from '@/lib/supabase/products';
+  import { listCategories } from '@/lib/supabase/categories';
   import { productCardHTML } from '@/scripts/product-render';
+  import { categoryTileHTML, wireCategoryTileCounts } from '@/scripts/category-render';
 
-  const root = document.querySelector<HTMLElement>('[data-catalog-all]');
-  if (root) {
-    const grid = root.querySelector<HTMLElement>('[data-grid]');
-    const count = root.querySelector<HTMLElement>('[data-result-count]');
-    const emptyState = root.querySelector<HTMLElement>('[data-empty-state]');
-    const errorState = root.querySelector<HTMLElement>('[data-error-state]');
-    const title = root.querySelector<HTMLElement>('[data-section-title]');
-    const chipAll = root.querySelector<HTMLElement>('[data-chip-all]');
-    const chipNew = root.querySelector<HTMLElement>('[data-chip-new]');
+  const params = new URLSearchParams(location.search);
+  const home = document.querySelector<HTMLElement>('[data-catalog-home]');
 
-    const onlyNew = new URLSearchParams(location.search).get('filtro') === 'nuevos';
-    if (title) title.textContent = onlyNew ? 'Novedades' : 'Todo el catálogo';
-    chipAll?.setAttribute('data-active', onlyNew ? 'false' : 'true');
-    chipNew?.setAttribute('data-active', onlyNew ? 'true' : 'false');
-
-    listProducts({ onlyNew: onlyNew || undefined }).then(({ data, error }) => {
-      if (error || !data) {
-        if (errorState) errorState.hidden = false;
-        if (count) count.textContent = '0 resultados';
-        return;
+  // A ?categoria= present means CatalogListing.astro takes over — home mode stays out of the way.
+  if (home) {
+    if (params.get('categoria')) {
+      home.hidden = true;
+    } else {
+      const tiles = home.querySelector<HTMLElement>('[data-category-tiles]');
+      const tilesEmpty = home.querySelector<HTMLElement>('[data-category-tiles-empty]');
+      if (tiles) {
+        listCategories().then(({ data }) => {
+          if (!data || !data.length) {
+            if (tilesEmpty) tilesEmpty.hidden = false;
+            return;
+          }
+          tiles.innerHTML = data.map((c) => categoryTileHTML(c)).join('');
+          wireCategoryTileCounts(tiles);
+        });
       }
-      if (grid) grid.innerHTML = data.map((p) => productCardHTML(p)).join('');
-      if (count) count.textContent = `${data.length} ${data.length === 1 ? 'resultado' : 'resultados'}`;
-      if (emptyState) emptyState.hidden = data.length !== 0;
-    });
+
+      const grid = home.querySelector<HTMLElement>('[data-grid]');
+      const count = home.querySelector<HTMLElement>('[data-result-count]');
+      const emptyState = home.querySelector<HTMLElement>('[data-empty-state]');
+      const errorState = home.querySelector<HTMLElement>('[data-error-state]');
+      const title = home.querySelector<HTMLElement>('[data-section-title]');
+      const chipAll = home.querySelector<HTMLElement>('[data-chip-all]');
+      const chipNew = home.querySelector<HTMLElement>('[data-chip-new]');
+
+      const onlyNew = params.get('filtro') === 'nuevos';
+      if (title) title.textContent = onlyNew ? 'Novedades' : 'Todo el catálogo';
+      chipAll?.setAttribute('data-active', onlyNew ? 'false' : 'true');
+      chipNew?.setAttribute('data-active', onlyNew ? 'true' : 'false');
+
+      listProducts({ onlyNew: onlyNew || undefined }).then(({ data, error }) => {
+        if (error || !data) {
+          if (errorState) errorState.hidden = false;
+          if (count) count.textContent = '0 resultados';
+          return;
+        }
+        if (grid) grid.innerHTML = data.map((p) => productCardHTML(p)).join('');
+        if (count) count.textContent = `${data.length} ${data.length === 1 ? 'resultado' : 'resultados'}`;
+        if (emptyState) emptyState.hidden = data.length !== 0;
+      });
+    }
   }
 </script>

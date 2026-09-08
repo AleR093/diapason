@@ -42,6 +42,11 @@ export async function getReviewsByProduct(productId: string): Promise<Result<Rev
   return { data: (data ?? []) as Review[], error: null };
 }
 
+export async function countReviews(): Promise<number> {
+  const { count, error } = await supabase.from(TABLE).select('id', { count: 'exact', head: true });
+  return error ? 0 : (count ?? 0);
+}
+
 export async function addReview(input: NewReview): Promise<Result<Review>> {
   const { data, error } = await supabase
     .from(TABLE)
