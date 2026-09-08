@@ -1,5 +1,3 @@
-import type { Product } from '@/lib/types';
-
 /**
  * Single source of truth for store-wide settings.
  * Rename the shop, set the WhatsApp number, and edit link lists here.
@@ -79,7 +77,7 @@ export function formatPrice(value: number): string {
 }
 
 /** Build a wa.me link with a prefilled message. Falls back to a TODO anchor. */
-export function whatsappLink(product?: Pick<Product, 'name' | 'brand'>): string {
+export function whatsappLink(product?: { name: string; brand?: string | null }): string {
   const base = product
     ? `Hola, me interesa el ${product.brand} ${product.name}. ¿Tienen disponibilidad?`
     : `Hola, quiero información sobre un instrumento del catálogo.`;
@@ -88,4 +86,20 @@ export function whatsappLink(product?: Pick<Product, 'name' | 'brand'>): string 
     return `#configura-whatsapp`;
   }
   return `https://wa.me/${SITE.whatsappNumber}?text=${encodeURIComponent(base)}`;
+}
+
+interface OrderLine {
+  name: string;
+  qty: number;
+  price: number;
+}
+
+/** Build a wa.me link with the whole cart summarized, for the drawer's checkout button. */
+export function cartWhatsappLink(lines: OrderLine[], total: number): string {
+  const itemsText = lines.map((l) => `• ${l.qty}x ${l.name} (${formatPrice(l.price)} c/u)`).join('\n');
+  const message =
+    `Hola, quiero hacer un pedido:\n\n${itemsText}\n\n` +
+    `Total: ${formatPrice(total)}\n\n¿Tienen disponibilidad para todo?`;
+  if (!SITE.whatsappNumber) return '#configura-whatsapp';
+  return `https://wa.me/${SITE.whatsappNumber}?text=${encodeURIComponent(message)}`;
 }

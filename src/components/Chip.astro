@@ -2,10 +2,11 @@
 interface Props {
   href: string;
   active?: boolean;
+  [key: `data-${string}`]: string | undefined;
 }
-const { href, active = false } = Astro.props;
+const { href, active = false, ...rest } = Astro.props;
 ---
 
-<a href={href} class="chip" data-active={active ? 'true' : 'false'} aria-current={active ? 'true' : undefined}>
+<a href={href} class="chip" data-active={active ? 'true' : 'false'} aria-current={active ? 'true' : undefined} {...rest}>
   <slot />
 </a>

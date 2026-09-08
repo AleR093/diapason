@@ -1,7 +1,7 @@
 ---
 import Base from '@/layouts/Base.astro';
 import CatalogListing from '@/components/CatalogListing.astro';
-import { getCategories, getProductsByCategory, getBrandsInCategory } from '@/lib/catalog';
+import { getCategories } from '@/lib/catalog';
 
 export function getStaticPaths() {
   return getCategories().map((category) => ({
@@ -11,13 +11,11 @@ export function getStaticPaths() {
 }
 
 const { category } = Astro.props;
-const products = getProductsByCategory(category.slug);
-const brands = getBrandsInCategory(category.slug);
 ---
 
 <Base
   title={category.name}
   description={`${category.name} en Diapasón — ${category.blurb}`}
 >
-  <CatalogListing category={category} products={products} brands={brands} />
+  <CatalogListing category={category} />
 </Base>

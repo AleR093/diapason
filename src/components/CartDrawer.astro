@@ -1,0 +1,149 @@
+---
+import Icon from '@/components/Icon.astro';
+---
+
+<div id="cart-drawer" class="fixed inset-0 z-[70] hidden" data-cart-drawer aria-hidden="true">
+  <div class="absolute inset-0 bg-ink/50" data-cart-backdrop></div>
+  <aside
+    class="absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-bone shadow-[0_0_40px_rgba(26,23,20,0.25)]"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Carrito de compra"
+  >
+    <div class="flex items-center justify-between border-b border-line p-5">
+      <h2 class="h-section !text-[1.15rem]">Tu carrito</h2>
+      <button type="button" data-cart-close aria-label="Cerrar carrito" class="text-brass-ink hover:opacity-60">
+        <Icon name="close" size={20} />
+      </button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-5" data-cart-items>
+      <p class="prose-editorial !text-[0.95rem]" data-cart-empty>
+        Tu carrito está vacío. Explora el <a href="/catalogo" class="underline">catálogo</a> y añade algo.
+      </p>
+      <ul class="hidden flex-col gap-5" data-cart-list></ul>
+    </div>
+
+    <div class="border-t border-line p-5" data-cart-footer hidden>
+      <div class="flex items-baseline justify-between text-[1.05rem] font-medium">
+        <span>Total</span>
+        <span class="u-tabular" data-cart-total>$0</span>
+      </div>
+      <a href="#configura-whatsapp" class="btn btn--solid mt-4 w-full justify-center" data-cart-whatsapp>
+        Hacer pedido por WhatsApp
+        <Icon name="whatsapp" size={16} />
+      </a>
+      <button type="button" class="btn btn--link mt-3 w-full justify-center" data-cart-clear>
+        Vaciar carrito
+      </button>
+    </div>
+  </aside>
+</div>
+
+<template data-cart-line-template>
+  <li class="flex gap-3" data-cart-line>
+    <div class="h-20 w-16 shrink-0 overflow-hidden bg-felt">
+      <img data-line-image alt="" width="64" height="80" class="h-full w-full object-cover" />
+    </div>
+    <div class="min-w-0 flex-1">
+      <p data-line-name class="truncate text-[0.92rem] font-medium leading-snug"></p>
+      <p data-line-price class="u-tabular mt-0.5 text-[0.82rem] text-brass-ink"></p>
+      <div class="mt-2 flex items-center gap-3">
+        <div class="flex items-center border border-line-strong">
+          <button type="button" class="px-2.5 py-1 text-[0.9rem]" data-line-decrease aria-label="Quitar uno">−</button>
+          <span class="u-tabular min-w-[1.5rem] text-center text-[0.85rem]" data-line-qty></span>
+          <button type="button" class="px-2.5 py-1 text-[0.9rem]" data-line-increase aria-label="Añadir uno">+</button>
+        </div>
+        <button type="button" class="text-[0.78rem] text-brass-ink underline" data-line-remove>Quitar</button>
+      </div>
+    </div>
+  </li>
+</template>
+
+<script>
+  import { getCart, updateQty, removeFromCart, clearCart, onCartChange, onOpenCartRequest, total, type CartLine } from '@/scripts/cart';
+  import { cartWhatsappLink } from '@/config';
+
+  const drawer = document.querySelector<HTMLElement>('[data-cart-drawer]');
+  if (drawer) {
+    const backdrop = drawer.querySelector<HTMLElement>('[data-cart-backdrop]');
+    const closeBtn = drawer.querySelector<HTMLButtonElement>('[data-cart-close]');
+    const list = drawer.querySelector<HTMLUListElement>('[data-cart-list]');
+    const empty = drawer.querySelector<HTMLElement>('[data-cart-empty]');
+    const footer = drawer.querySelector<HTMLElement>('[data-cart-footer]');
+    const totalEl = drawer.querySelector<HTMLElement>('[data-cart-total]');
+    const whatsappLink = drawer.querySelector<HTMLAnchorElement>('[data-cart-whatsapp]');
+    const clearBtn = drawer.querySelector<HTMLButtonElement>('[data-cart-clear]');
+    const template = document.querySelector<HTMLTemplateElement>('[data-cart-line-template]');
+    const money = new Intl.NumberFormat('es-SV', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+
+    function setOpen(open: boolean) {
+      drawer!.classList.toggle('hidden', !open);
+      drawer!.setAttribute('aria-hidden', String(!open));
+      document.documentElement.style.overflow = open ? 'hidden' : '';
+      if (open) (drawer!.querySelector('[data-cart-close]') as HTMLElement | null)?.focus();
+    }
+
+    function render(lines: CartLine[]) {
+      if (!list || !empty || !footer) return;
+      if (lines.length === 0) {
+        empty.classList.remove('hidden');
+        list.classList.add('hidden');
+        footer.hidden = true;
+        return;
+      }
+      empty.classList.add('hidden');
+      list.classList.remove('hidden');
+      list.classList.add('flex');
+      footer.hidden = false;
+
+      list.innerHTML = '';
+      for (const line of lines) {
+        const node = template?.content.firstElementChild?.cloneNode(true) as HTMLElement | undefined;
+        if (!node) continue;
+        const img = node.querySelector<HTMLImageElement>('[data-line-image]');
+        if (img) {
+          img.src = line.image;
+          img.alt = line.name;
+        }
+        const name = node.querySelector('[data-line-name]');
+        if (name) name.textContent = line.name;
+        const price = node.querySelector('[data-line-price]');
+        if (price) price.textContent = money.format(line.price);
+        const qty = node.querySelector('[data-line-qty]');
+        if (qty) qty.textContent = String(line.qty);
+
+        node.querySelector('[data-line-decrease]')?.addEventListener('click', () => updateQty(line.id, line.qty - 1));
+        node.querySelector('[data-line-increase]')?.addEventListener('click', () => updateQty(line.id, line.qty + 1));
+        node.querySelector('[data-line-remove]')?.addEventListener('click', () => removeFromCart(line.id));
+
+        list.appendChild(node);
+      }
+
+      const orderTotal = total();
+      if (totalEl) totalEl.textContent = money.format(orderTotal);
+      if (whatsappLink) {
+        whatsappLink.href = cartWhatsappLink(
+          lines.map((l) => ({ name: l.name, qty: l.qty, price: l.price })),
+          orderTotal,
+        );
+      }
+    }
+
+    onOpenCartRequest(() => {
+      render(getCart());
+      setOpen(true);
+    });
+    onCartChange(render);
+    render(getCart());
+
+    closeBtn?.addEventListener('click', () => setOpen(false));
+    backdrop?.addEventListener('click', () => setOpen(false));
+    clearBtn?.addEventListener('click', () => {
+      if (confirm('¿Vaciar el carrito?')) clearCart();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !drawer!.classList.contains('hidden')) setOpen(false);
+    });
+  }
+</script>

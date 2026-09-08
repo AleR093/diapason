@@ -7,11 +7,7 @@ interface Props {
   overlay?: boolean;
 }
 const { overlay = false } = Astro.props;
-const wordmark = SITE.name.toUpperCase().split('').join(' ');
-const iconLinks = [
-  { name: 'search', label: 'Buscar' },
-  { name: 'heart', label: 'Favoritos' },
-] as const;
+const wordmark = SITE.name.toUpperCase().split('').join(' ');
 ---
 
 <header
@@ -52,46 +48,45 @@ const iconLinks = [
         </ul>
       </nav>
       <div class="flex items-center gap-4 border-l border-line pl-5">
-        {iconLinks.map((ic) => (
-          <a href="/catalogo" aria-label={ic.label} class="transition-opacity hover:opacity-60">
-            <Icon name={ic.name} size={19} />
-          </a>
-        ))}
+        <button type="button" data-open-search aria-label="Buscar" class="transition-opacity hover:opacity-60">
+          <Icon name="search" size={19} />
+        </button>
+        <a href="/catalogo" aria-label="Favoritos" class="transition-opacity hover:opacity-60">
+          <Icon name="heart" size={19} />
+        </a>
         <a href="/cuenta" aria-label="Mi cuenta" class="transition-opacity hover:opacity-60">
           <Icon name="user" size={19} />
         </a>
-        <a href="/catalogo" aria-label="Carrito" class="relative transition-opacity hover:opacity-60">
+        <button type="button" data-open-cart aria-label="Carrito" class="relative transition-opacity hover:opacity-60">
           <Icon name="bag" size={19} />
           <span
             data-cart-count
             data-empty="true"
             class="u-tabular absolute -right-2 -top-2 min-w-[1.05rem] rounded-full bg-brass px-1 text-center text-[0.62rem] font-semibold leading-[1.05rem] text-paper"
           >0</span>
-        </a>
+        </button>
       </div>
     </div>
 
     <!-- Mobile trigger -->
-    <button
-      type="button"
+    <div
       class:list={[
-        'inline-flex items-center gap-2 lg:hidden',
+        'flex items-center gap-3 lg:hidden',
         overlay && 'rounded-full bg-paper px-4 py-2 text-ink',
       ]}
-      data-menu-open
-      aria-expanded="false"
-      aria-controls="mobile-menu"
     >
-      <span class="relative">
+      <button type="button" data-open-cart aria-label="Carrito" class="relative">
         <Icon name="bag" size={19} />
         <span
           data-cart-count
           data-empty="true"
           class="u-tabular absolute -right-2 -top-2 min-w-[1.05rem] rounded-full bg-brass px-1 text-center text-[0.62rem] font-semibold leading-[1.05rem] text-paper"
         >0</span>
-      </span>
-      <Icon name="menu" size={22} label="Abrir menú" />
-    </button>
+      </button>
+      <button type="button" data-menu-open aria-expanded="false" aria-controls="mobile-menu">
+        <Icon name="menu" size={22} label="Abrir menú" />
+      </button>
+    </div>
   </div>
 </header>
 
@@ -119,6 +114,9 @@ const iconLinks = [
     </ul>
     <div class="mt-8 flex flex-col gap-4 text-[0.95rem]">
       <a href="/catalogo" class="btn btn--outline w-fit">Todo el catálogo</a>
+      <button type="button" data-open-search class="flex items-center gap-2 text-brass-ink">
+        <Icon name="search" size={16} />Buscar en el catálogo
+      </button>
       <a href="/cuenta" class="flex items-center gap-2 text-brass-ink">
         <Icon name="user" size={16} />Mi cuenta
       </a>
@@ -136,6 +134,8 @@ const iconLinks = [
 </style>
 
 <script>
+  import { openCartDrawer } from '@/scripts/cart';
+
   const panel = document.querySelector<HTMLElement>('[data-menu-panel]');
   const openBtns = document.querySelectorAll<HTMLButtonElement>('[data-menu-open]');
   const closeBtn = document.querySelector<HTMLButtonElement>('[data-menu-close]');
@@ -154,5 +154,15 @@ const iconLinks = [
   closeBtn?.addEventListener('click', () => setOpen(false));
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') setOpen(false);
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('[data-open-search]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      setOpen(false);
+      window.dispatchEvent(new CustomEvent('diapason:open-search'));
+    });
+  });
+  document.querySelectorAll<HTMLButtonElement>('[data-open-cart]').forEach((btn) => {
+    btn.addEventListener('click', () => openCartDrawer());
   });
 </script>

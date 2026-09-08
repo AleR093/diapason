@@ -1,0 +1,202 @@
+---
+import Base from '@/layouts/Base.astro';
+import Button from '@/components/Button.astro';
+---
+
+<Base title="Producto" description="Ficha de producto en Diapasón.">
+  <div class="shell pt-10 md:pt-14" data-pdp>
+    <p class="prose-editorial !text-[1.05rem]" data-pdp-loading>Cargando la ficha…</p>
+
+    <div class="hidden" data-pdp-notfound>
+      <p class="h-display max-w-[16ch]">No encontramos esta pieza.</p>
+      <p class="prose-editorial mt-5">
+        Puede que ya no esté disponible o que el enlace esté mal escrito.
+      </p>
+      <div class="mt-8">
+        <Button href="/catalogo" variant="solid" icon="arrow-right">Ir al catálogo</Button>
+      </div>
+    </div>
+
+    <div class="hidden" data-pdp-content>
+      <nav aria-label="Migas" class="text-[0.78rem] tracking-[0.02em] text-brass-ink">
+        <a href="/catalogo" class="hover:underline">Catálogo</a>
+        <span aria-hidden="true"> / </span>
+        <a href="/catalogo" data-pdp-category-link class="hover:underline" data-pdp-category-name></a>
+        <span aria-hidden="true"> / </span>
+        <span data-pdp-name></span>
+      </nav>
+
+      <div class="mt-8 grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+        <!-- Media -->
+        <div class="flex flex-col gap-4" data-pdp-gallery></div>
+
+        <!-- Detail -->
+        <div class="lg:sticky lg:top-24 lg:h-fit">
+          <p class="text-[0.78rem] font-medium uppercase tracking-[0.16em] text-brass-ink" data-pdp-brand></p>
+          <h1 class="mt-2 text-[1.7rem] font-semibold leading-tight md:text-[2rem]" data-pdp-title></h1>
+          <p class="u-tabular mt-3 text-[1.15rem] font-medium" data-pdp-price></p>
+
+          <p class="prose-editorial mt-6 !text-[1.02rem]" data-pdp-description></p>
+
+          <div class="mt-8" data-pdp-stock></div>
+
+          <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <Button variant="solid" class="justify-center sm:justify-start" data-pdp-add-to-cart>
+              <span data-add-label>Añadir al carrito</span>
+            </Button>
+            <Button
+              href="#configura-whatsapp"
+              variant="outline"
+              icon="whatsapp"
+              class="justify-center sm:justify-start"
+              data-pdp-whatsapp
+            >
+              Consultar disponibilidad
+            </Button>
+          </div>
+
+          <div class="mt-12 hidden" data-pdp-specs-wrap>
+            <h2 class="h-section !text-[1.05rem]">Especificaciones</h2>
+            <dl class="mt-4 border-t border-line" data-pdp-specs></dl>
+          </div>
+
+          <p class="mt-8 text-[0.82rem] leading-relaxed text-brass-ink">
+            Incluye ajuste inicial en taller y garantía de 12 meses. Envío a todo el país;
+            entrega estimada de 2 a 5 días hábiles en compras con stock.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="mt-24 hidden md:mt-32" data-pdp-related>
+    <div class="shell">
+      <h2 id="rel-h" class="h-section">También te puede interesar</h2>
+    </div>
+    <div class="shell mt-10" data-pdp-related-slot aria-labelledby="rel-h"></div>
+  </section>
+</Base>
+
+<script>
+  import { getProductBySlug, getRelatedProducts } from '@/lib/supabase/products';
+  import { productRailHTML, formatPriceJS, escapeHtml } from '@/scripts/product-render';
+  import { whatsappLink } from '@/config';
+  import { FELT_PLACEHOLDER } from '@/lib/img';
+  import { getCategory } from '@/lib/catalog';
+  import type { Spec } from '@/lib/types';
+
+  const root = document.querySelector<HTMLElement>('[data-pdp]');
+  if (root) {
+    const loading = root.querySelector<HTMLElement>('[data-pdp-loading]');
+    const notFound = root.querySelector<HTMLElement>('[data-pdp-notfound]');
+    const content = root.querySelector<HTMLElement>('[data-pdp-content]');
+
+    const slug = new URLSearchParams(location.search).get('slug');
+
+    function show(el: HTMLElement | null) {
+      [loading, notFound, content].forEach((e) => e?.classList.toggle('hidden', e !== el));
+    }
+
+    if (!slug) {
+      show(notFound);
+    } else {
+      getProductBySlug(slug).then(async ({ data: product, error }) => {
+        if (error || !product) {
+          show(notFound);
+          return;
+        }
+
+        document.title = `${product.brand ? product.brand + ' ' : ''}${product.name} · Diapasón`;
+
+        const category = getCategory(product.category_slug);
+        const categoryLink = root.querySelector<HTMLAnchorElement>('[data-pdp-category-link]');
+        if (categoryLink && category) {
+          categoryLink.href = `/catalogo/${category.slug}`;
+          categoryLink.textContent = category.name;
+        }
+        const nameEl = root.querySelector('[data-pdp-name]');
+        if (nameEl) nameEl.textContent = product.name;
+
+        const gallery = root.querySelector<HTMLElement>('[data-pdp-gallery]');
+        if (gallery) {
+          const images = product.images.length ? product.images : [FELT_PLACEHOLDER];
+          gallery.innerHTML = images
+            .map(
+              (src, i) => `
+              <img
+                src="${escapeHtml(src)}"
+                alt="${escapeHtml(i === 0 ? product.name : `${product.name} — detalle ${i + 1}`)}"
+                width="1100" height="1375"
+                loading="${i === 0 ? 'eager' : 'lazy'}"
+                class="w-full bg-felt object-cover ${i > 0 ? 'hidden md:block' : ''}"
+                onerror="this.onerror=null;this.src='${FELT_PLACEHOLDER}'"
+              />`,
+            )
+            .join('');
+        }
+
+        const brandEl = root.querySelector('[data-pdp-brand]');
+        if (brandEl) brandEl.textContent = product.brand ?? '';
+        const titleEl = root.querySelector('[data-pdp-title]');
+        if (titleEl) titleEl.textContent = product.name;
+        const priceEl = root.querySelector('[data-pdp-price]');
+        if (priceEl) priceEl.textContent = formatPriceJS(product.price);
+        const descEl = root.querySelector('[data-pdp-description]');
+        if (descEl) descEl.textContent = product.description ?? '';
+
+        const stockEl = root.querySelector('[data-pdp-stock]');
+        if (stockEl) {
+          const available = product.stock > 0;
+          stockEl.innerHTML = `
+            <p class="flex items-center gap-2.5 text-[0.82rem] font-medium tracking-[0.01em]">
+              <span class="inline-block h-2 w-2 rounded-full ${available ? 'bg-brass' : 'bg-line-strong'}"></span>
+              ${available ? 'Disponible para envío hoy' : 'Sin stock por ahora · consulta por WhatsApp'}
+            </p>`;
+        }
+
+        const addBtn = root.querySelector<HTMLElement>('[data-pdp-add-to-cart]');
+        if (addBtn) {
+          addBtn.setAttribute(
+            'data-add-to-cart',
+            JSON.stringify({
+              id: product.id,
+              slug: product.slug,
+              name: product.name,
+              price: product.price,
+              image: product.images[0] || FELT_PLACEHOLDER,
+            }),
+          );
+        }
+
+        const waBtn = root.querySelector<HTMLAnchorElement>('[data-pdp-whatsapp]');
+        if (waBtn) waBtn.href = whatsappLink({ name: product.name, brand: product.brand });
+
+        const specs = (product.specs ?? []) as Spec[];
+        const specsWrap = root.querySelector<HTMLElement>('[data-pdp-specs-wrap]');
+        const specsEl = root.querySelector<HTMLElement>('[data-pdp-specs]');
+        if (specs.length && specsWrap && specsEl) {
+          specsWrap.classList.remove('hidden');
+          specsEl.innerHTML = specs
+            .map(
+              (s) => `
+              <div class="grid grid-cols-[minmax(0,10rem)_1fr] gap-4 border-b border-line py-3">
+                <dt class="text-[0.82rem] font-medium tracking-[0.01em] text-brass-ink">${escapeHtml(s.label)}</dt>
+                <dd class="text-[0.9rem] leading-relaxed">${escapeHtml(s.value)}</dd>
+              </div>`,
+            )
+            .join('');
+        }
+
+        show(content);
+
+        const relatedSection = document.querySelector<HTMLElement>('[data-pdp-related]');
+        const relatedSlot = document.querySelector<HTMLElement>('[data-pdp-related-slot]');
+        const related = await getRelatedProducts(product, 6);
+        if (related.length && relatedSection && relatedSlot) {
+          relatedSlot.innerHTML = productRailHTML(related);
+          relatedSection.classList.remove('hidden');
+        }
+      });
+    }
+  }
+</script>

@@ -38,6 +38,28 @@ export interface Product {
   specs: Spec[];
 }
 
+/**
+ * Live product row from Supabase (`public.products`) — the catalog's real
+ * source of truth. Distinct from the legacy `Product` shape above, which
+ * only backed the original static seed data (see src/data/products.json,
+ * migrated into Supabase via supabase/seed-products.sql).
+ */
+export interface StoreProduct {
+  id: string;
+  slug: string;
+  name: string;
+  brand: string | null;
+  category_slug: string;
+  subcategory_slug: string | null;
+  price: number;
+  description: string | null;
+  stock: number;
+  is_new: boolean;
+  images: string[];
+  specs: Spec[];
+  created_at: string;
+}
+
 export interface Testimonial {
   quote: string;
   name: string;

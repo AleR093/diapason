@@ -6,10 +6,11 @@ equipo de audio). Astro 4 + Tailwind CSS, salida estática, pensada para Cloudfl
 ## Requisitos
 
 - Node 18.18+ (probado en 18.19). El repo incluye `.nvmrc`.
-- El catálogo vive en `src/data/*.json` (no necesita base de datos).
-- Login y roles usan **Supabase Auth** — necesitas un proyecto de Supabase (ver
-  [Autenticación](#autenticación) abajo). Sin configurarlo, el resto del sitio funciona
-  igual; solo el inicio de sesión queda inactivo.
+- **El catálogo, el login y los roles viven en Supabase** (Auth + Postgres + Storage) —
+  necesitas un proyecto propio (ver [Base de datos y autenticación](#base-de-datos-y-autenticación)
+  abajo). Sin configurarlo, el sitio compila y se ve igual, pero el catálogo, la
+  búsqueda, el panel de admin y el login muestran un estado vacío/de error en vez de
+  datos reales.
 
 ## Desarrollo
 
@@ -25,34 +26,47 @@ npm run check      # comprueba tipos (tsc --noEmit)
 
 ```
 src/
-  config.ts              Nombre de la tienda, WhatsApp, moneda, menús, redes
+  config.ts              Nombre de la tienda, WhatsApp (individual y del carrito), moneda, menús
   data/
-    categories.json      5 familias + subcategorías + textos
-    products.json        ~28 productos con ficha técnica e imágenes
+    categories.json      5 familias + subcategorías + textos (fijo, no editable desde el panel)
+    products.json        Catálogo semilla original — ya NO se lee en runtime, solo referencia
+                          histórica; se migró a Supabase con supabase/seed-products.sql
   lib/
-    catalog.ts           Consultas sobre los datos (por categoría, relacionados…)
-    img.ts               Construye las URLs de Unsplash desde un id
-    types.ts             Tipos de Category y Product
-  components/             Nav, Footer, ProductCard, CatalogListing, SpecsTable…
+    catalog.ts           Categorías/subcategorías (config estática)
+    img.ts               Helper de URLs de Unsplash + placeholder de imagen rota
+    types.ts             Category, Testimonial, StoreProduct (fila real de products)
+    supabase/
+      client.ts          Cliente único de Supabase (browser)
+      auth.ts            Sesión, perfil y rol: initAuth/onAuthChange/isAdmin…
+      products.ts        CRUD del catálogo: listProducts/createProduct/updateProduct/…
+  components/
+    CatalogListing.astro Listado por familia — hace fetch en vivo a Supabase
+    CategoryTile.astro   Tile de familia con conteo de piezas en vivo
     AuthModal.astro       Modal de inicio de sesión / registro (dialog nativo)
-  layouts/Base.astro      <head>, fuentes, barra superior, nav, footer y AuthModal
-  lib/supabase/
-    client.ts             Cliente único de Supabase (browser)
-    auth.ts               Sesión, perfil y rol: initAuth/onAuthChange/isAdmin…
+    SearchModal.astro     Buscador (dialog nativo) — filtra en Supabase mientras escribes
+    CartDrawer.astro      Panel del carrito: líneas, cantidades, total y WhatsApp
+    ProductFormModal.astro Formulario alta/edición de producto (usado en /admin)
+  layouts/Base.astro      <head>, fuentes, nav, footer, AuthModal, SearchModal, CartDrawer
   scripts/
-    cart.ts               Carrito visual (localStorage)
+    cart.ts               Estado del carrito (localStorage) + contador + delegación de clics
     auth-gate.ts           Guarda de rutas para /cuenta y /admin
+    admin-products.ts      Tabla + alta/edición/borrado de productos en /admin
+    product-render.ts      HTML de tarjeta/riel/resultado de búsqueda, compartido por todo
+                            lo que renderiza productos del lado del cliente
   pages/
-    index.astro                     Home
-    catalogo/index.astro            Todo el catálogo
-    catalogo/[category]/index.astro Listado por familia
-    catalogo/[category]/[sub].astro Listado por subcategoría
-    producto/[slug].astro           Ficha de producto
+    index.astro                     Home — "novedades" y conteo de familias en vivo
+    catalogo/index.astro            Todo el catálogo (en vivo)
+    catalogo/[category]/index.astro Listado por familia (en vivo)
+    catalogo/[category]/[sub].astro Listado por subcategoría (en vivo)
+    producto/index.astro            Ficha de producto — lee ?slug= y hace fetch en vivo
     cuenta/index.astro              Cuenta del usuario (requiere sesión)
     admin/index.astro               Panel de administración (requiere rol admin)
     404.astro, sitemap.xml.ts
 public/                   favicon, robots.txt, _headers (caché)
-supabase/schema.sql        SQL para crear la tabla profiles + RLS (pégalo en Supabase)
+supabase/
+  schema.sql              Tabla profiles + RLS (usuarios y roles)
+  products.sql            Tabla products + RLS + bucket 'product-images' (catálogo)
+  seed-products.sql       Los ~28 productos originales, migrados a Supabase
 ```
 
 ## Qué personalizar
@@ -67,31 +81,57 @@ Todo lo editable de tienda está en **`src/config.ts`**:
 | `marquee` | Frases de la barra superior. |
 | `email`, `phone`, `nav`, `footer`, `social` | Datos de contacto y menús. |
 
-### Catálogo
+### Familias y subcategorías
 
-Edita `src/data/categories.json` y `src/data/products.json`. Cada producto necesita
-`slug` único, `categorySlug`/`subcategorySlug` que existan en `categories.json`, `price`
-(número), `stock` (`"disponible"` o `"bajo pedido"`), `story`, `specs` y `images`.
+Edita `src/data/categories.json` (nombre, textos, imagen de portada, subcategorías). Es
+configuración fija del sitio — a propósito no se gestiona desde el panel, porque cambiar
+una familia implica tocar las rutas `/catalogo/[category]/[sub]`, que son estáticas.
 
-### Imágenes
+### Catálogo (productos)
 
-`images` guarda **ids de Unsplash** (la parte que va después de `photo-`); `src/lib/img.ts`
-arma la URL con el tamaño y recorte. Para usar fotos propias: sube los archivos a
-`public/productos/…` y cambia en las plantillas `unsplash(id, …)` por la ruta directa
-(`/productos/mi-foto.webp`). Si una imagen falla al cargar se muestra un marcador en el
-tono de las tarjetas.
+Los productos viven en la tabla `products` de Supabase, no en un archivo del repo.
+Se gestionan desde **`/admin`** (alta, edición, borrado con subida de imagen al bucket
+`product-images`) — ver [Base de datos y autenticación](#base-de-datos-y-autenticación).
+`src/data/products.json` sigue en el repo solo como referencia de los datos originales;
+`supabase/seed-products.sql` es la migración de ese archivo a Supabase.
 
-## Carrito
+Si una imagen de producto falla al cargar, se muestra un marcador en el tono de las
+tarjetas en vez de un ícono roto (`src/lib/img.ts`, `FELT_PLACEHOLDER`).
 
-«Añadir al carrito» es **solo visual**: guarda un contador en `localStorage`
-(`diapason:cart`) y lo muestra en la cabecera. No hay checkout — la compra real se cierra
-por WhatsApp. La lógica está en `src/scripts/cart.ts`.
+## Buscador
 
-## Autenticación
+El ícono de lupa del menú abre `SearchModal.astro`: un `<dialog>` con un campo de texto
+que consulta Supabase (`ilike` sobre nombre, marca y categoría) 250 ms después de la
+última tecla presionada, y lista los resultados con imagen, nombre y precio. Cualquier
+elemento puede reabrirlo disparando `window.dispatchEvent(new
+CustomEvent('diapason:open-search'))`.
 
-Login, registro y rol de administrador usan **Supabase Auth**. El sitio sigue siendo
-100% estático: la protección de `/admin` ocurre en el navegador (ver
-[Cómo protege `/admin`](#cómo-protege-admin) más abajo), no en un servidor.
+## Carrito y pedido por WhatsApp
+
+El carrito guarda líneas completas (`id, slug, name, price, image, qty`) en
+`localStorage` (`diapason:cart`) — así el panel lateral nunca necesita volver a
+consultar Supabase para mostrarse. La lógica vive en `src/scripts/cart.ts`:
+
+- `addToCart`, `updateQty`, `removeFromCart`, `clearCart` — mutan el carrito y disparan
+  el evento `diapason:cart-change`, del que se suscriben el contador del ícono y el
+  panel (`CartDrawer.astro`).
+- Cualquier botón con `data-add-to-cart='{"id":…,"slug":…,"name":…,"price":…,"image":…}'`
+  (JSON en el atributo) queda enlazado automáticamente por **delegación de eventos** —
+  no hace falta volver a "conectar" botones que una vista en vivo agrega después de
+  cargar la página.
+- El ícono de bolsa dispara `openCartDrawer()` (o el evento `diapason:open-cart`), que
+  abre el panel con el detalle, las cantidades y el total en USD.
+- El botón **"Hacer pedido por WhatsApp"** arma el mensaje con `cartWhatsappLink()` en
+  `src/config.ts`: una línea por producto (`cantidad × nombre — precio c/u`) y el total,
+  hacia `wa.me/<SITE.whatsappNumber>`.
+- No hay checkout ni cobro en línea — el pedido se cierra por WhatsApp, a propósito.
+
+## Base de datos y autenticación
+
+Login, roles y **todo el catálogo** viven en Supabase (Auth + Postgres + Storage). El
+sitio sigue siendo 100% estático: tanto el catálogo como la protección de `/admin`
+ocurren en el navegador (ver [Cómo protege `/admin`](#cómo-protege-admin) más abajo), no
+en un servidor.
 
 ### 1. Crea el proyecto
 
@@ -104,17 +144,26 @@ Login, registro y rol de administrador usan **Supabase Auth**. El sitio sigue si
 4. En Cloudflare Pages, agrega las mismas dos variables (**Settings → Environment
    variables**) para que el build de producción también las tenga.
 
-### 2. Crea la tabla `profiles` y los permisos
+### 2. Crea las tablas y los permisos
 
-Pega el contenido de [`supabase/schema.sql`](supabase/schema.sql) en el **SQL Editor**
-del proyecto y ejecútalo. Eso crea:
+En el **SQL Editor** del proyecto, pega y ejecuta, **en este orden**:
 
-- `public.profiles` — una fila por usuario, con columna `role` (`'customer'` por
-  defecto, o `'admin'`).
-- Un trigger que crea el perfil automáticamente cuando alguien se registra.
-- Row Level Security: cada usuario **solo puede leer su propia fila**. A propósito no
-  hay política de escritura desde el cliente, así nadie puede ponerse `role = 'admin'`
-  a sí mismo llamando a la API directamente.
+1. [`supabase/schema.sql`](supabase/schema.sql) — tabla `public.profiles` (una fila por
+   usuario, columna `role` con `'customer'` por defecto o `'admin'`), un trigger que
+   crea el perfil automáticamente al registrarse, y RLS: cada quien **solo lee su propia
+   fila**. A propósito no hay política de escritura desde el cliente, así nadie puede
+   ponerse `role = 'admin'` a sí mismo llamando a la API directamente.
+2. [`supabase/products.sql`](supabase/products.sql) — tabla `public.products` (el
+   catálogo en vivo), el bucket público de Storage `product-images`, y RLS: **cualquiera
+   puede leer** el catálogo (es una tienda pública), pero solo insertar/editar/borrar si
+   `profiles.role = 'admin'`. Necesita haber corrido el paso 1 antes (la política
+   consulta `profiles`).
+3. [`supabase/seed-products.sql`](supabase/seed-products.sql) *(opcional)* — carga los
+   ~28 productos originales de `src/data/products.json` para no arrancar con el catálogo
+   vacío. Es seguro volver a correrlo (usa `upsert` por `slug`).
+
+Sin el paso 2, el catálogo, la búsqueda y el panel de productos muestran su estado de
+error ("no se pudo cargar") en vez de romper la build o la página.
 
 ### 3. Crea tu primer administrador
 
@@ -127,6 +176,24 @@ No hay botón para esto en la interfaz, a propósito:
    update public.profiles set role = 'admin' where email = 'tu-correo@diapason.sv';
    ```
 3. Cierra sesión y vuelve a entrar (o recarga `/admin`) para que se recargue el perfil.
+
+### Gestionar productos desde `/admin`
+
+Con sesión de administrador, `/admin` muestra la tabla de productos con **Editar** y
+**Eliminar** por fila, y el botón **"Agregar nuevo producto"** abre un formulario
+(`ProductFormModal.astro`) con nombre, marca (opcional), categoría, subcategoría
+(opcional), precio en USD, descripción, stock e imagen. Al guardar
+(`src/lib/supabase/products.ts`):
+
+1. La imagen se sube al bucket `product-images` (`uploadProductImage`) y se obtiene su
+   URL pública.
+2. Se inserta/actualiza la fila en `products` con esa URL en `images[0]`.
+3. El catálogo, la home, la búsqueda y la ficha de producto lo reflejan de inmediato —
+   **sin volver a desplegar** — porque todos hacen `fetch` a Supabase al cargar.
+
+La única pieza que sí necesita un nuevo `npm run build` + despliegue para productos
+recién creados es el *sitemap* (no enumera productos, ver `sitemap.xml.ts`); la ficha en
+sí (`/producto?slug=…`) funciona de inmediato porque se resuelve del lado del cliente.
 
 ### Cómo funciona el cliente
 
@@ -158,11 +225,13 @@ No hay botón para esto en la interfaz, a propósito:
 el navegador al cargar la página. Eso significa:
 
 - El HTML/JS vacío de `/admin` es técnicamente descargable por cualquiera.
-- Pero sin una sesión válida, Supabase (por RLS) no entrega ninguna fila de
-  `profiles` ni de ninguna otra tabla — así que esa página vacía no expone datos.
-- Si más adelante el panel necesita consultar productos, pedidos o clientes reales,
-  cada tabla nueva necesita su propia política de RLS (igual que `profiles`), nunca
-  confíes solo en que la página "está protegida" en el cliente.
+- Pero sin una sesión de administrador válida, Supabase (por RLS) rechaza cualquier
+  intento de crear, editar o borrar un producto — así que esa página vacía no permite
+  nada, aunque alguien la descargue directamente. La *lectura* del catálogo sí es
+  pública a propósito (es una tienda, cualquiera debe poder ver los productos).
+- Si más adelante el panel necesita otra tabla (pedidos, clientes), esa tabla nueva
+  necesita su propia política de RLS (igual que `products`/`profiles`) — nunca confíes
+  solo en que la página "está protegida" en el cliente.
 
 Si en el futuro hace falta que `/admin` sea imposible de descargar sin sesión (no solo
 inútil sin ella), la migración es a Astro en modo `hybrid` + adaptador de Cloudflare,
@@ -184,9 +253,11 @@ despliegue de "solo archivos" a "Functions" en Cloudflare Pages.
 
 ## Pendiente (fuera de esta entrega)
 
-Checkout y pagos, CRUD real en el panel de administración (hoy es una vista de
-ejemplo), lista de deseos persistente, cambio de idioma/moneda, CMS y fotografía de
-producto propia.
+Checkout y pagos en línea, edición de especificaciones técnicas desde el panel (la
+columna `specs` existe en la tabla pero el formulario todavía no la edita), galería de
+varias imágenes por producto desde el panel (hoy sube una sola), lista de deseos
+persistente, gestión de familias/subcategorías desde la interfaz, cambio de
+idioma/moneda, y confirmar por correo o notificación cuando entra un pedido.
 
 ## Notas de dependencias
 

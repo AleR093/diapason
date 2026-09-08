@@ -1,26 +1,20 @@
 ---
 import Base from '@/layouts/Base.astro';
 import CategoryTile from '@/components/CategoryTile.astro';
-import ProductCard from '@/components/ProductCard.astro';
 import Chip from '@/components/Chip.astro';
-import { getCategories, getProducts } from '@/lib/catalog';
+import { getCategories } from '@/lib/catalog';
 
 const categories = getCategories();
-const all = getProducts();
-
-const soloNuevos = Astro.url.searchParams.get('filtro') === 'nuevos';
-const products = soloNuevos ? all.filter((p) => p.isNew) : all;
 ---
 
 <Base
   title="Catálogo"
   description="Todo el catálogo de Diapasón: guitarras, teclados, vientos, percusión y equipo de audio, con especificaciones y disponibilidad."
 >
-  <div class="shell pb-16 pt-12 md:pt-16">
+  <div class="shell pb-16 pt-12 md:pt-16" data-catalog-all>
     <h1 class="h-section">Catálogo</h1>
     <p class="prose-editorial mt-4 !text-[1.05rem]">
-      {all.length} instrumentos y equipos, cada uno con su ficha técnica. Empieza por una
-      familia o revisa las novedades.
+      Instrumentos y equipos con su ficha técnica. Empieza por una familia o revisa las novedades.
     </p>
 
     <div class="mt-10 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-5">
@@ -30,23 +24,55 @@ const products = soloNuevos ? all.filter((p) => p.isNew) : all;
     </div>
 
     <div class="mt-16 flex flex-wrap items-end justify-between gap-4 border-t border-line pt-8">
-      <h2 class="h-section !text-[1.35rem]">
-        {soloNuevos ? 'Novedades' : 'Todo el catálogo'}
-      </h2>
+      <h2 class="h-section !text-[1.35rem]" data-section-title>Todo el catálogo</h2>
       <div class="flex gap-2">
-        <Chip href="/catalogo" active={!soloNuevos}>Todo</Chip>
-        <Chip href="/catalogo?filtro=nuevos" active={soloNuevos}>Novedades</Chip>
+        <Chip href="/catalogo" active={true} data-chip-all>Todo</Chip>
+        <Chip href="/catalogo?filtro=nuevos" active={false} data-chip-new>Novedades</Chip>
       </div>
     </div>
 
-    <p class="u-tabular mt-6 text-[0.82rem] font-medium tracking-[0.02em] text-brass-ink">
-      {products.length} {products.length === 1 ? 'resultado' : 'resultados'}
+    <p class="u-tabular mt-6 text-[0.82rem] font-medium tracking-[0.02em] text-brass-ink" data-result-count>
+      Cargando…
     </p>
 
-    <div class="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 md:gap-x-6 lg:grid-cols-4">
-      {products.map((product, i) => (
-        <ProductCard product={product} loading={i < 8 ? 'eager' : 'lazy'} />
-      ))}
-    </div>
+    <div class="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 md:gap-x-6 lg:grid-cols-4" data-grid></div>
+    <p class="py-10 text-[0.9rem] text-brass-ink" data-empty-state hidden>
+      Todavía no hay piezas en el catálogo. <a href="/admin" class="underline">Agrégalas desde el panel</a>.
+    </p>
+    <p class="py-10 text-[0.9rem] text-red-800" data-error-state hidden>
+      No se pudo cargar el catálogo en este momento. Intenta de nuevo en unos minutos.
+    </p>
   </div>
 </Base>
+
+<script>
+  import { listProducts } from '@/lib/supabase/products';
+  import { productCardHTML } from '@/scripts/product-render';
+
+  const root = document.querySelector<HTMLElement>('[data-catalog-all]');
+  if (root) {
+    const grid = root.querySelector<HTMLElement>('[data-grid]');
+    const count = root.querySelector<HTMLElement>('[data-result-count]');
+    const emptyState = root.querySelector<HTMLElement>('[data-empty-state]');
+    const errorState = root.querySelector<HTMLElement>('[data-error-state]');
+    const title = root.querySelector<HTMLElement>('[data-section-title]');
+    const chipAll = root.querySelector<HTMLElement>('[data-chip-all]');
+    const chipNew = root.querySelector<HTMLElement>('[data-chip-new]');
+
+    const onlyNew = new URLSearchParams(location.search).get('filtro') === 'nuevos';
+    if (title) title.textContent = onlyNew ? 'Novedades' : 'Todo el catálogo';
+    chipAll?.setAttribute('data-active', onlyNew ? 'false' : 'true');
+    chipNew?.setAttribute('data-active', onlyNew ? 'true' : 'false');
+
+    listProducts({ onlyNew: onlyNew || undefined }).then(({ data, error }) => {
+      if (error || !data) {
+        if (errorState) errorState.hidden = false;
+        if (count) count.textContent = '0 resultados';
+        return;
+      }
+      if (grid) grid.innerHTML = data.map((p) => productCardHTML(p)).join('');
+      if (count) count.textContent = `${data.length} ${data.length === 1 ? 'resultado' : 'resultados'}`;
+      if (emptyState) emptyState.hidden = data.length !== 0;
+    });
+  }
+</script>

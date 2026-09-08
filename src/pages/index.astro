@@ -2,14 +2,12 @@
 import Base from '@/layouts/Base.astro';
 import Button from '@/components/Button.astro';
 import CategoryTile from '@/components/CategoryTile.astro';
-import ProductRail from '@/components/ProductRail.astro';
 import Testimonials from '@/components/Testimonials.astro';
 import { SITE, whatsappLink } from '@/config';
-import { getCategories, getNewProducts } from '@/lib/catalog';
+import { getCategories } from '@/lib/catalog';
 import { unsplash, FELT_PLACEHOLDER } from '@/lib/img';
 
 const categories = getCategories();
-const destacados = getNewProducts(8);
 const heroImg = unsplash('1525201548942-d8732f6617a0', 1400, '4/5');
 const bandImg = unsplash('1516924962500-2b4b3b99ea02', 1000, '4/5');
 ---
@@ -57,13 +55,15 @@ const bandImg = unsplash('1516924962500-2b4b3b99ea02', 1000, '4/5');
   </section>
 
   <!-- 3 · Destacados -->
-  <section class="py-4 md:py-8">
+  <section class="py-4 md:py-8" data-novedades>
     <div class="shell flex flex-wrap items-end justify-between gap-4">
       <h2 id="destacados-h" class="h-section">Novedades en tienda</h2>
       <a href="/catalogo" class="btn btn--link">Ver todas</a>
     </div>
-    <div class="shell mt-10">
-      <ProductRail products={destacados} labelledby="destacados-h" />
+    <div class="shell mt-10" data-rail-slot aria-labelledby="destacados-h">
+      <p class="prose-editorial !text-[0.95rem]" data-rail-empty hidden>
+        Todavía no hay productos cargados. <a href="/admin" class="underline">Agrega el primero</a>.
+      </p>
     </div>
   </section>
 
@@ -139,3 +139,25 @@ const bandImg = unsplash('1516924962500-2b4b3b99ea02', 1000, '4/5');
     }
   }
 </style>
+
+<script>
+  import { listProducts } from '@/lib/supabase/products';
+  import { productRailHTML } from '@/scripts/product-render';
+
+  const slot = document.querySelector<HTMLElement>('[data-rail-slot]');
+  if (slot) {
+    listProducts({ onlyNew: true, limit: 8 }).then(async ({ data }) => {
+      let products = data ?? [];
+      if (products.length === 0) {
+        // No "new" flag set yet? Fall back to the latest products overall.
+        const fallback = await listProducts({ limit: 8 });
+        products = fallback.data ?? [];
+      }
+      if (products.length === 0) {
+        slot.querySelector<HTMLElement>('[data-rail-empty]')!.hidden = false;
+        return;
+      }
+      slot.innerHTML = productRailHTML(products);
+    });
+  }
+</script>

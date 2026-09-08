@@ -1,0 +1,96 @@
+---
+import Icon from '@/components/Icon.astro';
+---
+
+<dialog id="search-modal" class="search-dialog">
+  <div class="flex max-h-[80vh] w-full flex-col bg-paper">
+    <div class="flex items-center gap-3 border-b border-line p-5">
+      <Icon name="search" size={18} class="shrink-0 text-brass-ink" />
+      <input
+        type="search"
+        placeholder="Buscar por nombre o categoría…"
+        class="w-full bg-transparent text-[1rem] outline-none placeholder:text-brass-ink/70"
+        data-search-input
+        autocomplete="off"
+      />
+      <button type="button" data-search-close aria-label="Cerrar búsqueda" class="shrink-0 text-brass-ink hover:opacity-60">
+        <Icon name="close" size={20} />
+      </button>
+    </div>
+    <div class="overflow-y-auto p-5" data-search-results>
+      <p class="prose-editorial !text-[0.95rem]" data-search-hint>Escribe al menos 2 letras para buscar.</p>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  .search-dialog {
+    width: 100%;
+    max-width: 34rem;
+    margin-top: 8vh;
+    border: none;
+    padding: 0;
+    background: transparent;
+    color: theme('colors.ink');
+  }
+  .search-dialog::backdrop {
+    background: rgba(26, 23, 20, 0.55);
+  }
+</style>
+
+<script>
+  import { listProducts } from '@/lib/supabase/products';
+  import { searchResultHTML } from '@/scripts/product-render';
+
+  const dialog = document.querySelector<HTMLDialogElement>('#search-modal');
+  if (dialog) {
+    const input = dialog.querySelector<HTMLInputElement>('[data-search-input]');
+    const results = dialog.querySelector<HTMLElement>('[data-search-results]');
+    let debounceTimer: number | undefined;
+    let requestId = 0;
+
+    function renderMessage(text: string) {
+      if (results) results.innerHTML = `<p class="prose-editorial !text-[0.95rem]">${text}</p>`;
+    }
+
+    async function runSearch(term: string) {
+      const myRequest = ++requestId;
+      if (term.trim().length < 2) {
+        renderMessage('Escribe al menos 2 letras para buscar.');
+        return;
+      }
+      renderMessage('Buscando…');
+      const { data, error } = await listProducts({ search: term, limit: 12 });
+      if (myRequest !== requestId) return; // a newer keystroke already superseded this one
+      if (error) {
+        renderMessage('No se pudo buscar en este momento. Intenta de nuevo en un momento.');
+        return;
+      }
+      if (!data || data.length === 0) {
+        renderMessage(`Sin resultados para “${term}”.`);
+        return;
+      }
+      if (results) results.innerHTML = `<div>${data.map(searchResultHTML).join('')}</div>`;
+    }
+
+    input?.addEventListener('input', () => {
+      window.clearTimeout(debounceTimer);
+      const term = input.value;
+      debounceTimer = window.setTimeout(() => runSearch(term), 250);
+    });
+
+    dialog.querySelector('[data-search-close]')?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+    dialog.addEventListener('close', () => {
+      document.documentElement.style.overflow = '';
+    });
+
+    window.addEventListener('diapason:open-search', () => {
+      document.documentElement.style.overflow = 'hidden';
+      dialog.showModal();
+      input?.focus();
+    });
+  }
+</script>
