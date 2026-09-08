@@ -44,20 +44,9 @@ const wordmark = SITE.name.toUpperCase().split('').join(' ');
     </button>
 
     <div class="ml-auto flex shrink-0 items-center gap-2">
-      <button
-        type="button"
-        data-theme-toggle
-        aria-pressed="false"
-        aria-label="Cambiar a modo noche"
-        class="theme-toggle h-9 w-9 rounded-full bg-surface-raised text-content transition-colors hover:opacity-80"
-      >
-        <Icon name="sun" size={17} data-icon-sun />
-        <Icon name="moon" size={16} data-icon-moon />
-      </button>
-
       <!-- Mobile-only: the dock below is lg:flex, so small screens keep quick
            access to the cart plus the full menu (which also lists favoritos,
-           categorías and cuenta). -->
+           categorías, cuenta y el Modo Noche). -->
       <button type="button" data-open-cart aria-label="Carrito" class="relative p-1 lg:hidden">
         <Icon name="bag" size={19} />
         <span
@@ -96,9 +85,22 @@ const wordmark = SITE.name.toUpperCase().split('').join(' ');
         {SITE.nav.map((item) => (
           <a href={item.href} class="rounded-lg px-2 py-1.5 text-[0.88rem] hover:bg-felt">{item.label}</a>
         ))}
-        <a href="/catalogo" class="mt-1 rounded-lg border-t border-line px-2 py-2 text-[0.82rem] font-medium text-brass-ink">
+        <a href="/catalogo" class="rounded-lg px-2 py-1.5 text-[0.82rem] font-medium text-brass-ink">
           Todo el catálogo
         </a>
+        <button
+          type="button"
+          data-theme-toggle
+          aria-pressed="false"
+          aria-label="Cambiar a modo noche"
+          class="mt-1 flex items-center gap-2.5 rounded-lg border-t border-line px-2 pt-2.5 text-[0.88rem] hover:bg-felt"
+        >
+          <span class="theme-toggle relative inline-grid h-4 w-4 shrink-0 place-items-center">
+            <Icon name="sun" size={15} data-icon-sun />
+            <Icon name="moon" size={14} data-icon-moon />
+          </span>
+          Modo noche
+        </button>
       </div>
     </div>
 
@@ -167,6 +169,19 @@ const wordmark = SITE.name.toUpperCase().split('').join(' ');
       <a href={`tel:${SITE.phone.replace(/[\s-]/g, '')}`} class="flex items-center gap-2 text-brass-ink">
         <Icon name="phone" size={16} />{SITE.phone}
       </a>
+      <button
+        type="button"
+        data-theme-toggle
+        aria-pressed="false"
+        aria-label="Cambiar a modo noche"
+        class="flex items-center gap-2 border-t border-line pt-4 text-brass-ink"
+      >
+        <span class="theme-toggle relative inline-grid h-4 w-4 shrink-0 place-items-center">
+          <Icon name="sun" size={15} data-icon-sun />
+          <Icon name="moon" size={14} data-icon-moon />
+        </span>
+        Modo noche
+      </button>
     </div>
   </nav>
 </div>

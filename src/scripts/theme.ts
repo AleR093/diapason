@@ -30,6 +30,20 @@ function applyTheme(theme: Theme): void {
   document.documentElement.style.colorScheme = theme;
 }
 
+/**
+ * Astro's view transitions swap <body> AND reset every attribute on <html>
+ * (astro/dist/transitions/swap-functions.js: swapRootAttributes() strips the
+ * whole attribute list — apart from data-astro-* ones — before copying the
+ * destination page's <html> attributes over it). The `dark` class isn't
+ * data-astro-*, so it was being wiped on every navigation: Modo Noche "stuck"
+ * on the page it was toggled from and reverted everywhere else. `astro:after-swap`
+ * fires right after that wipe, synchronously and before the next paint, so
+ * reapplying here closes the gap with no visible flash.
+ */
+if (typeof document !== 'undefined') {
+  document.addEventListener('astro:after-swap', () => applyTheme(getTheme()));
+}
+
 export function setTheme(theme: Theme): void {
   applyTheme(theme);
   try {
