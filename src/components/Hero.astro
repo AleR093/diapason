@@ -1,0 +1,109 @@
+---
+import Button from '@/components/Button.astro';
+import { whatsappLink } from '@/config';
+import { unsplash, FELT_PLACEHOLDER } from '@/lib/img';
+
+const heroImg = unsplash('1525201548942-d8732f6617a0', 1400, '4/5');
+---
+
+<section class="grid grid-cols-1 md:h-[86svh] md:max-h-[840px] md:min-h-[560px] md:grid-cols-2">
+  <div class="relative order-1 aspect-[4/3] bg-walnut md:order-none md:aspect-auto md:h-full">
+    <img
+      src={heroImg}
+      alt="Guitarrista con una acústica, sentado en el taller"
+      width="1400"
+      height="1750"
+      fetchpriority="high"
+      class="hero-img absolute inset-0 h-full w-full object-cover"
+      onerror={`this.onerror=null;this.src='${FELT_PLACEHOLDER}'`}
+    />
+  </div>
+  <div class="order-2 flex flex-col justify-center bg-bone px-5 py-14 md:order-none md:px-12 md:py-20 xl:px-16">
+    <p class="h-display max-w-[15ch]">
+      El instrumento correcto, afinado antes de llegar a tus manos.
+    </p>
+    <p class="prose-editorial mt-6 !text-[1.05rem]">
+      Guitarras, teclados, vientos, percusión y equipo de audio. Cada pieza se revisa
+      en nuestro taller y llega con sus especificaciones completas.
+    </p>
+    <div class="mt-9 flex flex-wrap items-center gap-3">
+      <Button href="/catalogo" variant="solid" icon="arrow-right">Ver el catálogo</Button>
+      <Button href={whatsappLink()} variant="link">Consultar por WhatsApp</Button>
+    </div>
+
+    <!-- Loaded live from Supabase (most recent product); stays hidden if the
+         catalog is empty or unreachable, so the hero never shows a placeholder. -->
+    <a href="/catalogo" class="mt-10 hidden items-center gap-4 border-t border-line pt-6" data-hero-feature>
+      <div class="h-16 w-14 shrink-0 overflow-hidden bg-felt">
+        <img
+          data-hero-feature-img
+          alt=""
+          width="56"
+          height="64"
+          class="h-full w-full object-cover"
+          onerror={`this.onerror=null;this.src='${FELT_PLACEHOLDER}'`}
+        />
+      </div>
+      <div class="min-w-0 flex-1">
+        <p class="text-[0.7rem] font-medium uppercase tracking-[0.14em] text-brass-ink" data-hero-feature-label>
+          Recién llegado
+        </p>
+        <p class="truncate text-[0.92rem] font-medium underline-offset-4 hover:underline" data-hero-feature-name></p>
+        <p class="u-tabular text-[0.85rem] text-brass-ink" data-hero-feature-price></p>
+      </div>
+      <span class="btn btn--outline shrink-0 !text-[0.7rem]" aria-hidden="true">Ver ficha</span>
+    </a>
+  </div>
+</section>
+
+<style>
+  /* One quiet entrance: the hero image resolves from a slight zoom + fade. Runs once. */
+  .hero-img {
+    animation: hero-settle 1100ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes hero-settle {
+    from {
+      transform: scale(1.05);
+    }
+    to {
+      transform: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-img {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  import { listProducts } from '@/lib/supabase/products';
+  import { formatPriceJS } from '@/scripts/product-render';
+  import { FELT_PLACEHOLDER } from '@/lib/img';
+
+  const feature = document.querySelector<HTMLAnchorElement>('[data-hero-feature]');
+  if (feature) {
+    // listProducts() already orders by created_at desc, so limit:1 is the newest item.
+    listProducts({ limit: 1 }).then(({ data }) => {
+      const product = data?.[0];
+      if (!product) return;
+
+      feature.href = `/producto?slug=${encodeURIComponent(product.slug)}`;
+
+      const img = feature.querySelector<HTMLImageElement>('[data-hero-feature-img]');
+      if (img) {
+        img.src = product.images[0] || FELT_PLACEHOLDER;
+        img.alt = product.name;
+      }
+      const label = feature.querySelector('[data-hero-feature-label]');
+      if (label) label.textContent = product.is_new ? 'Recién llegado' : 'Selección de la semana';
+      const name = feature.querySelector('[data-hero-feature-name]');
+      if (name) name.textContent = product.brand ? `${product.brand} ${product.name}` : product.name;
+      const price = feature.querySelector('[data-hero-feature-price]');
+      if (price) price.textContent = formatPriceJS(product.price);
+
+      feature.classList.remove('hidden');
+      feature.classList.add('flex');
+    });
+  }
+</script>

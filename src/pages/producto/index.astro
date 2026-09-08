@@ -1,6 +1,7 @@
 ---
 import Base from '@/layouts/Base.astro';
 import Button from '@/components/Button.astro';
+import Icon from '@/components/Icon.astro';
 ---
 
 <Base title="Producto" description="Ficha de producto en Diapasón.">
@@ -66,6 +67,67 @@ import Button from '@/components/Button.astro';
           </p>
         </div>
       </div>
+
+      <!-- Reseñas -->
+      <section class="mt-16 border-t border-line pt-12 md:mt-24" data-pdp-reviews aria-labelledby="reviews-h">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <h2 id="reviews-h" class="h-section !text-[1.2rem]">Opiniones</h2>
+          <div class="flex items-center gap-2" data-reviews-summary>
+            <div class="flex gap-0.5" data-reviews-stars aria-hidden="true"></div>
+            <p class="text-[0.85rem] font-medium text-brass-ink" data-reviews-count>Sin opiniones todavía</p>
+          </div>
+        </div>
+
+        <div class="mt-8 grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
+          <form class="flex flex-col gap-4" data-review-form novalidate>
+            <div>
+              <p class="text-[0.78rem] font-medium uppercase tracking-[0.1em] text-brass-ink">Tu calificación</p>
+              <div
+                class="mt-2 flex gap-1"
+                data-review-stars-picker
+                role="radiogroup"
+                aria-label="Calificación de 1 a 5 estrellas"
+              >
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button
+                    type="button"
+                    class="review-star text-brass/30 transition-colors hover:text-brass"
+                    data-star={n}
+                    aria-label={`${n} estrella${n > 1 ? 's' : ''}`}
+                    aria-pressed="false"
+                  >
+                    <Icon name="star" size={22} />
+                  </button>
+                ))}
+              </div>
+              <input type="hidden" data-review-rating-input value="0" />
+            </div>
+            <label class="flex flex-col gap-1.5 text-[0.85rem]">
+              Tu nombre <span class="text-brass-ink">(opcional)</span>
+              <input type="text" class="rv-input" data-review-author placeholder="Cliente Anónimo" />
+            </label>
+            <label class="flex flex-col gap-1.5 text-[0.85rem]">
+              Tu opinión
+              <textarea
+                class="rv-input resize-y"
+                rows="4"
+                data-review-comment
+                placeholder="Cuéntanos qué te pareció esta pieza"
+              ></textarea>
+            </label>
+            <p class="text-[0.82rem] text-red-800" data-review-error hidden></p>
+            <p class="text-[0.82rem] text-brass-ink" data-review-success hidden>Gracias por tu opinión.</p>
+            <Button type="submit" variant="solid" class="w-fit justify-center">Publicar reseña</Button>
+          </form>
+
+          <div data-reviews-list>
+            <p class="prose-editorial !text-[0.95rem]" data-reviews-empty>
+              Sé el primero en dejar una opinión sobre esta pieza.
+            </p>
+            <div class="flex flex-col gap-6" data-reviews-items></div>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 
@@ -77,9 +139,26 @@ import Button from '@/components/Button.astro';
   </section>
 </Base>
 
+<style>
+  .rv-input {
+    border: 1px solid theme('colors.line-strong');
+    background: theme('colors.bone');
+    padding: 0.65rem 0.8rem;
+    font-size: 0.9rem;
+  }
+  .rv-input:focus-visible {
+    outline: 2px solid theme('colors.brass');
+    outline-offset: 1px;
+  }
+</style>
+
 <script>
   import { getProductBySlug, getRelatedProducts } from '@/lib/supabase/products';
   import { productRailHTML, formatPriceJS, escapeHtml } from '@/scripts/product-render';
+  import { getReviewsByProduct, addReview } from '@/lib/supabase/reviews';
+  import type { Review } from '@/lib/supabase/reviews';
+  import { starsHTML, reviewRowHTML } from '@/scripts/review-render';
+  import { getAuthState, onAuthChange } from '@/lib/supabase/auth';
   import { whatsappLink } from '@/config';
   import { FELT_PLACEHOLDER } from '@/lib/img';
   import { getCategory } from '@/lib/catalog';
@@ -95,6 +174,65 @@ import Button from '@/components/Button.astro';
 
     function show(el: HTMLElement | null) {
       [loading, notFound, content].forEach((e) => e?.classList.toggle('hidden', e !== el));
+    }
+
+    // Reseñas — wired here so it's ready the moment the product resolves below.
+    const reviewForm = root.querySelector<HTMLFormElement>('[data-review-form]');
+    const reviewStars = [...root.querySelectorAll<HTMLButtonElement>('.review-star')];
+    const reviewRatingInput = root.querySelector<HTMLInputElement>('[data-review-rating-input]');
+    const reviewAuthorInput = root.querySelector<HTMLInputElement>('[data-review-author]');
+    const reviewCommentInput = root.querySelector<HTMLTextAreaElement>('[data-review-comment]');
+    const reviewError = root.querySelector<HTMLElement>('[data-review-error]');
+    const reviewSuccess = root.querySelector<HTMLElement>('[data-review-success]');
+    const reviewsStarsEl = root.querySelector<HTMLElement>('[data-reviews-stars]');
+    const reviewsCountEl = root.querySelector<HTMLElement>('[data-reviews-count]');
+    const reviewsEmptyEl = root.querySelector<HTMLElement>('[data-reviews-empty]');
+    const reviewsItemsEl = root.querySelector<HTMLElement>('[data-reviews-items]');
+
+    function setRating(n: number) {
+      if (reviewRatingInput) reviewRatingInput.value = String(n);
+      reviewStars.forEach((s) => {
+        const val = Number(s.dataset.star);
+        s.classList.toggle('text-brass', val <= n);
+        s.classList.toggle('text-brass/30', val > n);
+        s.setAttribute('aria-pressed', String(val <= n));
+      });
+    }
+    reviewStars.forEach((s) => s.addEventListener('click', () => setRating(Number(s.dataset.star))));
+
+    // Prefills the name field for a signed-in shopper without locking the field —
+    // never overwrites something the person already typed.
+    function applyAuthorFromSession() {
+      if (!reviewAuthorInput || reviewAuthorInput.value) return;
+      const { profile } = getAuthState();
+      if (profile?.full_name) reviewAuthorInput.value = profile.full_name;
+    }
+    applyAuthorFromSession();
+    onAuthChange(applyAuthorFromSession);
+
+    function renderReviewSummary(reviews: Review[]) {
+      if (!reviews.length) {
+        if (reviewsStarsEl) reviewsStarsEl.innerHTML = '';
+        if (reviewsCountEl) reviewsCountEl.textContent = 'Sin opiniones todavía';
+        return;
+      }
+      const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+      if (reviewsStarsEl) reviewsStarsEl.innerHTML = starsHTML(avg, 16);
+      if (reviewsCountEl) {
+        reviewsCountEl.textContent = `${avg.toFixed(1)} · ${reviews.length} ${reviews.length === 1 ? 'opinión' : 'opiniones'}`;
+      }
+    }
+
+    function renderReviewList(reviews: Review[]) {
+      if (reviewsEmptyEl) reviewsEmptyEl.hidden = reviews.length !== 0;
+      if (reviewsItemsEl) reviewsItemsEl.innerHTML = reviews.map((r) => reviewRowHTML(r)).join('');
+    }
+
+    async function loadReviews(productId: string) {
+      const { data } = await getReviewsByProduct(productId);
+      const reviews = data ?? [];
+      renderReviewSummary(reviews);
+      renderReviewList(reviews);
     }
 
     if (!slug) {
@@ -188,6 +326,51 @@ import Button from '@/components/Button.astro';
         }
 
         show(content);
+
+        await loadReviews(product.id);
+
+        reviewForm?.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          if (reviewError) reviewError.hidden = true;
+          if (reviewSuccess) reviewSuccess.hidden = true;
+
+          const rating = Number(reviewRatingInput?.value || 0);
+          if (!rating) {
+            if (reviewError) {
+              reviewError.textContent = 'Selecciona una calificación de 1 a 5 estrellas.';
+              reviewError.hidden = false;
+            }
+            return;
+          }
+
+          const submitBtn = reviewForm.querySelector<HTMLButtonElement>('button[type="submit"]');
+          if (submitBtn) submitBtn.disabled = true;
+
+          const { session } = getAuthState();
+          const { error: reviewSubmitError } = await addReview({
+            productId: product.id,
+            userId: session?.user.id ?? null,
+            authorName: reviewAuthorInput?.value || '',
+            rating,
+            comment: reviewCommentInput?.value || '',
+          });
+
+          if (submitBtn) submitBtn.disabled = false;
+
+          if (reviewSubmitError) {
+            if (reviewError) {
+              reviewError.textContent = 'No se pudo publicar tu opinión. Intenta de nuevo en unos minutos.';
+              reviewError.hidden = false;
+            }
+            return;
+          }
+
+          if (reviewSuccess) reviewSuccess.hidden = false;
+          reviewForm.reset();
+          setRating(0);
+          applyAuthorFromSession();
+          await loadReviews(product.id);
+        });
 
         const relatedSection = document.querySelector<HTMLElement>('[data-pdp-related]');
         const relatedSlot = document.querySelector<HTMLElement>('[data-pdp-related-slot]');

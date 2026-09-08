@@ -2,44 +2,23 @@
 import Base from '@/layouts/Base.astro';
 import Button from '@/components/Button.astro';
 import CategoryTile from '@/components/CategoryTile.astro';
+import Hero from '@/components/Hero.astro';
+import ReviewRain from '@/components/ReviewRain.astro';
 import Testimonials from '@/components/Testimonials.astro';
-import { SITE, whatsappLink } from '@/config';
+import { whatsappLink } from '@/config';
 import { getCategories } from '@/lib/catalog';
 import { unsplash, FELT_PLACEHOLDER } from '@/lib/img';
 
 const categories = getCategories();
-const heroImg = unsplash('1525201548942-d8732f6617a0', 1400, '4/5');
 const bandImg = unsplash('1516924962500-2b4b3b99ea02', 1000, '4/5');
 ---
 
 <Base overlayNav>
   <!-- 1 · Hero -->
-  <section class="grid grid-cols-1 md:h-[86svh] md:max-h-[840px] md:min-h-[560px] md:grid-cols-2">
-    <div class="relative order-1 aspect-[4/3] bg-walnut md:order-none md:aspect-auto md:h-full">
-      <img
-        src={heroImg}
-        alt="Guitarrista con una acústica, sentado en el taller"
-        width="1400"
-        height="1750"
-        fetchpriority="high"
-        class="hero-img absolute inset-0 h-full w-full object-cover"
-        onerror={`this.onerror=null;this.src='${FELT_PLACEHOLDER}'`}
-      />
-    </div>
-    <div class="order-2 flex flex-col justify-center bg-bone px-5 py-14 md:order-none md:px-12 md:py-20 xl:px-16">
-      <p class="h-display max-w-[15ch]">
-        El instrumento correcto, afinado antes de llegar a tus manos.
-      </p>
-      <p class="prose-editorial mt-6 !text-[1.05rem]">
-        Guitarras, teclados, vientos, percusión y equipo de audio. Cada pieza se revisa
-        en nuestro taller y llega con sus especificaciones completas.
-      </p>
-      <div class="mt-9 flex flex-wrap items-center gap-3">
-        <Button href="/catalogo" variant="solid" icon="arrow-right">Ver el catálogo</Button>
-        <Button href={whatsappLink()} variant="link">Consultar por WhatsApp</Button>
-      </div>
-    </div>
-  </section>
+  <Hero />
+
+  <!-- 1b · Lluvia de reseñas -->
+  <ReviewRain />
 
   <!-- 2 · Categorías -->
   <section class="shell py-20 md:py-28">
@@ -119,26 +98,6 @@ const bandImg = unsplash('1516924962500-2b4b3b99ea02', 1000, '4/5');
     </div>
   </section>
 </Base>
-
-<style>
-  /* One quiet entrance: the hero image resolves from a slight zoom + fade. Runs once. */
-  .hero-img {
-    animation: hero-settle 1100ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-  @keyframes hero-settle {
-    from {
-      transform: scale(1.05);
-    }
-    to {
-      transform: none;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .hero-img {
-      animation: none;
-    }
-  }
-</style>
 
 <script>
   import { listProducts } from '@/lib/supabase/products';

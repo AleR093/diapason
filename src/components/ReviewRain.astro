@@ -1,0 +1,51 @@
+---
+// Subtle continuous strip of real customer reviews, pulled live from Supabase.
+// Removes itself from the DOM entirely if there isn't enough real content yet —
+// this is decoration, not a core flow, so it stays quiet instead of erroring.
+---
+
+<section class="overflow-hidden bg-ink py-10 md:py-14" data-review-rain aria-labelledby="review-rain-h">
+  <h2 id="review-rain-h" class="sr-only">Opiniones recientes de clientes</h2>
+  <div class="review-rain-track flex w-max gap-4 px-5 md:px-10 xl:px-14" data-review-rain-track></div>
+</section>
+
+<style>
+  .review-rain-track {
+    animation: review-rain-scroll 46s linear infinite;
+  }
+  .review-rain-track:hover {
+    animation-play-state: paused;
+  }
+  @keyframes review-rain-scroll {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .review-rain-track {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  import { getTopRecentReviews } from '@/lib/supabase/reviews';
+  import { reviewRainCardHTML } from '@/scripts/review-render';
+
+  const section = document.querySelector<HTMLElement>('[data-review-rain]');
+  const track = document.querySelector<HTMLElement>('[data-review-rain-track]');
+
+  if (section && track) {
+    getTopRecentReviews(10).then(({ data }) => {
+      const reviews = data ?? [];
+      // Fewer than a handful reads as an empty strip rather than social proof — hide it instead.
+      if (reviews.length < 3) {
+        section.remove();
+        return;
+      }
+      // Doubled for a seamless loop: translateX(-50%) lands exactly on the copy's start.
+      const loop = [...reviews, ...reviews];
+      track.innerHTML = loop.map((r) => reviewRainCardHTML(r)).join('');
+    });
+  }
+</script>
