@@ -214,6 +214,62 @@ de golpe — `src/scripts/dialog-transitions.ts` (`openDialog`/`closeDialog`) si
 clases de Tailwind (`transition-all duration-300 ease-in-out`) directamente sobre su
 propio marcado.
 
+## Modo Noche (Dark Mode)
+
+El toggle (ícono sol/luna en el Nav) alterna una clase `dark` en `<html>`,
+persistida en `localStorage` (`diapason:theme`) — `src/scripts/theme.ts`
+(`getTheme`/`setTheme`/`toggleTheme`/`onThemeChange`), con un
+`<script is:inline>` bloqueante al inicio de `<head>` en `Base.astro` que
+aplica la clase antes del primer paint (sin `prefers-color-scheme` no hay
+flash del tema equivocado). `tailwind.config.mjs` tiene `darkMode: 'class'`.
+
+La paleta no se duplicó: los tokens que representan "superficie/texto
+genérico de la página" (`surface`, `surface-raised`, `surface-glass`,
+`content`, y — reutilizando su mismo nombre — `felt`, `line`, `line-strong`,
+`brass`, `brass-ink`) están definidos como variables CSS en
+`src/styles/global.css` (`:root` para modo claro, `:root.dark` para modo
+noche), así que cualquier componente que ya usaba esas clases de Tailwind
+(botones, chips, tarjetas, diálogos, inputs) se adapta solo.
+
+Los tokens **bone / paper / ink / walnut / line-paper** son la excepción
+deliberada: quedan fijos siempre (no reaccionan al toggle) porque están
+emparejados dentro de secciones pensadas como "isla oscura" permanente —
+`MarqueeBar`, la cinta de reseñas, el pie de página, las bandas oscuras de
+`index.astro`, las insignias/controles sobre una fotografía (`card-tag`, el
+corazón de favoritos sobre la miniatura, el Hero) — invertir esos tokens
+rompería el contraste de esas parejas. Si agregas una superficie nueva,
+usa los tokens reactivos (`surface*`, `content`) salvo que estés dibujando
+control sobre una foto o dentro de una de esas bandas fijas.
+
+## Hero y Nav
+
+El Hero (`src/components/Hero.astro`) es una sola imagen a pantalla
+completa con degradado oscuro, contenido centrado encima (título,
+descripción, botones y la tarjeta "Recién llegado" en vidrio esmerilado) —
+deliberadamente **no** reacciona al Modo Noche: al ser una foto con su
+propio scrim oscuro, ya funciona como una "isla oscura" fija (ver la
+sección anterior). Tiene dos animaciones:
+
+- **Máquina de escribir**: el título se parte en un `<span>` por letra en el
+  frontmatter (tiempo de build, sin JS en el cliente) con su propio
+  `animation-delay`; el CSS (`.tw-w`/`.tw-c` en `global.css`) hace el resto.
+  Como las View Transitions reemplazan el `<body>` completo en cada
+  navegación, el efecto se repite cada vez que se entra a "/".
+  `prefers-reduced-motion` lo desactiva (todas las letras aparecen de una).
+- **Scroll fade**: un listener de `scroll` (con rAF, dentro del `init()`
+  ligado a `astro:page-load`) baja la opacidad de la foto y sube un scrim
+  encima a medida que se hace scroll; se omite por completo bajo
+  `prefers-reduced-motion`.
+
+El Nav (`src/components/Nav.astro`) tiene tres piezas nuevas: un buscador
+centrado estilo YouTube (visualmente un input, en realidad un botón que
+abre `SearchModal` — no duplica esa lógica de búsqueda), el toggle de Modo
+Noche, y un **dock lateral flotante** (`hidden lg:flex`, fijo al borde
+derecho del viewport) que reemplaza la barra horizontal de accesos
+rápidos: Categorías (abre un flyout con `SITE.nav`), Favoritos, Cuenta y
+Carrito. En pantallas pequeñas esos mismos accesos siguen en el menú de
+pantalla completa (`data-menu-panel`).
+
 ## Base de datos y autenticación
 
 Login, roles y **todo el catálogo** viven en Supabase (Auth + Postgres + Storage). El

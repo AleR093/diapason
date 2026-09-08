@@ -126,7 +126,7 @@ export function initAdminProducts(): void {
         <td class="py-3 pr-4">
           <input
             type="number" min="0" step="1" value="${p.stock}"
-            class="u-tabular w-16 border border-line-strong bg-bone px-2 py-1 text-[0.85rem] ${p.stock <= 0 ? 'text-red-800' : ''}"
+            class="u-tabular w-16 border border-line-strong bg-surface px-2 py-1 text-[0.85rem] ${p.stock <= 0 ? 'text-red-800' : ''}"
             data-quick-stock="${p.id}"
             aria-label="Stock de ${escapeHtml(p.name)}"
           />

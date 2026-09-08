@@ -25,7 +25,7 @@ const { onDark = false } = Astro.props;
       placeholder="tu@correo.com"
       class:list={[
         'w-full border-b bg-transparent pb-2 text-[0.95rem] outline-none placeholder:opacity-45',
-        onDark ? 'border-line-paper text-paper' : 'border-line-strong text-ink',
+        onDark ? 'border-line-paper text-paper' : 'border-line-strong text-content',
       ]}
     />
     <button type="submit" class:list={['btn btn--outline w-fit', onDark && 'on-dark']}>

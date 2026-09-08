@@ -3,8 +3,37 @@
 @tailwind utilities;
 
 @layer base {
+  /*
+   * Modo Noche: CSS variables, not a second color palette bolted on top.
+   * Every "reactive" Tailwind token (surface*, content, felt, brass*, line*)
+   * resolves to one of these — see tailwind.config.mjs for the mapping and
+   * for which tokens are deliberately left OUT of this list (fixed, always
+   * the same value in both themes).
+   */
   :root {
     color-scheme: light;
+    --c-surface: #f1ece0;
+    --c-surface-raised: #fbf9f4;
+    --c-surface-glass: rgba(251, 249, 244, 0.75);
+    --c-content: #1a1714;
+    --c-felt: #e4ddce;
+    --c-brass: #a9782f;
+    --c-brass-ink: #7a5518;
+    --c-line: rgba(26, 23, 20, 0.14);
+    --c-line-strong: rgba(26, 23, 20, 0.28);
+  }
+
+  :root.dark {
+    color-scheme: dark;
+    --c-surface: #09090b;
+    --c-surface-raised: #12141f;
+    --c-surface-glass: rgba(18, 22, 38, 0.55);
+    --c-content: #ede7da;
+    --c-felt: #1b2130;
+    --c-brass: #c99b4c;
+    --c-brass-ink: #e7b65b;
+    --c-line: rgba(237, 231, 218, 0.14);
+    --c-line-strong: rgba(237, 231, 218, 0.3);
   }
 
   html {
@@ -13,12 +42,13 @@
   }
 
   body {
-    background-color: theme('colors.bone');
-    color: theme('colors.ink');
+    background-color: theme('colors.surface');
+    color: theme('colors.content');
     font-family: theme('fontFamily.sans');
     font-synthesis-weight: none;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    transition: background-color 220ms ease, color 220ms ease;
   }
 
   /* Headings are set per-use; only lock the family + balance here. */
@@ -107,7 +137,7 @@
     font-size: 1.125rem;
     line-height: 1.62;
     max-width: theme('maxWidth.measure');
-    color: theme('colors.ink');
+    color: theme('colors.content');
   }
 
   .prose-editorial.on-dark {
@@ -144,24 +174,25 @@
   }
 
   .btn--solid {
-    background-color: theme('colors.ink');
-    color: theme('colors.bone');
+    background-color: theme('colors.content');
+    color: theme('colors.surface');
   }
 
   .btn--solid:hover {
     background-color: theme('colors.walnut');
+    color: theme('colors.bone');
   }
 
   .btn--outline {
     background-color: transparent;
     border-color: theme('colors.line-strong');
-    color: theme('colors.ink');
+    color: theme('colors.content');
   }
 
   .btn--outline:hover {
-    border-color: theme('colors.ink');
-    background-color: theme('colors.ink');
-    color: theme('colors.bone');
+    border-color: theme('colors.content');
+    background-color: theme('colors.content');
+    color: theme('colors.surface');
   }
 
   .btn--outline.on-dark {
@@ -178,9 +209,9 @@
   .btn--link {
     padding: 0.35rem 0;
     border-radius: 0;
-    border-bottom: 1px solid theme('colors.ink');
+    border-bottom: 1px solid theme('colors.content');
     background: transparent;
-    color: theme('colors.ink');
+    color: theme('colors.content');
   }
 
   .btn--link.on-dark {
@@ -202,7 +233,7 @@
     letter-spacing: 0.01em;
     border-radius: 9999px;
     background-color: theme('colors.felt');
-    color: theme('colors.ink');
+    color: theme('colors.content');
     border: 1px solid transparent;
     transition:
       background-color 160ms ease,
@@ -215,8 +246,8 @@
 
   .chip[aria-pressed='true'],
   .chip[data-active='true'] {
-    background-color: theme('colors.ink');
-    color: theme('colors.bone');
+    background-color: theme('colors.content');
+    color: theme('colors.surface');
   }
 
   /* Product card. */
@@ -331,5 +362,74 @@
 @media (prefers-reduced-motion: reduce) {
   .toast-card {
     transition: none;
+  }
+}
+
+/* Modo Noche toggle (Nav.astro) — sun/moon cross-fade, no JS-driven icon swap. */
+.theme-toggle {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+.theme-toggle [data-icon-sun],
+.theme-toggle [data-icon-moon] {
+  grid-area: 1 / 1;
+  transition: opacity 260ms theme('transitionTimingFunction.editorial'),
+    transform 420ms theme('transitionTimingFunction.editorial');
+}
+.theme-toggle [data-icon-moon] {
+  opacity: 0;
+  transform: scale(0.5) rotate(-40deg);
+}
+:root.dark .theme-toggle [data-icon-sun] {
+  opacity: 0;
+  transform: scale(0.5) rotate(40deg);
+}
+:root.dark .theme-toggle [data-icon-moon] {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle [data-icon-sun],
+  .theme-toggle [data-icon-moon] {
+    transition: none;
+  }
+}
+
+/* A subtle inset edge keeps the always-dark solid button legible against an
+   equally-dark Modo Noche canvas (see .btn--solid in the components layer). */
+:root.dark .btn--solid {
+  box-shadow: inset 0 0 0 1px theme('colors.line-strong');
+}
+
+/*
+ * Typewriter reveal (Hero.astro) — the title's HTML is pre-split into one
+ * <span> per character at build time (see the frontmatter), each with its
+ * own animation-delay, so the stagger needs no client JS. Because view
+ * transitions replace the whole <body> on every navigation, these spans are
+ * freshly inserted (and the animation freshly starts) each time "/" loads.
+ */
+.tw-w {
+  display: inline-block;
+}
+.tw-c {
+  display: inline-block;
+  opacity: 0;
+  animation: tw-in 320ms theme('transitionTimingFunction.editorial') forwards;
+}
+@keyframes tw-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.2em);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tw-c {
+    animation-duration: 1ms;
+    animation-delay: 0ms !important;
   }
 }

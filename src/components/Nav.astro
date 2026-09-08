@@ -15,15 +15,15 @@ const wordmark = SITE.name.toUpperCase().split('').join(' ');
     'z-50 w-full',
     overlay
       ? 'absolute inset-x-0 top-0 text-paper before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-32 before:bg-gradient-to-b before:from-ink/45 before:to-transparent'
-      : 'sticky top-0 border-b border-line bg-bone/92 text-ink backdrop-blur-sm',
+      : 'sticky top-0 border-b border-line bg-surface-glass text-content backdrop-blur-md',
   ]}
   data-nav
 >
-  <div class="shell relative flex items-center justify-between gap-4 py-4 md:py-5">
+  <div class="shell relative flex items-center gap-4 py-4 md:py-5">
     <a
       href="/"
       class:list={[
-        'whitespace-nowrap text-[0.95rem] tracking-wordmark',
+        'shrink-0 whitespace-nowrap text-[0.95rem] tracking-wordmark',
         overlay ? 'font-semibold [text-shadow:0_1px_12px_rgba(26,23,20,0.35)]' : 'font-medium',
       ]}
       aria-label={`${SITE.name} — inicio`}
@@ -31,74 +31,105 @@ const wordmark = SITE.name.toUpperCase().split('').join(' ');
       {wordmark}
     </a>
 
-    <!-- Desktop cluster -->
-    <div
-      class:list={[
-        'hidden items-center gap-6 lg:flex',
-        overlay && 'rounded-full bg-paper px-7 py-3 text-ink shadow-[0_1px_0_rgba(26,23,20,0.06)]',
-      ]}
+    <!-- Buscador estilo YouTube: centrado, ancho, con la lupa integrada. Es un
+         disparador (abre SearchModal, que ya trae el input real + resultados
+         en vivo) en vez de duplicar esa lógica de búsqueda aquí. -->
+    <button
+      type="button"
+      data-open-search
+      class="search-bar mx-auto hidden max-w-md flex-1 items-center gap-3 rounded-full bg-surface-raised px-5 py-2.5 text-left text-[0.88rem] text-content/55 transition-colors hover:text-content md:flex"
     >
-      <nav aria-label="Categorías">
-        <ul class="flex items-center gap-6 text-[0.9rem]">
-          {SITE.nav.map((item) => (
-            <li>
-              <a href={item.href} class="transition-opacity hover:opacity-60">{item.label}</a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-      <div class="flex items-center gap-4 border-l border-line pl-5">
-        <button type="button" data-open-search aria-label="Buscar" class="transition-opacity hover:opacity-60">
-          <Icon name="search" size={19} />
-        </button>
-        <a href="/cuenta#favoritos" aria-label="Favoritos" class="relative transition-opacity hover:opacity-60">
-          <Icon name="heart" size={19} />
-          <span
-            data-wishlist-count
-            data-empty="true"
-            class="u-tabular absolute -right-2 -top-2 min-w-[1.05rem] rounded-full bg-brass px-1 text-center text-[0.62rem] font-semibold leading-[1.05rem] text-paper"
-          >0</span>
-        </a>
-        <a href="/cuenta" aria-label="Mi cuenta" class="transition-opacity hover:opacity-60">
-          <span data-nav-avatar data-avatar-size="20"><Icon name="user" size={19} /></span>
-        </a>
-        <button type="button" data-open-cart aria-label="Carrito" class="relative transition-opacity hover:opacity-60">
-          <Icon name="bag" size={19} />
-          <span
-            data-cart-count
-            data-empty="true"
-            class="u-tabular absolute -right-2 -top-2 min-w-[1.05rem] rounded-full bg-brass px-1 text-center text-[0.62rem] font-semibold leading-[1.05rem] text-paper"
-          >0</span>
-        </button>
-      </div>
-    </div>
+      <Icon name="search" size={17} class="shrink-0" />
+      <span class="truncate">Buscar instrumentos, marcas, categorías…</span>
+    </button>
 
-    <!-- Mobile trigger -->
-    <div
-      class:list={[
-        'flex items-center gap-3 lg:hidden',
-        overlay && 'rounded-full bg-paper px-4 py-2 text-ink',
-      ]}
-    >
-      <button type="button" data-open-cart aria-label="Carrito" class="relative">
+    <div class="ml-auto flex shrink-0 items-center gap-2">
+      <button
+        type="button"
+        data-theme-toggle
+        aria-pressed="false"
+        aria-label="Cambiar a modo noche"
+        class="theme-toggle h-9 w-9 rounded-full bg-surface-raised text-content transition-colors hover:opacity-80"
+      >
+        <Icon name="sun" size={17} data-icon-sun />
+        <Icon name="moon" size={16} data-icon-moon />
+      </button>
+
+      <!-- Mobile-only: the dock below is lg:flex, so small screens keep quick
+           access to the cart plus the full menu (which also lists favoritos,
+           categorías and cuenta). -->
+      <button type="button" data-open-cart aria-label="Carrito" class="relative p-1 lg:hidden">
         <Icon name="bag" size={19} />
         <span
           data-cart-count
           data-empty="true"
-          class="u-tabular absolute -right-2 -top-2 min-w-[1.05rem] rounded-full bg-brass px-1 text-center text-[0.62rem] font-semibold leading-[1.05rem] text-paper"
+          class="u-tabular absolute -right-1 -top-1 min-w-[1.05rem] rounded-full bg-brass px-1 text-center text-[0.62rem] font-semibold leading-[1.05rem] text-paper"
         >0</span>
       </button>
-      <button type="button" data-menu-open aria-expanded="false" aria-controls="mobile-menu">
+      <button type="button" data-menu-open aria-expanded="false" aria-controls="mobile-menu" class="p-1 lg:hidden">
         <Icon name="menu" size={22} label="Abrir menú" />
       </button>
     </div>
   </div>
 </header>
 
+<!-- Menú lateral de iconos: dock flotante y vertical (reemplaza la barra de
+     accesos rápidos horizontal). Solo desktop — en móvil, esos mismos accesos
+     viven en el menú de pantalla completa de abajo. -->
+<div class="pointer-events-none fixed inset-y-0 right-0 z-40 hidden items-center lg:flex" data-icon-dock>
+  <div class="dock pointer-events-auto relative mr-4 flex flex-col items-center gap-1 rounded-full p-2">
+    <div class="relative">
+      <button
+        type="button"
+        data-dock-categories
+        aria-expanded="false"
+        aria-label="Categorías"
+        class="dock-btn"
+      >
+        <Icon name="grid" size={18} />
+      </button>
+      <div
+        class="absolute right-[calc(100%+0.75rem)] top-1/2 hidden w-52 -translate-y-1/2 flex-col gap-1 rounded-2xl border border-line bg-surface-raised p-3 shadow-[0_12px_40px_-20px_rgba(0,0,0,0.35)]"
+        data-dock-categories-panel
+      >
+        <p class="px-2 pb-1 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-brass-ink">Categorías</p>
+        {SITE.nav.map((item) => (
+          <a href={item.href} class="rounded-lg px-2 py-1.5 text-[0.88rem] hover:bg-felt">{item.label}</a>
+        ))}
+        <a href="/catalogo" class="mt-1 rounded-lg border-t border-line px-2 py-2 text-[0.82rem] font-medium text-brass-ink">
+          Todo el catálogo
+        </a>
+      </div>
+    </div>
+
+    <a href="/cuenta#favoritos" aria-label="Favoritos" class="dock-btn relative">
+      <Icon name="heart" size={18} />
+      <span
+        data-wishlist-count
+        data-empty="true"
+        class="u-tabular absolute -right-0.5 -top-0.5 min-w-[1.05rem] rounded-full bg-brass px-1 text-center text-[0.62rem] font-semibold leading-[1.05rem] text-paper"
+      >0</span>
+    </a>
+
+    <a href="/cuenta" aria-label="Mi cuenta" class="dock-btn">
+      <span data-nav-avatar data-avatar-size="18"><Icon name="user" size={18} /></span>
+    </a>
+
+    <button type="button" data-open-cart aria-label="Carrito" class="dock-btn relative">
+      <Icon name="bag" size={18} />
+      <span
+        data-cart-count
+        data-empty="true"
+        class="u-tabular absolute -right-0.5 -top-0.5 min-w-[1.05rem] rounded-full bg-brass px-1 text-center text-[0.62rem] font-semibold leading-[1.05rem] text-paper"
+      >0</span>
+    </button>
+  </div>
+</div>
+
 <!-- Mobile menu -->
 <div
   id="mobile-menu"
-  class="fixed inset-0 z-[60] hidden bg-bone text-ink"
+  class="fixed inset-0 z-[60] hidden bg-surface text-content"
   data-menu-panel
 >
   <div class="shell flex items-center justify-between py-4">
@@ -122,6 +153,14 @@ const wordmark = SITE.name.toUpperCase().split('').join(' ');
       <button type="button" data-open-search class="flex items-center gap-2 text-brass-ink">
         <Icon name="search" size={16} />Buscar en el catálogo
       </button>
+      <a href="/cuenta#favoritos" class="flex items-center gap-2 text-brass-ink">
+        <Icon name="heart" size={16} />Favoritos
+        <span
+          data-wishlist-count
+          data-empty="true"
+          class="u-tabular min-w-[1.1rem] rounded-full bg-brass px-1 text-center text-[0.68rem] font-semibold leading-[1.1rem] text-paper"
+        >0</span>
+      </a>
       <a href="/cuenta" class="flex items-center gap-2 text-brass-ink">
         <span data-nav-avatar data-avatar-size="18"><Icon name="user" size={16} /></span>Mi cuenta
       </a>
@@ -136,6 +175,31 @@ const wordmark = SITE.name.toUpperCase().split('').join(' ');
   [data-cart-count][data-empty='true'],
   [data-wishlist-count][data-empty='true'] {
     display: none;
+  }
+
+  .search-bar {
+    border: 1px solid theme('colors.line');
+  }
+
+  .dock {
+    background-color: theme('colors.surface-glass');
+    border: 1px solid theme('colors.line');
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .dock-btn {
+    display: grid;
+    place-items: center;
+    height: 2.5rem;
+    width: 2.5rem;
+    border-radius: 9999px;
+    color: theme('colors.content');
+    transition: background-color 160ms ease;
+  }
+
+  .dock-btn:hover {
+    background-color: theme('colors.felt');
   }
 </style>
 
@@ -178,6 +242,29 @@ const wordmark = SITE.name.toUpperCase().split('').join(' ');
     });
     document.querySelectorAll<HTMLButtonElement>('[data-open-cart]').forEach((btn) => {
       btn.addEventListener('click', () => openCartDrawer());
+    });
+
+    // Dock's "Categorías" flyout — same open/outside-click/Escape pattern as
+    // the mobile menu, scoped to its own small panel instead of the full screen.
+    const catBtn = document.querySelector<HTMLButtonElement>('[data-dock-categories]');
+    const catPanel = document.querySelector<HTMLElement>('[data-dock-categories-panel]');
+    function setCatOpen(open: boolean) {
+      if (!catBtn || !catPanel) return;
+      catPanel.classList.toggle('hidden', !open);
+      catPanel.classList.toggle('flex', open);
+      catBtn.setAttribute('aria-expanded', String(open));
+    }
+    catBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setCatOpen(catPanel?.classList.contains('hidden') ?? true);
+    });
+    document.addEventListener('click', (e) => {
+      if (catPanel && !catPanel.classList.contains('hidden') && !catPanel.contains(e.target as Node)) {
+        setCatOpen(false);
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') setCatOpen(false);
     });
 
     // Account icon: the signed-in shopper's photo (or initials) instead of

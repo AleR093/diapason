@@ -35,6 +35,21 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
 <!doctype html>
 <html lang="es">
   <head>
+    <script is:inline>
+      // Blocking, runs before any CSS paints: sets the `dark` class synchronously
+      // so there is never a flash of the wrong theme. src/scripts/theme.ts (loaded
+      // later, in <body>) takes over from here — same localStorage key, same logic.
+      (function () {
+        try {
+          var t = localStorage.getItem('diapason:theme');
+          if (t !== 'light' && t !== 'dark') {
+            t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          if (t === 'dark') document.documentElement.classList.add('dark');
+          document.documentElement.style.colorScheme = t;
+        } catch (e) {}
+      })();
+    </script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -80,6 +95,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
     <script>
       import '@/scripts/cart.ts';
       import '@/scripts/wishlist.ts';
+      import '@/scripts/theme.ts';
       import '@/lib/supabase/auth.ts';
     </script>
   </body>
