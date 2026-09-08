@@ -1,4 +1,5 @@
 import { escapeHtml } from './product-render';
+import { avatarHTML } from './avatar-render';
 import type { Review, RecentReview } from '@/lib/supabase/reviews';
 
 // Same path as Icon.astro's "star" — duplicated here because live-fetched
@@ -31,7 +32,10 @@ export function reviewRowHTML(r: Review): string {
         <p class="text-[0.76rem] text-brass-ink">${date}</p>
       </div>
       ${r.comment ? `<p class="prose-editorial mt-3 !max-w-none !text-[0.95rem]">${escapeHtml(r.comment)}</p>` : ''}
-      <p class="mt-3 text-[0.85rem] font-medium">${escapeHtml(r.author_name)}</p>
+      <div class="mt-3 flex items-center gap-2.5">
+        ${avatarHTML({ avatarUrl: r.avatar_url, name: r.author_name, size: 26 })}
+        <p class="text-[0.85rem] font-medium">${escapeHtml(r.author_name)}</p>
+      </div>
     </article>`;
 }
 
@@ -47,8 +51,11 @@ export function reviewTickerCardHTML(r: RecentReview): string {
       <p class="mt-3 text-[0.85rem] leading-relaxed text-bone/90 [display:-webkit-box] [-webkit-line-clamp:3] [-webkit-box-orient:vertical] overflow-hidden">
         &ldquo;${escapeHtml(r.comment ?? '')}&rdquo;
       </p>
-      <p class="mt-4 truncate text-[0.76rem] font-medium text-bone/70">
-        ${escapeHtml(r.author_name)}<span class="text-bone/45"> · ${escapeHtml(r.product_name)}</span>
-      </p>
+      <div class="mt-4 flex items-center gap-2">
+        ${avatarHTML({ avatarUrl: r.avatar_url, name: r.author_name, size: 22 })}
+        <p class="min-w-0 truncate text-[0.76rem] font-medium text-bone/70">
+          ${escapeHtml(r.author_name)}<span class="text-bone/45"> · ${escapeHtml(r.product_name)}</span>
+        </p>
+      </div>
     </article>`;
 }

@@ -90,19 +90,28 @@ export function clearCart(): void {
   write([]);
 }
 
-export function onCartChange(handler: (lines: CartLine[]) => void): void {
-  window.addEventListener(EVENT, ((e: CustomEvent<CartLine[]>) => handler(e.detail)) as EventListener);
-  window.addEventListener('storage', (e) => {
+/** Returns an unsubscribe function — see onAuthChange() in auth.ts for why callers should use it. */
+export function onCartChange(handler: (lines: CartLine[]) => void): () => void {
+  const listener = ((e: CustomEvent<CartLine[]>) => handler(e.detail)) as EventListener;
+  const storageListener = (e: StorageEvent) => {
     if (e.key === KEY) handler(read());
-  });
+  };
+  window.addEventListener(EVENT, listener);
+  window.addEventListener('storage', storageListener);
+  return () => {
+    window.removeEventListener(EVENT, listener);
+    window.removeEventListener('storage', storageListener);
+  };
 }
 
 export function openCartDrawer(): void {
   window.dispatchEvent(new CustomEvent(OPEN_EVENT));
 }
 
-export function onOpenCartRequest(handler: () => void): void {
+/** Returns an unsubscribe function — see onAuthChange() in auth.ts for why callers should use it. */
+export function onOpenCartRequest(handler: () => void): () => void {
   window.addEventListener(OPEN_EVENT, handler);
+  return () => window.removeEventListener(OPEN_EVENT, handler);
 }
 
 /** Keeps every [data-cart-count] badge on the page in sync. */
@@ -147,6 +156,9 @@ export function initCart(): void {
   wireAddToCartDelegation();
   onCartChange(syncCounters);
   syncCounters();
+  // The header badge lives in Nav.astro, wholesale-replaced by every view
+  // transition — resync it against the freshly-swapped-in element each time.
+  document.addEventListener('astro:page-load', syncCounters);
 }
 
 if (typeof window !== 'undefined') {

@@ -81,8 +81,12 @@ const heroImg = unsplash('1525201548942-d8732f6617a0', 1400, '4/5');
   import { formatPriceJS } from '@/scripts/product-render';
   import { FELT_PLACEHOLDER } from '@/lib/img';
 
-  const feature = document.querySelector<HTMLAnchorElement>('[data-hero-feature]');
-  if (feature) {
+  // Hero only lives on "/", but view transitions can bring you back to it
+  // more than once per session — astro:page-load re-runs this every time.
+  function init() {
+    const feature = document.querySelector<HTMLAnchorElement>('[data-hero-feature]');
+    if (!feature) return;
+
     // listProducts() already orders by created_at desc, so limit:1 is the newest item.
     listProducts({ limit: 1 }).then(({ data }) => {
       const product = data?.[0];
@@ -106,4 +110,6 @@ const heroImg = unsplash('1525201548942-d8732f6617a0', 1400, '4/5');
       feature.classList.add('flex');
     });
   }
+
+  document.addEventListener('astro:page-load', init);
 </script>

@@ -15,6 +15,18 @@ export function escapeAttr(value: string): string {
   return escapeHtml(value).replace(/`/g, '&#96;');
 }
 
+/**
+ * A shared view-transition-name for a product's image, set by hand (not via
+ * Astro's `transition:name` directive, since these cards are plain HTML
+ * strings rendered client-side, not Astro components). Matching this same
+ * name on the card's image and on /producto's hero image is what makes the
+ * click-through morph instead of hard-cutting. Slugs are already a safe CSS
+ * identifier (see slugify() in products.ts) — the replace is just a guard.
+ */
+export function productImageTransitionName(slug: string): string {
+  return `product-${slug.replace(/[^a-z0-9-]/gi, '')}`;
+}
+
 /** Same visual language as ProductCard.astro, built at runtime for live-fetched data. */
 export function productCardHTML(p: StoreProduct, opts: { inRail?: boolean } = {}): string {
   const img = p.images[0] || FELT_PLACEHOLDER;
@@ -35,7 +47,7 @@ export function productCardHTML(p: StoreProduct, opts: { inRail?: boolean } = {}
             height="800"
             loading="lazy"
             decoding="async"
-            style="background:#E4DDCE"
+            style="background:#E4DDCE; view-transition-name: ${productImageTransitionName(p.slug)}"
             onerror="this.onerror=null;this.src='${FELT_PLACEHOLDER}'"
           />
         </div>

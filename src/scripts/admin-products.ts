@@ -1,6 +1,7 @@
 import { listCategories, type StoreCategory } from '@/lib/supabase/categories';
 import { listProducts, createProduct, updateProduct, updateProductStock, deleteProduct } from '@/lib/supabase/products';
 import { formatPriceJS, escapeHtml } from '@/scripts/product-render';
+import { openDialog, closeDialog } from '@/scripts/dialog-transitions';
 import { FELT_PLACEHOLDER } from '@/lib/img';
 import type { StoreProduct } from '@/lib/types';
 
@@ -178,16 +179,17 @@ export function initAdminProducts(): void {
       fillSubcategoryOptions('');
     }
 
-    dialog!.showModal();
+    openDialog(dialog!);
   }
 
   addBtn?.addEventListener('click', () => openForm('create'));
 
-  dialog.querySelector('[data-product-form-close]')?.addEventListener('click', () => dialog.close());
-  dialog.querySelector('[data-product-form-cancel]')?.addEventListener('click', () => dialog.close());
+  dialog.querySelector('[data-product-form-close]')?.addEventListener('click', () => closeDialog(dialog));
+  dialog.querySelector('[data-product-form-cancel]')?.addEventListener('click', () => closeDialog(dialog));
   dialog.addEventListener('click', (e) => {
-    if (e.target === dialog) dialog.close();
+    if (e.target === dialog) closeDialog(dialog);
   });
+  dialog.addEventListener('close', () => dialog.removeAttribute('data-open'));
 
   tableBody.addEventListener('click', (e) => {
     const editBtn = (e.target as HTMLElement).closest<HTMLElement>('[data-edit-product]');
@@ -287,7 +289,7 @@ export function initAdminProducts(): void {
       return;
     }
 
-    dialog.close();
+    closeDialog(dialog);
     refresh();
   });
 

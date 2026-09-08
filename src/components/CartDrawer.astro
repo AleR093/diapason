@@ -2,10 +2,16 @@
 import Icon from '@/components/Icon.astro';
 ---
 
-<div id="cart-drawer" class="fixed inset-0 z-[70] hidden" data-cart-drawer aria-hidden="true">
+<div
+  id="cart-drawer"
+  class="fixed inset-0 z-[70] pointer-events-none opacity-0 transition-all duration-300 ease-in-out"
+  data-cart-drawer
+  aria-hidden="true"
+>
   <div class="absolute inset-0 bg-ink/50" data-cart-backdrop></div>
   <aside
-    class="absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-bone shadow-[0_0_40px_rgba(26,23,20,0.25)]"
+    class="absolute right-0 top-0 flex h-full w-full max-w-md translate-x-full flex-col bg-bone shadow-[0_0_40px_rgba(26,23,20,0.25)] transition-transform duration-300 ease-in-out"
+    data-cart-panel
     role="dialog"
     aria-modal="true"
     aria-label="Carrito de compra"
@@ -60,12 +66,30 @@ import Icon from '@/components/Icon.astro';
   </li>
 </template>
 
+<style>
+  @media (prefers-reduced-motion: reduce) {
+    [data-cart-drawer],
+    [data-cart-panel] {
+      transition: none;
+    }
+  }
+</style>
+
 <script>
   import { getCart, updateQty, removeFromCart, clearCart, onCartChange, onOpenCartRequest, total, type CartLine } from '@/scripts/cart';
   import { cartWhatsappLink } from '@/config';
 
-  const drawer = document.querySelector<HTMLElement>('[data-cart-drawer]');
-  if (drawer) {
+  // Shared layout markup: rebuilt on every astro:page-load (see bottom), same
+  // reason as AuthModal/SearchModal — element refs and window listeners from
+  // a previous navigation go stale once view transitions swap this out.
+  let unsubscribeCartChange: (() => void) | null = null;
+  let unsubscribeOpenRequest: (() => void) | null = null;
+
+  function init() {
+    const drawer = document.querySelector<HTMLElement>('[data-cart-drawer]');
+    const panel = document.querySelector<HTMLElement>('[data-cart-panel]');
+    if (!drawer || !panel) return;
+
     const backdrop = drawer.querySelector<HTMLElement>('[data-cart-backdrop]');
     const closeBtn = drawer.querySelector<HTMLButtonElement>('[data-cart-close]');
     const list = drawer.querySelector<HTMLUListElement>('[data-cart-list]');
@@ -78,10 +102,12 @@ import Icon from '@/components/Icon.astro';
     const money = new Intl.NumberFormat('es-SV', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 
     function setOpen(open: boolean) {
-      drawer!.classList.toggle('hidden', !open);
+      drawer!.classList.toggle('pointer-events-none', !open);
+      drawer!.classList.toggle('opacity-0', !open);
+      panel!.classList.toggle('translate-x-full', !open);
       drawer!.setAttribute('aria-hidden', String(!open));
       document.documentElement.style.overflow = open ? 'hidden' : '';
-      if (open) (drawer!.querySelector('[data-cart-close]') as HTMLElement | null)?.focus();
+      if (open) closeBtn?.focus();
     }
 
     function render(lines: CartLine[]) {
@@ -130,11 +156,13 @@ import Icon from '@/components/Icon.astro';
       }
     }
 
-    onOpenCartRequest(() => {
+    unsubscribeOpenRequest?.();
+    unsubscribeOpenRequest = onOpenCartRequest(() => {
       render(getCart());
       setOpen(true);
     });
-    onCartChange(render);
+    unsubscribeCartChange?.();
+    unsubscribeCartChange = onCartChange(render);
     render(getCart());
 
     closeBtn?.addEventListener('click', () => setOpen(false));
@@ -143,7 +171,9 @@ import Icon from '@/components/Icon.astro';
       if (confirm('¿Vaciar el carrito?')) clearCart();
     });
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !drawer!.classList.contains('hidden')) setOpen(false);
+      if (e.key === 'Escape' && !drawer!.classList.contains('pointer-events-none')) setOpen(false);
     });
   }
+
+  document.addEventListener('astro:page-load', init);
 </script>

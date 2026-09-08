@@ -16,13 +16,25 @@ import Base from '@/layouts/Base.astro';
 
     <div data-gate-content hidden>
       <h1 class="h-section">Mi cuenta</h1>
-      <p class="prose-editorial mt-4 !text-[1.05rem]">
+
+      <div class="mt-6 flex items-center gap-4">
+        <div data-account-avatar></div>
+        <div>
+          <label class="btn btn--outline w-fit cursor-pointer">
+            Cambiar foto
+            <input type="file" accept="image/*" class="sr-only" data-avatar-input />
+          </label>
+          <p class="mt-2 text-[0.78rem] text-red-800" data-avatar-error hidden></p>
+        </div>
+      </div>
+
+      <p class="prose-editorial mt-6 !text-[1.05rem]">
         Sesión iniciada como <strong data-user-email></strong>.
       </p>
       <p class="mt-3 text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-brass-ink" data-user-role></p>
 
       <div class="mt-10 flex flex-wrap gap-3">
-        <a href="/admin" class="btn btn--outline" data-admin-only hidden>Panel de administración</a>
+        <a href="/admin" class="btn btn--outline" data-admin-only hidden data-astro-reload>Panel de administración</a>
         <button type="button" class="btn btn--link" data-sign-out>Cerrar sesión</button>
       </div>
     </div>
@@ -31,5 +43,49 @@ import Base from '@/layouts/Base.astro';
 
 <script>
   import { initAuthGate } from '@/scripts/auth-gate';
-  initAuthGate();
+  import { getAuthState, onAuthChange, updateAvatar } from '@/lib/supabase/auth';
+  import { avatarHTML } from '@/scripts/avatar-render';
+
+  let unsubscribeAuth: (() => void) | null = null;
+
+  function init() {
+    initAuthGate();
+
+    const avatarSlot = document.querySelector<HTMLElement>('[data-account-avatar]');
+    const avatarInput = document.querySelector<HTMLInputElement>('[data-avatar-input]');
+    const avatarError = document.querySelector<HTMLElement>('[data-avatar-error]');
+    if (!avatarSlot) return;
+
+    function renderAvatar() {
+      const { session, profile } = getAuthState();
+      avatarSlot!.innerHTML = avatarHTML({
+        avatarUrl: profile?.avatar_url,
+        name: profile?.full_name,
+        email: session?.user.email,
+        size: 64,
+      });
+    }
+
+    unsubscribeAuth?.();
+    unsubscribeAuth = onAuthChange(renderAvatar);
+    renderAvatar();
+
+    avatarInput?.addEventListener('change', async () => {
+      const file = avatarInput.files?.[0];
+      if (!file) return;
+      if (avatarError) avatarError.hidden = true;
+      avatarInput.disabled = true;
+
+      const { error } = await updateAvatar(file);
+
+      avatarInput.disabled = false;
+      avatarInput.value = '';
+      if (error && avatarError) {
+        avatarError.textContent = 'No se pudo actualizar tu foto: ' + error;
+        avatarError.hidden = false;
+      }
+    });
+  }
+
+  document.addEventListener('astro:page-load', init);
 </script>

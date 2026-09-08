@@ -35,7 +35,7 @@ src/
     types.ts             Spec, StoreProduct (fila real de products)
     supabase/
       client.ts          Cliente único de Supabase (browser)
-      auth.ts            Sesión, perfil y rol: initAuth/onAuthChange/isAdmin…
+      auth.ts            Sesión, perfil, rol y avatar: initAuth/onAuthChange/isAdmin/updateAvatar…
       products.ts        CRUD del catálogo: listProducts/createProduct/updateProduct/…
       categories.ts      CRUD de familias: listCategories/createCategory/createSubcategory/…
       reviews.ts         Reseñas: getReviewsByProduct/addReview/getRecentReviews
@@ -60,6 +60,8 @@ src/
                             lo que renderiza productos del lado del cliente
     category-render.ts     HTML de tile de familia + chip de subcategoría, mismo patrón
     review-render.ts       HTML de estrellas/fila de reseña/tarjeta del ticker en vivo
+    avatar-render.ts       Foto circular o iniciales — mismo markup en Nav, /cuenta y reseñas
+    dialog-transitions.ts  openDialog/closeDialog: abre/cierra los <dialog> con fundido
   pages/
     index.astro            Home — familias, "novedades" y ticker de reseñas, todo en vivo
     catalogo/index.astro   Catálogo completo: sin ?categoria= muestra tiles + todo/novedades;
@@ -75,6 +77,7 @@ supabase/
   categories.sql          Tablas categories/subcategories + RLS + FK products.category_slug
   seed-products.sql       Los ~28 productos originales, migrados a Supabase
   reviews.sql             Tabla reviews + RLS (lectura pública, alta libre)
+  avatars.sql             avatar_url en profiles/reviews + bucket 'avatars' + RPC update_my_avatar
 ```
 
 ## Qué personalizar
@@ -154,6 +157,63 @@ evento y vuelve a consultar Supabase de inmediato, así que una reseña recién 
 aparece en la cinta sin recargar la página (siempre que la home siga abierta en otra
 pestaña o se navegue a ella después).
 
+## Fotos de perfil
+
+Desde **`/cuenta`**, cualquier persona con sesión puede subir una foto ("Cambiar foto").
+`updateAvatar()` (`src/lib/supabase/auth.ts`) sube el archivo al bucket `avatars` en
+`<uid>/archivo.ext` y guarda la URL pública en `profiles.avatar_url` — no por un
+`update` directo (esa tabla no tiene política de UPDATE a propósito, ver
+`schema.sql`), sino por la función `update_my_avatar` (`security definer`,
+`avatars.sql`), que solo puede tocar esa columna de la propia fila.
+
+Sin foto, se muestra un círculo con las iniciales del nombre (o del correo) —
+`avatarHTML()` en `src/scripts/avatar-render.ts` es el único generador de ese círculo,
+usado en tres sitios:
+
+- El ícono de cuenta del menú (`Nav.astro`), que cambia solo al iniciar/cerrar sesión.
+- `/cuenta`, junto al botón para cambiar la foto.
+- Cada reseña (`reviewRowHTML`/`reviewTickerCardHTML`). Como `profiles` solo lo puede
+  leer su dueño, el avatar se copia a la fila de `reviews` en el momento de publicarla
+  (igual que ya pasa con `author_name`) — no hay forma de unirla en vivo con `profiles`
+  para mostrar la foto de otra persona.
+
+## Transiciones de página (View Transitions)
+
+El sitio usa las View Transitions nativas de Astro (`<ViewTransitions />` en
+`Base.astro`): navegar entre páginas hace un fundido suave en vez de un corte brusco
+(`src/styles/global.css`, con `prefers-reduced-motion` respetado), y la imagen de un
+producto en una tarjeta del catálogo viaja hacia la ficha del producto en vez de
+recargarse — ambas comparten el mismo `view-transition-name` (`product-<slug>`),
+asignado a mano en `product-render.ts` y `producto/index.astro` porque esas imágenes
+se generan como HTML en el cliente, no como componentes de Astro.
+
+**Por qué casi todos los `<script>` del sitio están envueltos en
+`document.addEventListener('astro:page-load', …)`:** Astro reemplaza el `<body>`
+completo en cada navegación y solo vuelve a ejecutar un script si su contenido cambió
+respecto a la página anterior. Eso rompe justo el patrón que usa este sitio para
+`/producto?slug=…` y `/catalogo?categoria=…`: son la *misma* página con distinta
+query string, así que su script nunca cambia entre una ficha y otra — sin este ajuste,
+hacer clic en "también te puede interesar" no actualizaría nada. `astro:page-load` sí
+se dispara siempre (en la carga inicial y en cada transición), así que toda la lógica
+que depende del DOM o de `location.search` vive dentro de un `init()` re-ejecutable, no
+suelta en el nivel superior del script.
+
+Ese mismo re-ejecutarse tiene un costo: componentes compartidos con un
+`window.addEventListener` propio (`AuthModal`, `SearchModal`, `CartDrawer`, el ticker de
+reseñas) podrían acumular un listener por cada visita repetida a la página que los usa.
+Donde eso podía romper algo visible (`showModal()` sobre un `<dialog>` ya
+desconectado), la suscripción se guarda y se retira antes de crear la siguiente —
+`onAuthChange`/`onCartChange`/`onOpenCartRequest` devuelven una función para
+desuscribirse justo por esto. El panel de `/admin` no lo necesita: sus enlaces llevan
+`data-astro-reload`, así que siempre llega por una carga de página completa.
+
+Los `<dialog>` (login, buscador, formularios de `/admin`) y el panel del carrito abren y
+cierran con una transición de 300ms (opacidad + escala/deslizamiento) en vez de aparecer
+de golpe — `src/scripts/dialog-transitions.ts` (`openDialog`/`closeDialog`) sincroniza el
+`showModal()`/`close()` nativo con esa animación para los `<dialog>`; el carrito usa
+clases de Tailwind (`transition-all duration-300 ease-in-out`) directamente sobre su
+propio marcado.
+
 ## Base de datos y autenticación
 
 Login, roles y **todo el catálogo** viven en Supabase (Auth + Postgres + Storage). El
@@ -197,12 +257,16 @@ En el **SQL Editor** del proyecto, pega y ejecuta, **en este orden**:
 5. [`supabase/reviews.sql`](supabase/reviews.sql) — tabla `public.reviews` (FK a
    `products`) y RLS: **cualquiera puede leer y publicar** una reseña, con sesión o sin
    ella. Necesita haber corrido el paso 2 antes (la FK apunta a `products`).
+6. [`supabase/avatars.sql`](supabase/avatars.sql) — agrega `avatar_url` a `profiles` y a
+   `reviews`, el bucket público `avatars`, y la función `update_my_avatar` (ver
+   [Fotos de perfil](#fotos-de-perfil) más abajo). Necesita el paso 5 (altera `reviews`).
 
 Sin el paso 2, el catálogo, la búsqueda y el panel de productos muestran su estado de
 error ("no se pudo cargar") en vez de romper la build o la página. Sin el paso 3, el
 menú y `/catalogo` no listan ninguna familia y el formulario de productos no tiene
 categorías para elegir. Sin el paso 5, la ficha de producto muestra "Sin opiniones
-todavía" y el ticker de la home se mantiene oculto.
+todavía" y el ticker de la home se mantiene oculto. Sin el paso 6, subir una foto de
+perfil falla con un error visible en `/cuenta`.
 
 ### 3. Crea tu primer administrador
 

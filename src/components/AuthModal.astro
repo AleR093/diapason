@@ -91,9 +91,26 @@ import Icon from '@/components/Icon.astro';
     padding: 0;
     background: transparent;
     color: theme('colors.ink');
+    opacity: 0;
+    transform: scale(0.97) translateY(6px);
+    transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
+  }
+  .auth-dialog[data-open] {
+    opacity: 1;
+    transform: none;
   }
   .auth-dialog::backdrop {
+    background: rgba(26, 23, 20, 0);
+    transition: background-color 300ms ease-in-out;
+  }
+  .auth-dialog[data-open]::backdrop {
     background: rgba(26, 23, 20, 0.55);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .auth-dialog,
+    .auth-dialog::backdrop {
+      transition: none;
+    }
   }
   .auth-tab[aria-selected='true'] {
     color: theme('colors.ink');
@@ -113,11 +130,19 @@ import Icon from '@/components/Icon.astro';
 
 <script>
   import { signInWithPassword, signUp } from '@/lib/supabase/auth';
+  import { openDialog, closeDialog } from '@/scripts/dialog-transitions';
 
   type TabName = 'login' | 'register';
 
-  const dialog = document.querySelector<HTMLDialogElement>('#auth-modal');
-  if (dialog) {
+  // Rebuilt on every astro:page-load (see bottom): AuthModal is shared layout
+  // markup, wholesale-replaced on each view-transition navigation, so the
+  // previous run's element references and window listener go stale.
+  let openHandler: (() => void) | null = null;
+
+  function init() {
+    const dialog = document.querySelector<HTMLDialogElement>('#auth-modal');
+    if (!dialog) return;
+
     const tabs = [...dialog.querySelectorAll<HTMLButtonElement>('[data-auth-tab]')];
     const forms: Record<TabName, HTMLFormElement | null> = {
       login: dialog.querySelector('[data-auth-form="login"]'),
@@ -134,22 +159,25 @@ import Icon from '@/components/Icon.astro';
 
     tabs.forEach((tab) => tab.addEventListener('click', () => setTab(tab.dataset.authTab as TabName)));
 
-    dialog.querySelector('[data-auth-close]')?.addEventListener('click', () => dialog.close());
+    dialog.querySelector('[data-auth-close]')?.addEventListener('click', () => closeDialog(dialog));
     dialog.addEventListener('click', (e) => {
-      if (e.target === dialog) dialog.close();
+      if (e.target === dialog) closeDialog(dialog);
     });
     dialog.addEventListener('close', () => {
+      dialog.removeAttribute('data-open');
       document.documentElement.style.overflow = '';
     });
 
-    window.addEventListener('diapason:open-auth', () => {
+    if (openHandler) window.removeEventListener('diapason:open-auth', openHandler);
+    openHandler = () => {
       setTab('login');
       forms.login?.reset();
       forms.register?.reset();
       dialog.querySelectorAll('[data-auth-error], [data-auth-success]').forEach((el) => el.classList.add('hidden'));
       document.documentElement.style.overflow = 'hidden';
-      dialog.showModal();
-    });
+      openDialog(dialog);
+    };
+    window.addEventListener('diapason:open-auth', openHandler);
 
     forms.login?.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -176,7 +204,7 @@ import Icon from '@/components/Icon.astro';
         return;
       }
 
-      dialog.close();
+      closeDialog(dialog);
       form.reset();
     });
 
@@ -217,8 +245,10 @@ import Icon from '@/components/Icon.astro';
         return;
       }
 
-      dialog.close();
+      closeDialog(dialog);
       form.reset();
     });
   }
+
+  document.addEventListener('astro:page-load', init);
 </script>

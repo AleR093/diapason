@@ -9,6 +9,7 @@ import {
 } from '@/lib/supabase/categories';
 import type { StoreCategory } from '@/lib/supabase/categories';
 import { escapeHtml } from '@/scripts/product-render';
+import { openDialog, closeDialog } from '@/scripts/dialog-transitions';
 
 /** Tells the products panel (category/subcategory dropdowns) to re-fetch and repaint. */
 function notifyCategoriesChanged(): void {
@@ -112,15 +113,16 @@ export function initAdminCategories(): void {
       (form?.querySelector('[name="heroImage"]') as HTMLInputElement).value = category.hero_image ?? '';
     }
 
-    dialog!.showModal();
+    openDialog(dialog!);
   }
 
   addBtn?.addEventListener('click', () => openForm('create'));
-  dialog.querySelector('[data-category-form-close]')?.addEventListener('click', () => dialog.close());
-  dialog.querySelector('[data-category-form-cancel]')?.addEventListener('click', () => dialog.close());
+  dialog.querySelector('[data-category-form-close]')?.addEventListener('click', () => closeDialog(dialog));
+  dialog.querySelector('[data-category-form-cancel]')?.addEventListener('click', () => closeDialog(dialog));
   dialog.addEventListener('click', (e) => {
-    if (e.target === dialog) dialog.close();
+    if (e.target === dialog) closeDialog(dialog);
   });
+  dialog.addEventListener('close', () => dialog.removeAttribute('data-open'));
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -156,7 +158,7 @@ export function initAdminCategories(): void {
       return;
     }
 
-    dialog.close();
+    closeDialog(dialog);
     notifyCategoriesChanged();
     refresh();
   });

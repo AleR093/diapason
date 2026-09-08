@@ -17,7 +17,7 @@ import CatalogListing from '@/components/CatalogListing.astro';
 
     <div class="mt-10 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-5" data-category-tiles></div>
     <p class="text-[0.9rem] text-brass-ink" data-category-tiles-empty hidden>
-      Todavía no hay categorías creadas. <a href="/admin" class="underline">Agrégalas desde el panel</a>.
+      Todavía no hay categorías creadas. <a href="/admin" class="underline" data-astro-reload>Agrégalas desde el panel</a>.
     </p>
 
     <div class="mt-16 flex flex-wrap items-end justify-between gap-4 border-t border-line pt-8">
@@ -34,7 +34,7 @@ import CatalogListing from '@/components/CatalogListing.astro';
 
     <div class="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 md:gap-x-6 lg:grid-cols-4" data-grid></div>
     <p class="py-10 text-[0.9rem] text-brass-ink" data-empty-state hidden>
-      Todavía no hay piezas en el catálogo. <a href="/admin" class="underline">Agrégalas desde el panel</a>.
+      Todavía no hay piezas en el catálogo. <a href="/admin" class="underline" data-astro-reload>Agrégalas desde el panel</a>.
     </p>
     <p class="py-10 text-[0.9rem] text-red-800" data-error-state hidden>
       No se pudo cargar el catálogo en este momento. Intenta de nuevo en unos minutos.
@@ -51,11 +51,15 @@ import CatalogListing from '@/components/CatalogListing.astro';
   import { productCardHTML } from '@/scripts/product-render';
   import { categoryTileHTML, wireCategoryTileCounts } from '@/scripts/category-render';
 
-  const params = new URLSearchParams(location.search);
-  const home = document.querySelector<HTMLElement>('[data-catalog-home]');
+  // Re-runs on every astro:page-load: /catalogo?filtro=nuevos <-> /catalogo
+  // is a same-route navigation Astro's view transitions won't otherwise
+  // re-execute this script for (see the sibling comment in producto/index.astro).
+  function init() {
+    const params = new URLSearchParams(location.search);
+    const home = document.querySelector<HTMLElement>('[data-catalog-home]');
 
-  // A ?categoria= present means CatalogListing.astro takes over — home mode stays out of the way.
-  if (home) {
+    // A ?categoria= present means CatalogListing.astro takes over — home mode stays out of the way.
+    if (!home) return;
     if (params.get('categoria')) {
       home.hidden = true;
     } else {
@@ -97,4 +101,6 @@ import CatalogListing from '@/components/CatalogListing.astro';
       });
     }
   }
+
+  document.addEventListener('astro:page-load', init);
 </script>

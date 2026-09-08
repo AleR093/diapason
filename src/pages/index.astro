@@ -21,7 +21,7 @@ const bandImg = unsplash('1516924962500-2b4b3b99ea02', 1000, '4/5');
     </div>
     <div class="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-5" data-category-tiles></div>
     <p class="prose-editorial !text-[0.95rem]" data-category-tiles-empty hidden>
-      Todavía no hay categorías creadas. <a href="/admin" class="underline">Agrégalas desde el panel</a>.
+      Todavía no hay categorías creadas. <a href="/admin" class="underline" data-astro-reload>Agrégalas desde el panel</a>.
     </p>
   </section>
 
@@ -33,7 +33,7 @@ const bandImg = unsplash('1516924962500-2b4b3b99ea02', 1000, '4/5');
     </div>
     <div class="shell mt-10" data-rail-slot aria-labelledby="destacados-h">
       <p class="prose-editorial !text-[0.95rem]" data-rail-empty hidden>
-        Todavía no hay productos cargados. <a href="/admin" class="underline">Agrega el primero</a>.
+        Todavía no hay productos cargados. <a href="/admin" class="underline" data-astro-reload>Agrega el primero</a>.
       </p>
     </div>
   </section>
@@ -97,33 +97,39 @@ const bandImg = unsplash('1516924962500-2b4b3b99ea02', 1000, '4/5');
   import { productRailHTML } from '@/scripts/product-render';
   import { categoryTileHTML, wireCategoryTileCounts } from '@/scripts/category-render';
 
-  const tiles = document.querySelector<HTMLElement>('[data-category-tiles]');
-  const tilesEmpty = document.querySelector<HTMLElement>('[data-category-tiles-empty]');
-  if (tiles) {
-    listCategories().then(({ data }) => {
-      if (!data || !data.length) {
-        if (tilesEmpty) tilesEmpty.hidden = false;
-        return;
-      }
-      tiles.innerHTML = data.map((c) => categoryTileHTML(c)).join('');
-      wireCategoryTileCounts(tiles);
-    });
+  // astro:page-load fires on the initial load AND after every view-transition
+  // navigation back to "/" — plain top-level code would only ever run once.
+  function init() {
+    const tiles = document.querySelector<HTMLElement>('[data-category-tiles]');
+    const tilesEmpty = document.querySelector<HTMLElement>('[data-category-tiles-empty]');
+    if (tiles) {
+      listCategories().then(({ data }) => {
+        if (!data || !data.length) {
+          if (tilesEmpty) tilesEmpty.hidden = false;
+          return;
+        }
+        tiles.innerHTML = data.map((c) => categoryTileHTML(c)).join('');
+        wireCategoryTileCounts(tiles);
+      });
+    }
+
+    const slot = document.querySelector<HTMLElement>('[data-rail-slot]');
+    if (slot) {
+      listProducts({ onlyNew: true, limit: 8 }).then(async ({ data }) => {
+        let products = data ?? [];
+        if (products.length === 0) {
+          // No "new" flag set yet? Fall back to the latest products overall.
+          const fallback = await listProducts({ limit: 8 });
+          products = fallback.data ?? [];
+        }
+        if (products.length === 0) {
+          slot.querySelector<HTMLElement>('[data-rail-empty]')!.hidden = false;
+          return;
+        }
+        slot.innerHTML = productRailHTML(products);
+      });
+    }
   }
 
-  const slot = document.querySelector<HTMLElement>('[data-rail-slot]');
-  if (slot) {
-    listProducts({ onlyNew: true, limit: 8 }).then(async ({ data }) => {
-      let products = data ?? [];
-      if (products.length === 0) {
-        // No "new" flag set yet? Fall back to the latest products overall.
-        const fallback = await listProducts({ limit: 8 });
-        products = fallback.data ?? [];
-      }
-      if (products.length === 0) {
-        slot.querySelector<HTMLElement>('[data-rail-empty]')!.hidden = false;
-        return;
-      }
-      slot.innerHTML = productRailHTML(products);
-    });
-  }
+  document.addEventListener('astro:page-load', init);
 </script>

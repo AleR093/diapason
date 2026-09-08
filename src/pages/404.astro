@@ -20,8 +20,9 @@ import Button from '@/components/Button.astro';
   import { listCategories } from '@/lib/supabase/categories';
   import { escapeHtml } from '@/scripts/product-render';
 
-  const list = document.querySelector<HTMLElement>('[data-notfound-categories]');
-  if (list) {
+  function init() {
+    const list = document.querySelector<HTMLElement>('[data-notfound-categories]');
+    if (!list) return;
     listCategories().then(({ data }) => {
       if (!data || !data.length) return;
       list.innerHTML = data
@@ -32,4 +33,6 @@ import Button from '@/components/Button.astro';
         .join('');
     });
   }
+
+  document.addEventListener('astro:page-load', init);
 </script>

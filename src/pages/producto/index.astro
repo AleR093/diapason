@@ -154,7 +154,7 @@ import Icon from '@/components/Icon.astro';
 
 <script>
   import { getProductBySlug, getRelatedProducts } from '@/lib/supabase/products';
-  import { productRailHTML, formatPriceJS, escapeHtml } from '@/scripts/product-render';
+  import { productRailHTML, formatPriceJS, escapeHtml, productImageTransitionName } from '@/scripts/product-render';
   import { getReviewsByProduct, addReview } from '@/lib/supabase/reviews';
   import type { Review } from '@/lib/supabase/reviews';
   import { starsHTML, reviewRowHTML } from '@/scripts/review-render';
@@ -164,8 +164,17 @@ import Icon from '@/components/Icon.astro';
   import { getCategoryBySlug } from '@/lib/supabase/categories';
   import type { Spec } from '@/lib/types';
 
-  const root = document.querySelector<HTMLElement>('[data-pdp]');
-  if (root) {
+  // ?slug= only exists at runtime, and re-clicking to another /producto?slug=
+  // is a same-route view-transition navigation Astro won't re-run this script
+  // for on its own — astro:page-load (fired on every navigation, including
+  // the first) is what makes that work. See dialog-transitions.ts's sibling
+  // comment pattern for the same idea applied to shared modals.
+  let unsubscribeAuth: (() => void) | null = null;
+
+  function init() {
+    const root = document.querySelector<HTMLElement>('[data-pdp]');
+    if (!root) return;
+
     const loading = root.querySelector<HTMLElement>('[data-pdp-loading]');
     const notFound = root.querySelector<HTMLElement>('[data-pdp-notfound]');
     const content = root.querySelector<HTMLElement>('[data-pdp-content]');
@@ -208,7 +217,8 @@ import Icon from '@/components/Icon.astro';
       if (profile?.full_name) reviewAuthorInput.value = profile.full_name;
     }
     applyAuthorFromSession();
-    onAuthChange(applyAuthorFromSession);
+    unsubscribeAuth?.();
+    unsubscribeAuth = onAuthChange(applyAuthorFromSession);
 
     function renderReviewSummary(reviews: Review[]) {
       if (!reviews.length) {
@@ -267,6 +277,7 @@ import Icon from '@/components/Icon.astro';
                 width="1100" height="1375"
                 loading="${i === 0 ? 'eager' : 'lazy'}"
                 class="w-full bg-felt object-cover ${i > 0 ? 'hidden md:block' : ''}"
+                ${i === 0 ? `style="view-transition-name: ${productImageTransitionName(product.slug)}"` : ''}
                 onerror="this.onerror=null;this.src='${FELT_PLACEHOLDER}'"
               />`,
             )
@@ -346,11 +357,12 @@ import Icon from '@/components/Icon.astro';
           const submitBtn = reviewForm.querySelector<HTMLButtonElement>('button[type="submit"]');
           if (submitBtn) submitBtn.disabled = true;
 
-          const { session } = getAuthState();
+          const { session, profile } = getAuthState();
           const { error: reviewSubmitError } = await addReview({
             productId: product.id,
             userId: session?.user.id ?? null,
             authorName: reviewAuthorInput?.value || '',
+            avatarUrl: profile?.avatar_url,
             rating,
             comment: reviewCommentInput?.value || '',
           });
@@ -384,4 +396,6 @@ import Icon from '@/components/Icon.astro';
       });
     }
   }
+
+  document.addEventListener('astro:page-load', init);
 </script>

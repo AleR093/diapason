@@ -8,6 +8,7 @@ export interface Profile {
   email: string | null;
   full_name: string | null;
   role: Role;
+  avatar_url: string | null;
 }
 
 export interface AuthState {
@@ -45,7 +46,7 @@ async function loadProfile(userId: string): Promise<Profile | null> {
   const fetchProfile = (async (): Promise<Profile | null> => {
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, email, full_name, role')
+      .select('id, email, full_name, role, avatar_url')
       .eq('id', userId)
       .single();
 
@@ -84,8 +85,16 @@ export function getAuthState(): AuthState {
   return current;
 }
 
-export function onAuthChange(handler: (state: AuthState) => void): void {
-  window.addEventListener(EVENT, ((e: CustomEvent<AuthState>) => handler(e.detail)) as EventListener);
+/**
+ * Subscribes to auth-state changes. Returns an unsubscribe function — callers
+ * that re-run their setup on every page (e.g. a view-transitions `astro:page-load`
+ * handler) should call it before subscribing again, or listeners pile up across
+ * repeat visits to the same gated page.
+ */
+export function onAuthChange(handler: (state: AuthState) => void): () => void {
+  const listener = ((e: CustomEvent<AuthState>) => handler(e.detail)) as EventListener;
+  window.addEventListener(EVENT, listener);
+  return () => window.removeEventListener(EVENT, listener);
 }
 
 export function isAdmin(state: AuthState = current): boolean {
@@ -115,6 +124,40 @@ export async function signUp(
 
 export async function signOut(): Promise<void> {
   await supabase.auth.signOut();
+}
+
+const AVATAR_BUCKET = 'avatars';
+
+/**
+ * Uploads a new profile photo for the signed-in user and saves its public URL
+ * on `profiles.avatar_url` (via the `update_my_avatar` RPC — profiles has no
+ * generic UPDATE policy on purpose, see schema.sql). Updates the in-memory
+ * `AuthState` and notifies subscribers immediately, so the header avatar and
+ * any open account page reflect it without a reload.
+ */
+export async function updateAvatar(file: File): Promise<{ url: string | null; error: string | null }> {
+  const userId = current.session?.user.id;
+  if (!userId) return { url: null, error: 'No hay sesión activa.' };
+
+  const ext = file.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+  const path = `${userId}/${Date.now()}.${ext}`;
+
+  const { error: uploadError } = await supabase.storage.from(AVATAR_BUCKET).upload(path, file, {
+    cacheControl: '31536000',
+    upsert: true,
+  });
+  if (uploadError) return { url: null, error: uploadError.message };
+
+  const { data } = supabase.storage.from(AVATAR_BUCKET).getPublicUrl(path);
+  const url = data.publicUrl;
+
+  const { error: rpcError } = await supabase.rpc('update_my_avatar', { new_avatar_url: url });
+  if (rpcError) return { url: null, error: rpcError.message };
+
+  if (current.profile) current.profile = { ...current.profile, avatar_url: url };
+  window.dispatchEvent(new CustomEvent<AuthState>(EVENT, { detail: current }));
+
+  return { url, error: null };
 }
 
 // Start listening the moment this module is first imported anywhere

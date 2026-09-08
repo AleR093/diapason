@@ -55,7 +55,7 @@ const wordmark = SITE.name.toUpperCase().split('').join(' ');
           <Icon name="heart" size={19} />
         </a>
         <a href="/cuenta" aria-label="Mi cuenta" class="transition-opacity hover:opacity-60">
-          <Icon name="user" size={19} />
+          <span data-nav-avatar data-avatar-size="20"><Icon name="user" size={19} /></span>
         </a>
         <button type="button" data-open-cart aria-label="Carrito" class="relative transition-opacity hover:opacity-60">
           <Icon name="bag" size={19} />
@@ -118,7 +118,7 @@ const wordmark = SITE.name.toUpperCase().split('').join(' ');
         <Icon name="search" size={16} />Buscar en el catálogo
       </button>
       <a href="/cuenta" class="flex items-center gap-2 text-brass-ink">
-        <Icon name="user" size={16} />Mi cuenta
+        <span data-nav-avatar data-avatar-size="18"><Icon name="user" size={16} /></span>Mi cuenta
       </a>
       <a href={`tel:${SITE.phone.replace(/[\s-]/g, '')}`} class="flex items-center gap-2 text-brass-ink">
         <Icon name="phone" size={16} />{SITE.phone}
@@ -135,34 +135,71 @@ const wordmark = SITE.name.toUpperCase().split('').join(' ');
 
 <script>
   import { openCartDrawer } from '@/scripts/cart';
+  import { getAuthState, onAuthChange } from '@/lib/supabase/auth';
+  import { avatarHTML } from '@/scripts/avatar-render';
 
-  const panel = document.querySelector<HTMLElement>('[data-menu-panel]');
-  const openBtns = document.querySelectorAll<HTMLButtonElement>('[data-menu-open]');
-  const closeBtn = document.querySelector<HTMLButtonElement>('[data-menu-close]');
+  // Nav is shared layout markup: view transitions replace it wholesale on
+  // every navigation, so this whole setup re-runs from scratch each time
+  // (see the astro:page-load registration at the bottom).
+  let unsubscribeAuth: (() => void) | null = null;
 
-  function setOpen(open: boolean) {
-    if (!panel) return;
-    panel.classList.toggle('hidden', !open);
-    document.documentElement.style.overflow = open ? 'hidden' : '';
-    openBtns.forEach((b) => b.setAttribute('aria-expanded', String(open)));
-    if (open) {
-      panel.querySelector<HTMLElement>('a, button')?.focus();
+  function init() {
+    const panel = document.querySelector<HTMLElement>('[data-menu-panel]');
+    const openBtns = document.querySelectorAll<HTMLButtonElement>('[data-menu-open]');
+    const closeBtn = document.querySelector<HTMLButtonElement>('[data-menu-close]');
+
+    function setOpen(open: boolean) {
+      if (!panel) return;
+      panel.classList.toggle('hidden', !open);
+      document.documentElement.style.overflow = open ? 'hidden' : '';
+      openBtns.forEach((b) => b.setAttribute('aria-expanded', String(open)));
+      if (open) {
+        panel.querySelector<HTMLElement>('a, button')?.focus();
+      }
     }
+
+    openBtns.forEach((b) => b.addEventListener('click', () => setOpen(true)));
+    closeBtn?.addEventListener('click', () => setOpen(false));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') setOpen(false);
+    });
+
+    document.querySelectorAll<HTMLButtonElement>('[data-open-search]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        setOpen(false);
+        window.dispatchEvent(new CustomEvent('diapason:open-search'));
+      });
+    });
+    document.querySelectorAll<HTMLButtonElement>('[data-open-cart]').forEach((btn) => {
+      btn.addEventListener('click', () => openCartDrawer());
+    });
+
+    // Account icon: the signed-in shopper's photo (or initials) instead of
+    // the generic outline, restored to the outline on sign-out.
+    const avatarSlots = [...document.querySelectorAll<HTMLElement>('[data-nav-avatar]')];
+    const defaultIconHTML = avatarSlots.map((slot) => slot.innerHTML);
+
+    function renderAccount() {
+      const state = getAuthState();
+      avatarSlots.forEach((slot, i) => {
+        if (state.session) {
+          const size = Number(slot.dataset.avatarSize || 20);
+          slot.innerHTML = avatarHTML({
+            avatarUrl: state.profile?.avatar_url,
+            name: state.profile?.full_name,
+            email: state.session.user.email,
+            size,
+          });
+        } else {
+          slot.innerHTML = defaultIconHTML[i];
+        }
+      });
+    }
+
+    unsubscribeAuth?.();
+    unsubscribeAuth = onAuthChange(renderAccount);
+    renderAccount();
   }
 
-  openBtns.forEach((b) => b.addEventListener('click', () => setOpen(true)));
-  closeBtn?.addEventListener('click', () => setOpen(false));
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') setOpen(false);
-  });
-
-  document.querySelectorAll<HTMLButtonElement>('[data-open-search]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      setOpen(false);
-      window.dispatchEvent(new CustomEvent('diapason:open-search'));
-    });
-  });
-  document.querySelectorAll<HTMLButtonElement>('[data-open-cart]').forEach((btn) => {
-    btn.addEventListener('click', () => openCartDrawer());
-  });
+  document.addEventListener('astro:page-load', init);
 </script>

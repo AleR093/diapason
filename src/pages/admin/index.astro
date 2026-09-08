@@ -148,11 +148,18 @@ import CategoryFormModal from '@/components/CategoryFormModal.astro';
   import { initAdminCategories } from '@/scripts/admin-categories';
   import { refreshAdminMetrics } from '@/scripts/admin-dashboard';
 
-  initAuthGate({ requireAdmin: true });
-  initAdminProducts();
-  initAdminCategories();
+  // Links into /admin use data-astro-reload (see Nav/cuenta/CatalogListing),
+  // so this always runs on a fresh document load — wrapped in astro:page-load
+  // anyway for consistency with the rest of the site.
+  function init() {
+    initAuthGate({ requireAdmin: true });
+    initAdminProducts();
+    initAdminCategories();
 
-  refreshAdminMetrics();
-  window.addEventListener('diapason:categories-change', refreshAdminMetrics);
-  window.addEventListener('diapason:products-change', refreshAdminMetrics);
+    refreshAdminMetrics();
+    window.addEventListener('diapason:categories-change', refreshAdminMetrics);
+    window.addEventListener('diapason:products-change', refreshAdminMetrics);
+  }
+
+  document.addEventListener('astro:page-load', init);
 </script>

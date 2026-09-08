@@ -7,6 +7,7 @@ export interface Review {
   product_id: string;
   user_id: string | null;
   author_name: string;
+  avatar_url: string | null;
   rating: number;
   comment: string | null;
   created_at: string;
@@ -27,6 +28,8 @@ export interface NewReview {
   productId: string;
   userId?: string | null;
   authorName: string;
+  /** Copied from the reviewer's profile at submit time — see avatars.sql for why. */
+  avatarUrl?: string | null;
   rating: number;
   comment: string;
 }
@@ -54,6 +57,7 @@ export async function addReview(input: NewReview): Promise<Result<Review>> {
       product_id: input.productId,
       user_id: input.userId || null,
       author_name: input.authorName.trim() || 'Cliente Anónimo',
+      avatar_url: input.avatarUrl || null,
       rating: input.rating,
       comment: input.comment.trim() || null,
     })

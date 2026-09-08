@@ -36,10 +36,15 @@
   import { getRecentReviews } from '@/lib/supabase/reviews';
   import { reviewTickerCardHTML } from '@/scripts/review-render';
 
-  const section = document.querySelector<HTMLElement>('[data-review-ticker]');
-  const track = document.querySelector<HTMLElement>('[data-review-ticker-track]');
+  // ReviewTicker only lives on "/", but view transitions can bring you back
+  // more than once per session — astro:page-load re-runs this every time.
+  let unsubscribeReviewSubmitted: (() => void) | null = null;
 
-  if (section && track) {
+  function init() {
+    const section = document.querySelector<HTMLElement>('[data-review-ticker]');
+    const track = document.querySelector<HTMLElement>('[data-review-ticker-track]');
+    if (!section || !track) return;
+
     async function load() {
       const { data } = await getRecentReviews(10);
       const reviews = data ?? [];
@@ -57,6 +62,10 @@
 
     load();
     // A review submitted from any product page refreshes this ticker in place.
+    unsubscribeReviewSubmitted?.();
     window.addEventListener('review-submitted', load);
+    unsubscribeReviewSubmitted = () => window.removeEventListener('review-submitted', load);
   }
+
+  document.addEventListener('astro:page-load', init);
 </script>

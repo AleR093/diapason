@@ -12,9 +12,16 @@ interface GateOptions {
  * security boundary: the real protection is Row Level Security in Supabase,
  * which refuses to hand back data without a valid, authorized session.
  */
+// A page revisited via view transitions re-runs its script, so a previous
+// visit's subscription (pointing at now-detached panels) must be dropped
+// before this one subscribes again — otherwise they pile up for the session.
+let unsubscribe: (() => void) | null = null;
+
 export function initAuthGate({ requireAdmin = false }: GateOptions = {}): void {
   const root = document.querySelector<HTMLElement>('[data-auth-gate]');
   if (!root) return;
+
+  unsubscribe?.();
 
   const panels = {
     loading: root.querySelector<HTMLElement>('[data-gate-loading]'),
@@ -69,6 +76,6 @@ export function initAuthGate({ requireAdmin = false }: GateOptions = {}): void {
     });
   });
 
-  onAuthChange(render);
+  unsubscribe = onAuthChange(render);
   render(getAuthState());
 }

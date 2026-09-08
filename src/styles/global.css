@@ -271,3 +271,48 @@
     mask-image: linear-gradient(to right, #000 calc(100% - 3rem), transparent 100%);
   }
 }
+
+/*
+ * Default page transition (Astro View Transitions, see <ViewTransitions />
+ * in Base.astro). A quiet crossfade + slight vertical drift — same editorial
+ * restraint as the rest of the site, no zoom/spin. Anything with an explicit
+ * transition:name (or a manually matched view-transition-name, see
+ * product-render.ts) gets its own morph instead of this default.
+ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+::view-transition-old(root) {
+  animation-name: diapason-page-out;
+}
+::view-transition-new(root) {
+  animation-name: diapason-page-in;
+}
+@keyframes diapason-page-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@keyframes diapason-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}

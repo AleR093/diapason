@@ -32,18 +32,43 @@ import Icon from '@/components/Icon.astro';
     padding: 0;
     background: transparent;
     color: theme('colors.ink');
+    opacity: 0;
+    transform: scale(0.97) translateY(6px);
+    transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
+  }
+  .search-dialog[data-open] {
+    opacity: 1;
+    transform: none;
   }
   .search-dialog::backdrop {
+    background: rgba(26, 23, 20, 0);
+    transition: background-color 300ms ease-in-out;
+  }
+  .search-dialog[data-open]::backdrop {
     background: rgba(26, 23, 20, 0.55);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .search-dialog,
+    .search-dialog::backdrop {
+      transition: none;
+    }
   }
 </style>
 
 <script>
   import { listProducts } from '@/lib/supabase/products';
   import { searchResultHTML } from '@/scripts/product-render';
+  import { openDialog, closeDialog } from '@/scripts/dialog-transitions';
 
-  const dialog = document.querySelector<HTMLDialogElement>('#search-modal');
-  if (dialog) {
+  // Shared layout markup: rebuilt on every astro:page-load (see bottom), same
+  // reason as AuthModal — the element and window listener from a previous
+  // navigation go stale once view transitions swap this dialog out.
+  let openHandler: (() => void) | null = null;
+
+  function init() {
+    const dialog = document.querySelector<HTMLDialogElement>('#search-modal');
+    if (!dialog) return;
+
     const input = dialog.querySelector<HTMLInputElement>('[data-search-input]');
     const results = dialog.querySelector<HTMLElement>('[data-search-results]');
     let debounceTimer: number | undefined;
@@ -79,18 +104,23 @@ import Icon from '@/components/Icon.astro';
       debounceTimer = window.setTimeout(() => runSearch(term), 250);
     });
 
-    dialog.querySelector('[data-search-close]')?.addEventListener('click', () => dialog.close());
+    dialog.querySelector('[data-search-close]')?.addEventListener('click', () => closeDialog(dialog));
     dialog.addEventListener('click', (e) => {
-      if (e.target === dialog) dialog.close();
+      if (e.target === dialog) closeDialog(dialog);
     });
     dialog.addEventListener('close', () => {
+      dialog.removeAttribute('data-open');
       document.documentElement.style.overflow = '';
     });
 
-    window.addEventListener('diapason:open-search', () => {
+    if (openHandler) window.removeEventListener('diapason:open-search', openHandler);
+    openHandler = () => {
       document.documentElement.style.overflow = 'hidden';
-      dialog.showModal();
+      openDialog(dialog);
       input?.focus();
-    });
+    };
+    window.addEventListener('diapason:open-search', openHandler);
   }
+
+  document.addEventListener('astro:page-load', init);
 </script>
