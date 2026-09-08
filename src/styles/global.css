@@ -316,3 +316,20 @@
     animation: none !important;
   }
 }
+
+/* Toast feedback (src/scripts/toast.ts) — created dynamically, so it lives
+   here rather than in a component's scoped style. */
+.toast-card {
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+.toast-card.toast-in {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .toast-card {
+    transition: none;
+  }
+}

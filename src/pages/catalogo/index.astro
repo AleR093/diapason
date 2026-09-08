@@ -28,9 +28,17 @@ import CatalogListing from '@/components/CatalogListing.astro';
       </div>
     </div>
 
-    <p class="u-tabular mt-6 text-[0.82rem] font-medium tracking-[0.02em] text-brass-ink" data-result-count>
-      Cargando…
-    </p>
+    <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+      <p class="u-tabular text-[0.82rem] font-medium tracking-[0.02em] text-brass-ink" data-result-count>
+        Cargando…
+      </p>
+      <select class="sort-select" data-sort-select aria-label="Ordenar por">
+        <option value="recent">Más recientes</option>
+        <option value="price-asc">Precio: menor a mayor</option>
+        <option value="price-desc">Precio: mayor a menor</option>
+        <option value="rating">Mejor calificados</option>
+      </select>
+    </div>
 
     <div class="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 md:gap-x-6 lg:grid-cols-4" data-grid></div>
     <p class="py-10 text-[0.9rem] text-brass-ink" data-empty-state hidden>
@@ -45,11 +53,28 @@ import CatalogListing from '@/components/CatalogListing.astro';
   <CatalogListing />
 </Base>
 
+<style>
+  .sort-select {
+    border: 1px solid theme('colors.line-strong');
+    background: theme('colors.bone');
+    padding: 0.5rem 0.7rem;
+    font-size: 0.82rem;
+  }
+  .sort-select:focus-visible {
+    outline: 2px solid theme('colors.brass');
+    outline-offset: 1px;
+  }
+</style>
+
 <script>
   import { listProducts } from '@/lib/supabase/products';
   import { listCategories } from '@/lib/supabase/categories';
+  import { getAverageRatings } from '@/lib/supabase/reviews';
   import { productCardHTML } from '@/scripts/product-render';
+  import { productGridSkeletonHTML } from '@/scripts/skeleton-render';
   import { categoryTileHTML, wireCategoryTileCounts } from '@/scripts/category-render';
+  import { sortProducts, type SortOption } from '@/scripts/sort-utils';
+  import type { StoreProduct } from '@/lib/types';
 
   // Re-runs on every astro:page-load: /catalogo?filtro=nuevos <-> /catalogo
   // is a same-route navigation Astro's view transitions won't otherwise
@@ -83,21 +108,40 @@ import CatalogListing from '@/components/CatalogListing.astro';
       const title = home.querySelector<HTMLElement>('[data-section-title]');
       const chipAll = home.querySelector<HTMLElement>('[data-chip-all]');
       const chipNew = home.querySelector<HTMLElement>('[data-chip-new]');
+      const sortSelect = home.querySelector<HTMLSelectElement>('[data-sort-select]');
 
       const onlyNew = params.get('filtro') === 'nuevos';
       if (title) title.textContent = onlyNew ? 'Novedades' : 'Todo el catálogo';
       chipAll?.setAttribute('data-active', onlyNew ? 'false' : 'true');
       chipNew?.setAttribute('data-active', onlyNew ? 'true' : 'false');
 
+      if (grid) grid.innerHTML = productGridSkeletonHTML();
+
+      let currentProducts: StoreProduct[] = [];
+      let ratingsCache: Record<string, number> | null = null;
+
+      async function renderSorted() {
+        if (!grid) return;
+        const sort = (sortSelect?.value as SortOption) || 'recent';
+        if (sort === 'rating' && !ratingsCache) {
+          ratingsCache = await getAverageRatings(currentProducts.map((p) => p.id));
+        }
+        const sorted = sortProducts(currentProducts, sort, ratingsCache ?? undefined);
+        grid.innerHTML = sorted.map((p) => productCardHTML(p)).join('');
+      }
+      sortSelect?.addEventListener('change', renderSorted);
+
       listProducts({ onlyNew: onlyNew || undefined }).then(({ data, error }) => {
         if (error || !data) {
           if (errorState) errorState.hidden = false;
           if (count) count.textContent = '0 resultados';
+          if (grid) grid.innerHTML = '';
           return;
         }
-        if (grid) grid.innerHTML = data.map((p) => productCardHTML(p)).join('');
+        currentProducts = data;
         if (count) count.textContent = `${data.length} ${data.length === 1 ? 'resultado' : 'resultados'}`;
         if (emptyState) emptyState.hidden = data.length !== 0;
+        renderSorted();
       });
     }
   }

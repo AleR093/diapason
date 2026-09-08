@@ -98,12 +98,28 @@ interface OrderLine {
   price: number;
 }
 
+/** Pre-checkout fields from the cart drawer — every one is optional. */
+export interface CheckoutDetails {
+  name?: string;
+  department?: string;
+  municipality?: string;
+  payment?: string;
+}
+
 /** Build a wa.me link with the whole cart summarized, for the drawer's checkout button. */
-export function cartWhatsappLink(lines: OrderLine[], total: number): string {
+export function cartWhatsappLink(lines: OrderLine[], total: number, customer: CheckoutDetails = {}): string {
   const itemsText = lines.map((l) => `• ${l.qty}x ${l.name} (${formatPrice(l.price)} c/u)`).join('\n');
+
+  const customerLines: string[] = [];
+  if (customer.name?.trim()) customerLines.push(`Nombre: ${customer.name.trim()}`);
+  const place = [customer.municipality?.trim(), customer.department?.trim()].filter(Boolean).join(', ');
+  if (place) customerLines.push(`Entrega: ${place}`);
+  if (customer.payment?.trim()) customerLines.push(`Pago: ${customer.payment.trim()}`);
+  const customerBlock = customerLines.length ? `\n\n${customerLines.join('\n')}` : '';
+
   const message =
     `Hola, quiero hacer un pedido:\n\n${itemsText}\n\n` +
-    `Total: ${formatPrice(total)}\n\n¿Tienen disponibilidad para todo?`;
+    `Total: ${formatPrice(total)}${customerBlock}\n\n¿Tienen disponibilidad para todo?`;
   if (!SITE.whatsappNumber) return '#configura-whatsapp';
   return `https://wa.me/${SITE.whatsappNumber}?text=${encodeURIComponent(message)}`;
 }

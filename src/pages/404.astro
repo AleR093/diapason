@@ -4,10 +4,19 @@ import Button from '@/components/Button.astro';
 ---
 
 <Base title="Página no encontrada">
-  <div class="shell flex min-h-[60svh] flex-col justify-center py-20">
-    <p class="h-display max-w-[14ch]">Esta página no está afinada.</p>
+  <div class="shell flex min-h-[60svh] flex-col items-start justify-center py-20">
+    <svg viewBox="0 0 100 130" width="88" height="114" class="text-brass/25" aria-hidden="true">
+      <ellipse cx="24" cy="106" rx="19" ry="14" fill="currentColor" transform="rotate(-18 24 106)"></ellipse>
+      <rect x="40" y="16" width="6" height="94" fill="currentColor"></rect>
+      <path d="M46 16c22 5 32 22 24 43-4-15-15-26-24-30z" fill="currentColor"></path>
+    </svg>
+
+    <span class="mt-6 inline-flex w-fit items-center gap-1.5 border border-brass/40 bg-brass/10 px-3 py-1 text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-brass-ink">
+      Error 404
+    </span>
+    <p class="h-display mt-4 max-w-[14ch]">Esta página no está afinada.</p>
     <p class="prose-editorial mt-5">
-      El enlace que seguiste no lleva a ningún lado. Vuelve al catálogo y sigue desde ahí.
+      El enlace que seguiste desafina con nuestro catálogo. Vuelve a un acorde conocido.
     </p>
     <div class="mt-8">
       <Button href="/catalogo" variant="solid" icon="arrow-right">Ir al catálogo</Button>

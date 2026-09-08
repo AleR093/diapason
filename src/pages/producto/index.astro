@@ -2,11 +2,13 @@
 import Base from '@/layouts/Base.astro';
 import Button from '@/components/Button.astro';
 import Icon from '@/components/Icon.astro';
+import { HEART_PATH } from '@/scripts/product-render';
+import { pdpSkeletonHTML } from '@/scripts/skeleton-render';
 ---
 
 <Base title="Producto" description="Ficha de producto en Diapasón.">
   <div class="shell pt-10 md:pt-14" data-pdp>
-    <p class="prose-editorial !text-[1.05rem]" data-pdp-loading>Cargando la ficha…</p>
+    <div data-pdp-loading set:html={pdpSkeletonHTML()} />
 
     <div class="hidden" data-pdp-notfound>
       <p class="h-display max-w-[16ch]">No encontramos esta pieza.</p>
@@ -41,7 +43,7 @@ import Icon from '@/components/Icon.astro';
 
           <div class="mt-8" data-pdp-stock></div>
 
-          <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <Button variant="solid" class="justify-center sm:justify-start" data-pdp-add-to-cart>
               <span data-add-label>Añadir al carrito</span>
             </Button>
@@ -54,6 +56,17 @@ import Icon from '@/components/Icon.astro';
             >
               Consultar disponibilidad
             </Button>
+            <button
+              type="button"
+              class="btn btn--outline justify-center !px-3.5"
+              data-pdp-wishlist
+              aria-pressed="false"
+              aria-label="Guardar en favoritos"
+            >
+              <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true">
+                <path d={HEART_PATH} fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </button>
           </div>
 
           <div class="mt-12 hidden" data-pdp-specs-wrap>
@@ -162,6 +175,8 @@ import Icon from '@/components/Icon.astro';
   import { whatsappLink } from '@/config';
   import { FELT_PLACEHOLDER } from '@/lib/img';
   import { getCategoryBySlug } from '@/lib/supabase/categories';
+  import { isWishlisted, toggleWishlist } from '@/scripts/wishlist';
+  import { showToast } from '@/scripts/toast';
   import type { Spec } from '@/lib/types';
 
   // ?slug= only exists at runtime, and re-clicking to another /producto?slug=
@@ -320,6 +335,30 @@ import Icon from '@/components/Icon.astro';
         const waBtn = root.querySelector<HTMLAnchorElement>('[data-pdp-whatsapp]');
         if (waBtn) waBtn.href = whatsappLink({ name: product.name, brand: product.brand });
 
+        const wishlistBtn = root.querySelector<HTMLButtonElement>('[data-pdp-wishlist]');
+        if (wishlistBtn) {
+          const wishlistPayload = {
+            id: product.id,
+            slug: product.slug,
+            name: product.name,
+            price: product.price,
+            image: product.images[0] || FELT_PLACEHOLDER,
+          };
+          function syncWishlistBtn() {
+            const active = isWishlisted(product.id);
+            wishlistBtn!.setAttribute('aria-pressed', String(active));
+            wishlistBtn!.setAttribute('aria-label', active ? 'Quitar de favoritos' : 'Guardar en favoritos');
+            const path = wishlistBtn!.querySelector('path');
+            if (path) path.setAttribute('fill', active ? 'currentColor' : 'none');
+          }
+          syncWishlistBtn();
+          wishlistBtn.addEventListener('click', () => {
+            const nowSaved = toggleWishlist(wishlistPayload);
+            syncWishlistBtn();
+            showToast(nowSaved ? 'Guardado en favoritos' : 'Quitado de favoritos');
+          });
+        }
+
         const specs = (product.specs ?? []) as Spec[];
         const specsWrap = root.querySelector<HTMLElement>('[data-pdp-specs-wrap]');
         const specsEl = root.querySelector<HTMLElement>('[data-pdp-specs]');
@@ -378,6 +417,7 @@ import Icon from '@/components/Icon.astro';
           }
 
           if (reviewSuccess) reviewSuccess.hidden = false;
+          showToast('¡Gracias por tu opinión!');
           reviewForm.reset();
           setRating(0);
           applyAuthorFromSession();

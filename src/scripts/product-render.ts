@@ -1,5 +1,6 @@
 import type { StoreProduct } from '@/lib/types';
 import { FELT_PLACEHOLDER } from '@/lib/img';
+import { isWishlisted } from './wishlist';
 
 const money = new Intl.NumberFormat('es-SV', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 
@@ -27,6 +28,41 @@ export function productImageTransitionName(slug: string): string {
   return `product-${slug.replace(/[^a-z0-9-]/gi, '')}`;
 }
 
+// Same silhouette as Icon.astro's "heart", duplicated here for the same reason
+// as productImageTransitionName above — plain HTML strings, not components.
+// Exported so producto/index.astro's own (static-markup) heart button reuses it.
+export const HEART_PATH =
+  'M12 20s-7-4.35-9.2-8.2C1.1 8.9 2.6 5.5 6 5.5c2 0 3.2 1.2 4 2.4.8-1.2 2-2.4 4-2.4 3.4 0 4.9 3.4 3.2 6.3C19 15.65 12 20 12 20Z';
+
+export interface WishlistPayload {
+  id: string;
+  slug: string;
+  name: string;
+  price: number;
+}
+
+/**
+ * Filled when the product is already saved, outline otherwise. Sits inside
+ * the card's <a> — wireWishlistDelegation() in wishlist.ts calls
+ * preventDefault() so clicking it doesn't also navigate to the product.
+ */
+export function heartButtonHTML(p: WishlistPayload, img: string): string {
+  const active = isWishlisted(p.id);
+  const payload = escapeAttr(JSON.stringify({ id: p.id, slug: p.slug, name: p.name, price: p.price, image: img }));
+  return `
+    <button
+      type="button"
+      class="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-bone/90 text-ink transition-colors hover:text-brass"
+      data-toggle-wishlist="${payload}"
+      aria-pressed="${active}"
+      aria-label="${active ? 'Quitar de favoritos' : 'Guardar en favoritos'}"
+    >
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+        <path d="${HEART_PATH}" fill="${active ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </button>`;
+}
+
 /** Same visual language as ProductCard.astro, built at runtime for live-fetched data. */
 export function productCardHTML(p: StoreProduct, opts: { inRail?: boolean } = {}): string {
   const img = p.images[0] || FELT_PLACEHOLDER;
@@ -40,6 +76,7 @@ export function productCardHTML(p: StoreProduct, opts: { inRail?: boolean } = {}
       <a href="/producto?slug=${encodeURIComponent(p.slug)}" class="block">
         <div class="card-media">
           ${p.is_new ? '<span class="card-tag">Nuevo</span>' : ''}
+          ${heartButtonHTML(p, img)}
           <img
             src="${escapeAttr(img)}"
             alt="${escapeAttr(p.name)}"

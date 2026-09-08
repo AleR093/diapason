@@ -50,6 +50,26 @@ export async function countReviews(): Promise<number> {
   return error ? 0 : (count ?? 0);
 }
 
+/** Average rating per product id, for the catalog's "Mejor calificados" sort. One query, not N+1. */
+export async function getAverageRatings(productIds: string[]): Promise<Record<string, number>> {
+  if (!productIds.length) return {};
+  const { data, error } = await supabase.from(TABLE).select('product_id, rating').in('product_id', productIds);
+  if (error || !data) return {};
+
+  const sums = new Map<string, { total: number; count: number }>();
+  for (const row of data as { product_id: string; rating: number }[]) {
+    const entry = sums.get(row.product_id) ?? { total: 0, count: 0 };
+    entry.total += row.rating;
+    entry.count += 1;
+    sums.set(row.product_id, entry);
+  }
+  const result: Record<string, number> = {};
+  sums.forEach((v, id) => {
+    result[id] = v.total / v.count;
+  });
+  return result;
+}
+
 export async function addReview(input: NewReview): Promise<Result<Review>> {
   const { data, error } = await supabase
     .from(TABLE)

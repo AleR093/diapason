@@ -32,21 +32,30 @@ import Icon from '@/components/Icon.astro';
 
     <div class="mt-8 flex flex-wrap gap-2" data-family-chips></div>
 
-    <div class="mt-8 flex items-center justify-between gap-4 border-t border-line pt-6">
+    <div class="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
       <p class="u-tabular text-[0.82rem] font-medium tracking-[0.02em] text-brass-ink" data-result-count>
         Cargando…
       </p>
 
-      <details class="group/filter relative hidden" data-filter>
-        <summary class="btn btn--outline cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-          <Icon name="filter" size={15} /> Filtrar
-        </summary>
-        <div class="absolute right-0 z-30 mt-2 w-64 border border-line bg-paper p-5 shadow-[0_12px_40px_-24px_rgba(26,23,20,0.5)]">
-          <p class="text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-brass-ink">Marca</p>
-          <ul class="mt-3 flex flex-col gap-2.5" data-brand-list></ul>
-          <button type="button" class="btn btn--link mt-4" data-filter-clear>Quitar filtros</button>
-        </div>
-      </details>
+      <div class="flex items-center gap-3">
+        <select class="sort-select" data-sort-select aria-label="Ordenar por">
+          <option value="recent">Más recientes</option>
+          <option value="price-asc">Precio: menor a mayor</option>
+          <option value="price-desc">Precio: mayor a menor</option>
+          <option value="rating">Mejor calificados</option>
+        </select>
+
+        <details class="group/filter relative hidden" data-filter>
+          <summary class="btn btn--outline cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+            <Icon name="filter" size={15} /> Filtrar
+          </summary>
+          <div class="absolute right-0 z-30 mt-2 w-64 border border-line bg-paper p-5 shadow-[0_12px_40px_-24px_rgba(26,23,20,0.5)]">
+            <p class="text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-brass-ink">Marca</p>
+            <ul class="mt-3 flex flex-col gap-2.5" data-brand-list></ul>
+            <button type="button" class="btn btn--link mt-4" data-filter-clear>Quitar filtros</button>
+          </div>
+        </details>
+      </div>
     </div>
 
     <div class="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 md:gap-x-6 lg:grid-cols-4" data-grid></div>
@@ -65,11 +74,27 @@ import Icon from '@/components/Icon.astro';
   </div>
 </div>
 
+<style>
+  .sort-select {
+    border: 1px solid theme('colors.line-strong');
+    background: theme('colors.bone');
+    padding: 0.5rem 0.7rem;
+    font-size: 0.82rem;
+  }
+  .sort-select:focus-visible {
+    outline: 2px solid theme('colors.brass');
+    outline-offset: 1px;
+  }
+</style>
+
 <script>
   import { getCategoryBySlug } from '@/lib/supabase/categories';
   import { listProducts } from '@/lib/supabase/products';
+  import { getAverageRatings } from '@/lib/supabase/reviews';
   import { productCardHTML } from '@/scripts/product-render';
+  import { productGridSkeletonHTML } from '@/scripts/skeleton-render';
   import { subcategoryChipHTML } from '@/scripts/category-render';
+  import { sortProducts, type SortOption } from '@/scripts/sort-utils';
   import type { StoreProduct } from '@/lib/types';
 
   // Re-runs on every astro:page-load: switching ?categoria=/&sub= (via the
@@ -143,19 +168,27 @@ import Icon from '@/components/Icon.astro';
       const filterDetails = root.querySelector<HTMLDetailsElement>('[data-filter]');
       const brandList = root.querySelector<HTMLElement>('[data-brand-list]');
       const clearBtn = root.querySelector<HTMLButtonElement>('[data-filter-clear]');
+      const sortSelect = root.querySelector<HTMLSelectElement>('[data-sort-select]');
 
       let all: StoreProduct[] = [];
       let activeBrands: string[] = [];
+      let ratingsCache: Record<string, number> | null = null;
 
-      function renderGrid() {
+      async function renderGrid() {
         if (!grid) return;
         const visible = activeBrands.length
           ? all.filter((p) => p.brand && activeBrands.includes(p.brand))
           : all;
-        grid.innerHTML = visible.map((p) => productCardHTML(p)).join('');
-        if (count) count.textContent = `${visible.length} ${visible.length === 1 ? 'resultado' : 'resultados'}`;
-        if (emptyState) emptyState.hidden = visible.length !== 0;
+        const sort = (sortSelect?.value as SortOption) || 'recent';
+        if (sort === 'rating' && !ratingsCache) {
+          ratingsCache = await getAverageRatings(visible.map((p) => p.id));
+        }
+        const sorted = sortProducts(visible, sort, ratingsCache ?? undefined);
+        grid.innerHTML = sorted.map((p) => productCardHTML(p)).join('');
+        if (count) count.textContent = `${sorted.length} ${sorted.length === 1 ? 'resultado' : 'resultados'}`;
+        if (emptyState) emptyState.hidden = sorted.length !== 0;
       }
+      sortSelect?.addEventListener('change', renderGrid);
 
       function renderBrandFilter() {
         if (!brandList || !filterDetails) return;
@@ -200,10 +233,13 @@ import Icon from '@/components/Icon.astro';
         }
       });
 
+      if (grid) grid.innerHTML = productGridSkeletonHTML();
+
       listProducts({ category: category.slug, subcategory: activeSub }).then(({ data, error: listError }) => {
         if (listError || !data) {
           if (errorState) errorState.hidden = false;
           if (count) count.textContent = '0 resultados';
+          if (grid) grid.innerHTML = '';
           return;
         }
         all = data;

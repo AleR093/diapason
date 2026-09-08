@@ -51,8 +51,13 @@ const wordmark = SITE.name.toUpperCase().split('').join(' ');
         <button type="button" data-open-search aria-label="Buscar" class="transition-opacity hover:opacity-60">
           <Icon name="search" size={19} />
         </button>
-        <a href="/catalogo" aria-label="Favoritos" class="transition-opacity hover:opacity-60">
+        <a href="/cuenta#favoritos" aria-label="Favoritos" class="relative transition-opacity hover:opacity-60">
           <Icon name="heart" size={19} />
+          <span
+            data-wishlist-count
+            data-empty="true"
+            class="u-tabular absolute -right-2 -top-2 min-w-[1.05rem] rounded-full bg-brass px-1 text-center text-[0.62rem] font-semibold leading-[1.05rem] text-paper"
+          >0</span>
         </a>
         <a href="/cuenta" aria-label="Mi cuenta" class="transition-opacity hover:opacity-60">
           <span data-nav-avatar data-avatar-size="20"><Icon name="user" size={19} /></span>
@@ -128,7 +133,8 @@ const wordmark = SITE.name.toUpperCase().split('').join(' ');
 </div>
 
 <style>
-  [data-cart-count][data-empty='true'] {
+  [data-cart-count][data-empty='true'],
+  [data-wishlist-count][data-empty='true'] {
     display: none;
   }
 </style>

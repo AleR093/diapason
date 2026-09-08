@@ -4,6 +4,8 @@
  * the header counters, the drawer and the WhatsApp checkout all subscribe to.
  * There is still no real checkout — the purchase closes on WhatsApp.
  */
+import { showToast } from './toast';
+
 const KEY = 'diapason:cart';
 const EVENT = 'diapason:cart-change';
 const OPEN_EVENT = 'diapason:open-cart';
@@ -134,8 +136,9 @@ function wireAddToCartDelegation(): void {
     if (!btn) return;
     const raw = btn.dataset.addToCart;
     if (!raw) return;
+    let item: Omit<CartLine, 'qty'>;
     try {
-      const item = JSON.parse(raw) as Omit<CartLine, 'qty'>;
+      item = JSON.parse(raw) as Omit<CartLine, 'qty'>;
       if (!item.id || !item.slug) return;
       addToCart(item);
     } catch {
@@ -149,6 +152,7 @@ function wireAddToCartDelegation(): void {
         label.textContent = prev;
       }, 1400);
     }
+    showToast(`${item.name} — añadido al carrito`);
   });
 }
 

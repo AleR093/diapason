@@ -10,6 +10,7 @@ import {
 import type { StoreCategory } from '@/lib/supabase/categories';
 import { escapeHtml } from '@/scripts/product-render';
 import { openDialog, closeDialog } from '@/scripts/dialog-transitions';
+import { showToast } from '@/scripts/toast';
 
 /** Tells the products panel (category/subcategory dropdowns) to re-fetch and repaint. */
 function notifyCategoriesChanged(): void {
@@ -159,6 +160,7 @@ export function initAdminCategories(): void {
     }
 
     closeDialog(dialog);
+    showToast(id ? 'Categoría actualizada' : 'Categoría creada');
     notifyCategoriesChanged();
     refresh();
   });
@@ -193,6 +195,7 @@ export function initAdminCategories(): void {
         alert(error);
         return;
       }
+      showToast(`"${category.name}" eliminada`);
       notifyCategoriesChanged();
       refresh();
       return;
@@ -209,6 +212,7 @@ export function initAdminCategories(): void {
         return;
       }
       expanded.add(categoryId);
+      showToast('Subcategoría creada');
       notifyCategoriesChanged();
       refresh();
       return;
@@ -226,6 +230,7 @@ export function initAdminCategories(): void {
         alert(error);
         return;
       }
+      showToast('Subcategoría actualizada');
       notifyCategoriesChanged();
       refresh();
       return;
@@ -242,6 +247,7 @@ export function initAdminCategories(): void {
         alert(error);
         return;
       }
+      showToast('Subcategoría eliminada');
       notifyCategoriesChanged();
       refresh();
     }

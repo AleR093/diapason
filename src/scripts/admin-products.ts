@@ -2,6 +2,7 @@ import { listCategories, type StoreCategory } from '@/lib/supabase/categories';
 import { listProducts, createProduct, updateProduct, updateProductStock, deleteProduct } from '@/lib/supabase/products';
 import { formatPriceJS, escapeHtml } from '@/scripts/product-render';
 import { openDialog, closeDialog } from '@/scripts/dialog-transitions';
+import { showToast } from '@/scripts/toast';
 import { FELT_PLACEHOLDER } from '@/lib/img';
 import type { StoreProduct } from '@/lib/types';
 
@@ -209,6 +210,7 @@ export function initAdminProducts(): void {
           alert('No se pudo eliminar: ' + error);
           return;
         }
+        showToast(`"${product.name}" eliminado`);
         refresh();
       });
     }
@@ -233,6 +235,7 @@ export function initAdminProducts(): void {
         const product = cache.find((p) => p.id === id);
         if (product) product.stock = value;
         input.classList.toggle('text-red-800', value <= 0);
+        showToast('Stock actualizado');
         window.dispatchEvent(new CustomEvent('diapason:products-change'));
       });
     },
@@ -290,6 +293,7 @@ export function initAdminProducts(): void {
     }
 
     closeDialog(dialog);
+    showToast(id ? 'Producto actualizado' : 'Producto creado');
     refresh();
   });
 
