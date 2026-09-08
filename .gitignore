@@ -8,9 +8,10 @@ node_modules/
 # generated types
 .astro/
 
-# environment
+# environment (never commit real Supabase keys — see .env.example)
 .env
-.env.production
+.env.*
+!.env.example
 
 # logs
 npm-debug.log*

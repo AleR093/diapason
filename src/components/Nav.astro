@@ -11,7 +11,6 @@ const wordmark = SITE.name.toUpperCase().split('').join(' ');
 const iconLinks = [
   { name: 'search', label: 'Buscar' },
   { name: 'heart', label: 'Favoritos' },
-  { name: 'user', label: 'Mi cuenta' },
 ] as const;
 ---
 
@@ -58,6 +57,9 @@ const iconLinks = [
             <Icon name={ic.name} size={19} />
           </a>
         ))}
+        <a href="/cuenta" aria-label="Mi cuenta" class="transition-opacity hover:opacity-60">
+          <Icon name="user" size={19} />
+        </a>
         <a href="/catalogo" aria-label="Carrito" class="relative transition-opacity hover:opacity-60">
           <Icon name="bag" size={19} />
           <span
@@ -117,6 +119,9 @@ const iconLinks = [
     </ul>
     <div class="mt-8 flex flex-col gap-4 text-[0.95rem]">
       <a href="/catalogo" class="btn btn--outline w-fit">Todo el catálogo</a>
+      <a href="/cuenta" class="flex items-center gap-2 text-brass-ink">
+        <Icon name="user" size={16} />Mi cuenta
+      </a>
       <a href={`tel:${SITE.phone.replace(/[\s-]/g, '')}`} class="flex items-center gap-2 text-brass-ink">
         <Icon name="phone" size={16} />{SITE.phone}
       </a>

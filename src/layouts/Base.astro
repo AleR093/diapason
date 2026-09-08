@@ -8,6 +8,7 @@ import { SITE } from '@/config';
 import MarqueeBar from '@/components/MarqueeBar.astro';
 import Nav from '@/components/Nav.astro';
 import Footer from '@/components/Footer.astro';
+import AuthModal from '@/components/AuthModal.astro';
 
 interface Props {
   title?: string;
@@ -62,9 +63,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
     </main>
 
     <Footer />
+    <AuthModal />
 
     <script>
       import '@/scripts/cart.ts';
+      import '@/lib/supabase/auth.ts';
     </script>
   </body>
 </html>

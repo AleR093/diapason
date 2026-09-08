@@ -1,0 +1,224 @@
+---
+import Icon from '@/components/Icon.astro';
+---
+
+<dialog id="auth-modal" class="auth-dialog">
+  <div class="relative w-full max-w-[26rem] border border-line bg-paper p-8">
+    <button
+      type="button"
+      data-auth-close
+      aria-label="Cerrar"
+      class="absolute right-4 top-4 text-brass-ink transition-opacity hover:opacity-60"
+    >
+      <Icon name="close" size={20} />
+    </button>
+
+    <div class="flex gap-6 border-b border-line" role="tablist" aria-label="Acceso">
+      <button
+        type="button"
+        class="auth-tab pb-3 text-[0.85rem] font-medium text-brass-ink"
+        data-auth-tab="login"
+        aria-selected="true"
+      >
+        Iniciar sesión
+      </button>
+      <button
+        type="button"
+        class="auth-tab pb-3 text-[0.85rem] font-medium text-brass-ink"
+        data-auth-tab="register"
+        aria-selected="false"
+      >
+        Crear cuenta
+      </button>
+    </div>
+
+    <form data-auth-form="login" class="mt-6 flex flex-col gap-4" novalidate>
+      <label class="flex flex-col gap-1.5 text-[0.85rem]">
+        Correo
+        <input type="email" name="email" required autocomplete="email" class="auth-input" />
+      </label>
+      <label class="flex flex-col gap-1.5 text-[0.85rem]">
+        Contraseña
+        <input
+          type="password"
+          name="password"
+          required
+          minlength="6"
+          autocomplete="current-password"
+          class="auth-input"
+        />
+      </label>
+      <p class="hidden text-[0.82rem] text-red-800" data-auth-error role="alert"></p>
+      <button type="submit" class="btn btn--solid mt-2 justify-center">
+        <span data-auth-submit-label>Entrar</span>
+      </button>
+    </form>
+
+    <form data-auth-form="register" class="mt-6 hidden flex-col gap-4" novalidate>
+      <label class="flex flex-col gap-1.5 text-[0.85rem]">
+        Nombre
+        <input type="text" name="fullName" required autocomplete="name" class="auth-input" />
+      </label>
+      <label class="flex flex-col gap-1.5 text-[0.85rem]">
+        Correo
+        <input type="email" name="email" required autocomplete="email" class="auth-input" />
+      </label>
+      <label class="flex flex-col gap-1.5 text-[0.85rem]">
+        Contraseña
+        <input
+          type="password"
+          name="password"
+          required
+          minlength="6"
+          autocomplete="new-password"
+          class="auth-input"
+        />
+      </label>
+      <p class="hidden text-[0.82rem] text-red-800" data-auth-error role="alert"></p>
+      <p class="hidden text-[0.82rem] text-brass-ink" data-auth-success role="status"></p>
+      <button type="submit" class="btn btn--solid mt-2 justify-center">
+        <span data-auth-submit-label>Crear cuenta</span>
+      </button>
+    </form>
+  </div>
+</dialog>
+
+<style>
+  .auth-dialog {
+    width: 100%;
+    max-width: min(26rem, calc(100vw - 2.5rem));
+    border: none;
+    padding: 0;
+    background: transparent;
+    color: theme('colors.ink');
+  }
+  .auth-dialog::backdrop {
+    background: rgba(26, 23, 20, 0.55);
+  }
+  .auth-tab[aria-selected='true'] {
+    color: theme('colors.ink');
+    box-shadow: inset 0 -2px theme('colors.ink');
+  }
+  .auth-input {
+    border: 1px solid theme('colors.line-strong');
+    background: theme('colors.bone');
+    padding: 0.65rem 0.8rem;
+    font-size: 0.95rem;
+  }
+  .auth-input:focus-visible {
+    outline: 2px solid theme('colors.brass');
+    outline-offset: 1px;
+  }
+</style>
+
+<script>
+  import { signInWithPassword, signUp } from '@/lib/supabase/auth';
+
+  type TabName = 'login' | 'register';
+
+  const dialog = document.querySelector<HTMLDialogElement>('#auth-modal');
+  if (dialog) {
+    const tabs = [...dialog.querySelectorAll<HTMLButtonElement>('[data-auth-tab]')];
+    const forms: Record<TabName, HTMLFormElement | null> = {
+      login: dialog.querySelector('[data-auth-form="login"]'),
+      register: dialog.querySelector('[data-auth-form="register"]'),
+    };
+
+    function setTab(name: TabName) {
+      tabs.forEach((tab) => tab.setAttribute('aria-selected', String(tab.dataset.authTab === name)));
+      (Object.entries(forms) as [TabName, HTMLFormElement | null][]).forEach(([key, form]) => {
+        form?.classList.toggle('hidden', key !== name);
+        form?.classList.toggle('flex', key === name);
+      });
+    }
+
+    tabs.forEach((tab) => tab.addEventListener('click', () => setTab(tab.dataset.authTab as TabName)));
+
+    dialog.querySelector('[data-auth-close]')?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+    dialog.addEventListener('close', () => {
+      document.documentElement.style.overflow = '';
+    });
+
+    window.addEventListener('diapason:open-auth', () => {
+      setTab('login');
+      forms.login?.reset();
+      forms.register?.reset();
+      dialog.querySelectorAll('[data-auth-error], [data-auth-success]').forEach((el) => el.classList.add('hidden'));
+      document.documentElement.style.overflow = 'hidden';
+      dialog.showModal();
+    });
+
+    forms.login?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.currentTarget as HTMLFormElement;
+      const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      const errorEl = form.querySelector<HTMLElement>('[data-auth-error]');
+      const data = new FormData(form);
+
+      errorEl?.classList.add('hidden');
+      if (submitBtn) submitBtn.disabled = true;
+
+      const { error } = await signInWithPassword(String(data.get('email')), String(data.get('password')));
+
+      if (submitBtn) submitBtn.disabled = false;
+
+      if (error) {
+        if (errorEl) {
+          errorEl.textContent =
+            error.message === 'Invalid login credentials'
+              ? 'Correo o contraseña incorrectos.'
+              : error.message;
+          errorEl.classList.remove('hidden');
+        }
+        return;
+      }
+
+      dialog.close();
+      form.reset();
+    });
+
+    forms.register?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.currentTarget as HTMLFormElement;
+      const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      const errorEl = form.querySelector<HTMLElement>('[data-auth-error]');
+      const successEl = form.querySelector<HTMLElement>('[data-auth-success]');
+      const data = new FormData(form);
+
+      errorEl?.classList.add('hidden');
+      successEl?.classList.add('hidden');
+      if (submitBtn) submitBtn.disabled = true;
+
+      const { error, needsEmailConfirmation } = await signUp(
+        String(data.get('email')),
+        String(data.get('password')),
+        String(data.get('fullName')),
+      );
+
+      if (submitBtn) submitBtn.disabled = false;
+
+      if (error) {
+        if (errorEl) {
+          errorEl.textContent = error.message;
+          errorEl.classList.remove('hidden');
+        }
+        return;
+      }
+
+      if (needsEmailConfirmation) {
+        if (successEl) {
+          successEl.textContent = 'Cuenta creada. Revisa tu correo para confirmarla antes de iniciar sesión.';
+          successEl.classList.remove('hidden');
+        }
+        form.reset();
+        return;
+      }
+
+      dialog.close();
+      form.reset();
+    });
+  }
+</script>

@@ -1,0 +1,65 @@
+---
+import Base from '@/layouts/Base.astro';
+---
+
+<Base title="Panel de administración" description="Panel de administración de Diapasón.">
+  <div class="shell py-16 md:py-20" data-auth-gate>
+    <p data-gate-loading class="prose-editorial !text-[1.05rem]">Verificando acceso…</p>
+
+    <div data-gate-signed-out hidden>
+      <h1 class="h-section">Panel de administración</h1>
+      <p class="prose-editorial mt-4 !text-[1.05rem]">
+        Esta sección es solo para el equipo de Diapasón. Inicia sesión con una cuenta de administrador.
+      </p>
+      <button type="button" class="btn btn--solid mt-8" data-open-auth>Iniciar sesión</button>
+    </div>
+
+    <div data-gate-denied hidden>
+      <h1 class="h-section">Acceso restringido</h1>
+      <p class="prose-editorial mt-4 !text-[1.05rem]">
+        Tu cuenta (<strong data-user-email></strong>) no tiene permisos de administrador. Si crees que es un
+        error, pide a un administrador que actualice tu rol.
+      </p>
+      <a href="/" class="btn btn--outline mt-8">Volver al inicio</a>
+    </div>
+
+    <div data-gate-content hidden>
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 class="h-section">Panel de administración</h1>
+          <p class="prose-editorial mt-3 !text-[1.05rem]">
+            Sesión de administrador: <strong data-user-email></strong>.
+          </p>
+        </div>
+        <button type="button" class="btn btn--outline" data-sign-out>Cerrar sesión</button>
+      </div>
+
+      <div class="mt-12 grid gap-4 border-t border-line pt-10 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="border border-line bg-paper p-6">
+          <p class="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-brass-ink">Catálogo</p>
+          <p class="prose-editorial mt-3 !text-[0.98rem]">
+            La gestión de productos (alta, baja, precios) todavía vive en
+            <code>src/data/products.json</code>. Conectar esta vista a Supabase es el siguiente paso.
+          </p>
+        </div>
+        <div class="border border-line bg-paper p-6">
+          <p class="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-brass-ink">Pedidos</p>
+          <p class="prose-editorial mt-3 !text-[0.98rem]">
+            Hoy las compras se cierran por WhatsApp. Cuando exista una tabla de pedidos, aparecerán aquí.
+          </p>
+        </div>
+        <div class="border border-line bg-paper p-6">
+          <p class="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-brass-ink">Clientes</p>
+          <p class="prose-editorial mt-3 !text-[0.98rem]">
+            Lista de cuentas registradas en <code>profiles</code>, con su rol. Pendiente de construir.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</Base>
+
+<script>
+  import { initAuthGate } from '@/scripts/auth-gate';
+  initAuthGate({ requireAdmin: true });
+</script>
