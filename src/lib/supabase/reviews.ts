@@ -12,7 +12,7 @@ export interface Review {
   created_at: string;
 }
 
-/** A review plus the name/slug of the product it belongs to — for the home page's review rain. */
+/** A review plus the name/slug of the product it belongs to — for the home page's review ticker. */
 export interface RecentReview extends Review {
   product_name: string;
   product_slug: string;
@@ -63,13 +63,12 @@ interface ReviewRow extends Review {
   products: { name: string; slug: string } | null;
 }
 
-/** Best recent reviews across the whole catalog, comment required — for the home page's review rain. */
-export async function getTopRecentReviews(limit = 12): Promise<Result<RecentReview[]>> {
+/** The most recent reviews across the whole catalog, comment required — feeds the home page's live ticker. */
+export async function getRecentReviews(limit = 10): Promise<Result<RecentReview[]>> {
   const { data, error } = await supabase
     .from(TABLE)
     .select('*, products(name, slug)')
     .not('comment', 'is', null)
-    .order('rating', { ascending: false })
     .order('created_at', { ascending: false })
     .limit(limit);
 

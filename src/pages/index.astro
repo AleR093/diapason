@@ -3,8 +3,7 @@ import Base from '@/layouts/Base.astro';
 import Button from '@/components/Button.astro';
 import CategoryTile from '@/components/CategoryTile.astro';
 import Hero from '@/components/Hero.astro';
-import ReviewRain from '@/components/ReviewRain.astro';
-import Testimonials from '@/components/Testimonials.astro';
+import ReviewTicker from '@/components/ReviewTicker.astro';
 import { whatsappLink } from '@/config';
 import { getCategories } from '@/lib/catalog';
 import { unsplash, FELT_PLACEHOLDER } from '@/lib/img';
@@ -16,9 +15,6 @@ const bandImg = unsplash('1516924962500-2b4b3b99ea02', 1000, '4/5');
 <Base overlayNav>
   <!-- 1 · Hero -->
   <Hero />
-
-  <!-- 1b · Lluvia de reseñas -->
-  <ReviewRain />
 
   <!-- 2 · Categorías -->
   <section class="shell py-20 md:py-28">
@@ -47,7 +43,7 @@ const bandImg = unsplash('1516924962500-2b4b3b99ea02', 1000, '4/5');
   </section>
 
   <!-- 4 · Reseñas -->
-  <Testimonials />
+  <ReviewTicker />
 
   <!-- 5 · Selección / editorial band -->
   <section id="seleccion" class="mt-20 bg-walnut text-paper md:mt-28">

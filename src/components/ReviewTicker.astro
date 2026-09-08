@@ -1,0 +1,62 @@
+---
+// Live "cinta transportadora" of the 10 most recent store reviews, pulled from
+// Supabase. Refreshes itself the moment a new review is submitted anywhere on
+// the site (see the `review-submitted` event dispatched in producto/index.astro)
+// and hides itself gracefully if there isn't enough real content yet.
+---
+
+<section class="overflow-hidden bg-ink py-10 md:py-14" data-review-ticker aria-labelledby="review-ticker-h" hidden>
+  <div class="shell flex items-end justify-between gap-4 pb-6">
+    <h2 id="review-ticker-h" class="h-section text-paper">Lo que dicen en vivo</h2>
+    <p class="text-[0.78rem] font-medium tracking-[0.01em] text-bone/60">Reseñas más recientes</p>
+  </div>
+  <div class="review-ticker-track flex w-max gap-4 px-5 md:px-10 xl:px-14" data-review-ticker-track></div>
+</section>
+
+<style>
+  .review-ticker-track {
+    animation: review-ticker-scroll 32s linear infinite;
+  }
+  .review-ticker-track:hover {
+    animation-play-state: paused;
+  }
+  @keyframes review-ticker-scroll {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .review-ticker-track {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  import { getRecentReviews } from '@/lib/supabase/reviews';
+  import { reviewTickerCardHTML } from '@/scripts/review-render';
+
+  const section = document.querySelector<HTMLElement>('[data-review-ticker]');
+  const track = document.querySelector<HTMLElement>('[data-review-ticker-track]');
+
+  if (section && track) {
+    async function load() {
+      const { data } = await getRecentReviews(10);
+      const reviews = data ?? [];
+      // Fewer than a handful reads as an empty strip rather than a live feed — stay hidden instead.
+      if (reviews.length < 3) {
+        section!.hidden = true;
+        track!.innerHTML = '';
+        return;
+      }
+      // Doubled for a seamless loop: translateX(-50%) lands exactly on the copy's start.
+      const loop = [...reviews, ...reviews];
+      track!.innerHTML = loop.map((r) => reviewTickerCardHTML(r)).join('');
+      section!.hidden = false;
+    }
+
+    load();
+    // A review submitted from any product page refreshes this ticker in place.
+    window.addEventListener('review-submitted', load);
+  }
+</script>

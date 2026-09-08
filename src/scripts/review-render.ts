@@ -35,11 +35,15 @@ export function reviewRowHTML(r: Review): string {
     </article>`;
 }
 
-/** Floating glass card for the home page's review rain. */
-export function reviewRainCardHTML(r: RecentReview): string {
+/** Floating glass card for the home page's live review ticker. */
+export function reviewTickerCardHTML(r: RecentReview): string {
+  const date = new Date(r.created_at).toLocaleDateString('es-SV', { day: 'numeric', month: 'short' });
   return `
     <article class="w-[260px] shrink-0 border border-bone/15 bg-bone/10 p-5 backdrop-blur-md">
-      <div class="flex gap-0.5">${starsHTML(r.rating, 14)}</div>
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex gap-0.5">${starsHTML(r.rating, 14)}</div>
+        <p class="text-[0.72rem] text-bone/50">${date}</p>
+      </div>
       <p class="mt-3 text-[0.85rem] leading-relaxed text-bone/90 [display:-webkit-box] [-webkit-line-clamp:3] [-webkit-box-orient:vertical] overflow-hidden">
         &ldquo;${escapeHtml(r.comment ?? '')}&rdquo;
       </p>

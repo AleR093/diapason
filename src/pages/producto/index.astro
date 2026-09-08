@@ -370,6 +370,8 @@ import Icon from '@/components/Icon.astro';
           setRating(0);
           applyAuthorFromSession();
           await loadReviews(product.id);
+          // Lets the home page's live ticker refetch and pick up this review immediately.
+          window.dispatchEvent(new CustomEvent('review-submitted'));
         });
 
         const relatedSection = document.querySelector<HTMLElement>('[data-pdp-related]');

@@ -34,14 +34,17 @@ src/
   lib/
     catalog.ts           Categorías/subcategorías (config estática)
     img.ts               Helper de URLs de Unsplash + placeholder de imagen rota
-    types.ts             Category, Testimonial, StoreProduct (fila real de products)
+    types.ts             Category, StoreProduct (fila real de products)
     supabase/
       client.ts          Cliente único de Supabase (browser)
       auth.ts            Sesión, perfil y rol: initAuth/onAuthChange/isAdmin…
       products.ts        CRUD del catálogo: listProducts/createProduct/updateProduct/…
+      reviews.ts         Reseñas: getReviewsByProduct/addReview/getRecentReviews
   components/
     CatalogListing.astro Listado por familia — hace fetch en vivo a Supabase
     CategoryTile.astro   Tile de familia con conteo de piezas en vivo
+    Hero.astro            Hero de la home + bloque "Recién llegado" (producto en vivo)
+    ReviewTicker.astro    Cinta en vivo con las 10 reseñas más recientes de la tienda
     AuthModal.astro       Modal de inicio de sesión / registro (dialog nativo)
     SearchModal.astro     Buscador (dialog nativo) — filtra en Supabase mientras escribes
     CartDrawer.astro      Panel del carrito: líneas, cantidades, total y WhatsApp
@@ -53,8 +56,9 @@ src/
     admin-products.ts      Tabla + alta/edición/borrado de productos en /admin
     product-render.ts      HTML de tarjeta/riel/resultado de búsqueda, compartido por todo
                             lo que renderiza productos del lado del cliente
+    review-render.ts       HTML de estrellas/fila de reseña/tarjeta del ticker en vivo
   pages/
-    index.astro                     Home — "novedades" y conteo de familias en vivo
+    index.astro                     Home — "novedades", ticker de reseñas y conteo de familias en vivo
     catalogo/index.astro            Todo el catálogo (en vivo)
     catalogo/[category]/index.astro Listado por familia (en vivo)
     catalogo/[category]/[sub].astro Listado por subcategoría (en vivo)
@@ -67,6 +71,7 @@ supabase/
   schema.sql              Tabla profiles + RLS (usuarios y roles)
   products.sql            Tabla products + RLS + bucket 'product-images' (catálogo)
   seed-products.sql       Los ~28 productos originales, migrados a Supabase
+  reviews.sql             Tabla reviews + RLS (lectura pública, alta libre)
 ```
 
 ## Qué personalizar
@@ -126,6 +131,25 @@ consultar Supabase para mostrarse. La lógica vive en `src/scripts/cart.ts`:
   hacia `wa.me/<SITE.whatsappNumber>`.
 - No hay checkout ni cobro en línea — el pedido se cierra por WhatsApp, a propósito.
 
+## Reseñas y ticker en vivo
+
+Cada producto tiene su propia calificación y lista de opiniones (`/producto?slug=…`):
+resumen en estrellas + promedio, formulario (1-5 estrellas, comentario, nombre —
+autocompletado si hay sesión, sin pisar lo que la persona ya escribió) y el listado de
+reseñas existentes. Cualquiera puede publicar una, con cuenta o sin ella (`reviews.sql`
+permite `insert` a `anon` y `authenticated`); no hay edición ni borrado desde el cliente.
+
+En la home, `ReviewTicker.astro` es una cinta horizontal en scroll continuo con las 10
+reseñas más recientes de toda la tienda (`getRecentReviews`), en tarjetas translúcidas
+con estrellas, extracto del comentario, autor y el nombre del producto. Se pausa al
+pasar el cursor y se oculta sola si todavía no hay al menos 3 reseñas con comentario.
+
+Al publicarse una reseña nueva, `producto/index.astro` dispara
+`window.dispatchEvent(new CustomEvent('review-submitted'))`; el ticker escucha ese
+evento y vuelve a consultar Supabase de inmediato, así que una reseña recién enviada
+aparece en la cinta sin recargar la página (siempre que la home siga abierta en otra
+pestaña o se navegue a ella después).
+
 ## Base de datos y autenticación
 
 Login, roles y **todo el catálogo** viven en Supabase (Auth + Postgres + Storage). El
@@ -161,9 +185,14 @@ En el **SQL Editor** del proyecto, pega y ejecuta, **en este orden**:
 3. [`supabase/seed-products.sql`](supabase/seed-products.sql) *(opcional)* — carga los
    ~28 productos originales de `src/data/products.json` para no arrancar con el catálogo
    vacío. Es seguro volver a correrlo (usa `upsert` por `slug`).
+4. [`supabase/reviews.sql`](supabase/reviews.sql) — tabla `public.reviews` (FK a
+   `products`) y RLS: **cualquiera puede leer y publicar** una reseña, con sesión o sin
+   ella. Necesita haber corrido el paso 2 antes (la FK apunta a `products`).
 
 Sin el paso 2, el catálogo, la búsqueda y el panel de productos muestran su estado de
-error ("no se pudo cargar") en vez de romper la build o la página.
+error ("no se pudo cargar") en vez de romper la build o la página. Sin el paso 4, la
+ficha de producto muestra "Sin opiniones todavía" y el ticker de la home se mantiene
+oculto.
 
 ### 3. Crea tu primer administrador
 
